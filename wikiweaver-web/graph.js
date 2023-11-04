@@ -1,4 +1,7 @@
-
+colors = {
+  red: { edges: "Red", style: "#c00", "target-arrow-color": "#a00" },
+  blue: { edges: "Green", style: "#0c0", "target-arrow-color": "#0a0" },
+};
 
 var defaults = {
   animate: true, // whether to show the layout as it's running
