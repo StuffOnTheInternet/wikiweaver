@@ -37,7 +37,7 @@ var CMap = {
   },
 };
 
-var defaults = {
+var options = {
   animate: true, // whether to show the layout as it's running
   refresh: 1, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 5000, // max length in ms to run the layout
@@ -118,7 +118,7 @@ function AddNewElement(PColor, ToString) {
   CList.fromnode = ToString;
 
   // Force a new layout
-  var layout = webgraph.layout({ name: "cola", ...defaults });
+  var layout = webgraph.layout({ name: "cola", ...options });
   layout.run();
 }
 
