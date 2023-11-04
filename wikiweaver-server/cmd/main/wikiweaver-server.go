@@ -10,13 +10,15 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 const (
-	CONSOLE_SOCKET_PATH = "/tmp/ww-console.sock"
-	CODE_LENGTH         = 4
+	CONSOLE_SOCKET_PATH             = "/tmp/ww-console.sock"
+	CODE_LENGTH                     = 4
+	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 15 * time.Minute
 )
 
 type GlobalState struct {
@@ -32,8 +34,9 @@ type NewPageMessage struct {
 }
 
 type Lobby struct {
-	Code     string
-	HostConn *websocket.Conn
+	Code                string
+	HostConn            *websocket.Conn
+	LastInteractionTime time.Time
 }
 
 var upgrader = websocket.Upgrader{
@@ -52,12 +55,30 @@ func generateCode() string {
 	return string(b)
 }
 
+func lobbyCleaner() {
+	for {
+		time.Sleep(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)
+
+		log.Printf("closing idle lobbies")
+
+		globalState.LobbiesMutex.Lock()
+		for code, lobby := range globalState.Lobbies {
+			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
+				idleTime := time.Now().Sub(lobby.LastInteractionTime).Round(time.Second)
+				log.Printf("lobby %s idle for %s, closing", code, idleTime)
+				delete(globalState.Lobbies, code)
+			}
+		}
+		globalState.LobbiesMutex.Unlock()
+	}
+}
+
 func handlerLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateCode()
 
 	globalState.LobbiesMutex.Lock()
-	globalState.Lobbies[code] = &Lobby{Code: code}
+	globalState.Lobbies[code] = &Lobby{Code: code, LastInteractionTime: time.Now()}
 	globalState.LobbiesMutex.Unlock()
 
 	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
@@ -89,6 +110,7 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 
 	globalState.LobbiesMutex.Lock()
 	lobby.HostConn = conn
+	lobby.LastInteractionTime = time.Now()
 	globalState.LobbiesMutex.Unlock()
 	log.Printf("web client %s joined lobby %s", conn.RemoteAddr(), lobby.Code)
 
@@ -140,6 +162,7 @@ func main() {
 	globalState = GlobalState{Lobbies: make(map[string]*Lobby)}
 
 	go ConsoleListener()
+	go lobbyCleaner()
 
 	http.HandleFunc("/api/lobby/create", handlerLobbyCreate)
 	http.HandleFunc("/api/lobby/join/web", handlerLobbyJoinWeb)
@@ -204,6 +227,8 @@ func ConsoleHandler(conn net.Conn) {
 				conn.Write([]byte("lobby does not exist\n"))
 				continue
 			}
+
+			lobby.LastInteractionTime = time.Now()
 
 			msg := NewPageMessage{Username: cmd[2], Page: cmd[3]}
 			lobby.HostConn.WriteJSON(msg)
