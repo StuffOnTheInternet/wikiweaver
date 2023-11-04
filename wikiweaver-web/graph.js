@@ -179,37 +179,38 @@ CMap.Magenta.fromnode = "Santa Claus";
 
 webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
 webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
+
 webgraph.nodes('[group = "Goal"]').style("shape", "star");
 webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
 
-// A three player example of a race between Santa Claus and Fish
-AddNewPage("Red", "East-West Schism");
-AddNewPage("Red", "Lent");
-AddNewPage("Red", "Fish");
+function createExampleGraph() {
+  // A three player example of a race between Santa Claus and Fish
+  AddNewPage("Red", "East-West Schism");
+  AddNewPage("Red", "Lent");
+  AddNewPage("Red", "Fish");
 
-AddNewPage("Magenta", "East-West Schism");
-AddNewPage("Magenta", "Lent");
-AddNewPage("Magenta", "Fish");
+  AddNewPage("Magenta", "East-West Schism");
+  AddNewPage("Magenta", "Lent");
+  AddNewPage("Magenta", "Fish");
 
-AddNewPage("Yellow", "Saint Nick");
-AddNewPage("Yellow", "Christianty");
-AddNewPage("Yellow", "Catholicism");
-AddNewPage("Yellow", "Lent");
-AddNewPage("Yellow", "Fish");
+  AddNewPage("Yellow", "Saint Nick");
+  AddNewPage("Yellow", "Christianty");
+  AddNewPage("Yellow", "Catholicism");
+  AddNewPage("Yellow", "Lent");
+  AddNewPage("Yellow", "Fish");
 
-AddNewPage("Green", "East-West Schism");
-AddNewPage("Green", "Passover");
-AddNewPage("Green", "Pike");
-AddNewPage("Green", "Passover");
-AddNewPage("Green", "Carp");
-AddNewPage("Green", "Rough Fish");
-AddNewPage("Green", "Fish");
+  AddNewPage("Green", "East-West Schism");
+  AddNewPage("Green", "Passover");
+  AddNewPage("Green", "Pike");
+  AddNewPage("Green", "Passover");
+  AddNewPage("Green", "Carp");
+  AddNewPage("Green", "Rough Fish");
+  AddNewPage("Green", "Fish");
 
-AddNewPage("Blue", "East-West Schism");
-AddNewPage("Blue", "Passover");
-AddNewPage("Blue", "Carp");
-AddNewPage("Blue", "Aquaculture");
-AddNewPage("Blue", "Goldfish");
-AddNewPage("Blue", "Fish");
-
-console.log(webgraph);
+  AddNewPage("Blue", "East-West Schism");
+  AddNewPage("Blue", "Passover");
+  AddNewPage("Blue", "Carp");
+  AddNewPage("Blue", "Aquaculture");
+  AddNewPage("Blue", "Goldfish");
+  AddNewPage("Blue", "Fish");
+}

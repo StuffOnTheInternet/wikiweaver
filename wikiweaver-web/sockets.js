@@ -53,5 +53,3 @@ async function connect() {
   document.getElementById("code").innerHTML = code;
   localStorage.setItem("code", code);
 }
-
-document.addEventListener("DOMContentLoaded", () => connect(), false);
