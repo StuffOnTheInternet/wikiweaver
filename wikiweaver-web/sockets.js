@@ -1,4 +1,4 @@
-const connectionFailMessage = "Failed to connect";
+const connectionFailMessage = "Connection failure";
 
 async function API_lobbyCreate() {
   return await fetch("http://localhost:4242/api/web/lobby/create")
