@@ -117,7 +117,7 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, _, err := conn.ReadMessage()
 		if err != nil {
-			log.Printf("web client %s closed connection\n", conn.RemoteAddr())
+			log.Printf("web client %s disconnected\n", conn.RemoteAddr())
 			return
 		}
 	}
