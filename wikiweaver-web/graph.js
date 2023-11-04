@@ -1,24 +1,38 @@
 // Color settings
 var CMap = {
-  red: {
+  Red: {
     group: "Red",
     bgcolor: "#b00",
     linecolor: "#c00",
     arrowcolor: "#a00",
     fromnode: "", // Assigned at startup
   },
-  green: {
+  Yellow: {
+    group: "Yellow",
+    bgcolor: "#dc0",
+    linecolor: "#dc0",
+    arrowcolor: "#ba0",
+    fromnode: "", // Assigned at startup
+  },
+  Green: {
     group: "Green",
     bgcolor: "#0b0",
     linecolor: "#0c0",
     arrowcolor: "#0a0",
     fromnode: "", // Assigned at startup
   },
-  blue: {
+  Blue: {
     group: "Blue",
     bgcolor: "#00b",
     linecolor: "#00c",
     arrowcolor: "#00a",
+    fromnode: "", // Assigned at startup
+  },
+  Magenta: {
+    group: "Magenta",
+    bgcolor: "#b0b",
+    linecolor: "#c0c",
+    arrowcolor: "#a0a",
     fromnode: "", // Assigned at startup
   },
 };
@@ -27,7 +41,7 @@ var defaults = {
   animate: true, // whether to show the layout as it's running
   refresh: 1, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 5000, // max length in ms to run the layout
-  ungrabifyWhileSimulating: true, // so you can't drag nodes during layout
+  ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
   fit: true, // on every layout reposition of nodes, fit the viewport
   padding: 50, // padding around the simulation
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
@@ -69,18 +83,12 @@ function AddNewPage(Player, ToString) {
 
 function AddNewElement(PColor, ToString) {
   // Add a new edge and possibly a new node for a player click
-
-  var CList = CMap.red; // Default to red if something goes wrong
-  if (PColor == "Green") {
-    CList = CMap.green;
-  } else if (PColor == "Blue") {
-    CList = CMap.blue;
-  }
+  var CList = CMap[PColor];
 
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
-      data: { id: ToString, group: PColor },
+      data: { id: ToString, group: CList.group },
       position: {
         x: webgraph.getElementById(CList.fromnode).position("x"),
         y: webgraph.getElementById(CList.fromnode).position("y"),
@@ -94,7 +102,7 @@ function AddNewElement(PColor, ToString) {
   // Always add a new edge
   webgraph.add({
     data: {
-      group: PColor,
+      group: CList.group,
       source: CList.fromnode,
       target: ToString,
     },
@@ -163,9 +171,11 @@ var webgraph = cytoscape({
   },
 });
 
-CMap.red.fromnode = "Santa Claus";
-CMap.green.fromnode = "Santa Claus";
-CMap.blue.fromnode = "Santa Claus";
+CMap.Red.fromnode = "Santa Claus";
+CMap.Green.fromnode = "Santa Claus";
+CMap.Blue.fromnode = "Santa Claus";
+CMap.Yellow.fromnode = "Santa Claus";
+CMap.Magenta.fromnode = "Santa Claus";
 
 webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
 webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
@@ -176,6 +186,16 @@ webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
 AddNewPage("Red", "East-West Schism");
 AddNewPage("Red", "Lent");
 AddNewPage("Red", "Fish");
+
+AddNewPage("Magenta", "East-West Schism");
+AddNewPage("Magenta", "Lent");
+AddNewPage("Magenta", "Fish");
+
+AddNewPage("Yellow", "Saint Nick");
+AddNewPage("Yellow", "Christianty");
+AddNewPage("Yellow", "Catholicism");
+AddNewPage("Yellow", "Lent");
+AddNewPage("Yellow", "Fish");
 
 AddNewPage("Green", "East-West Schism");
 AddNewPage("Green", "Passover");
