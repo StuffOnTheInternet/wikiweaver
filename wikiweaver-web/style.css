@@ -7,7 +7,6 @@
 
 #code {
   background: lightgray;
-  font-size: larger;
   text-align: center;
 }
 
@@ -28,6 +27,11 @@ body {
   margin: 0;
 }
 
+.text {
+  font-size: 26px;
+  font-family: Verdana;
+}
+
 .maincanvas-sidepane-container {
   display: flex;
   gap: 10px;
@@ -42,7 +46,6 @@ body {
 }
 
 .flex-horizontal-item {
-  font-size: larger;
   min-width: 0;
   flex-grow: 1;
 }
@@ -62,5 +65,4 @@ body {
 
 .page-input {
   background: lightgray;
-  font-size: larger;
 }

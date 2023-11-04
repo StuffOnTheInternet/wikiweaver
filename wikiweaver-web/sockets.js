@@ -1,3 +1,5 @@
+const connectionFailMessage = "Failed to connect";
+
 async function API_lobbyCreate() {
   return await fetch("http://localhost:4242/api/web/lobby/create")
     .then((response) => response.text())
@@ -36,14 +38,14 @@ async function connect() {
 
   lobbyStatus = await API_lobbyStatus(code);
   if (lobbyStatus == null) {
-    document.getElementById("code").innerHTML = "Failed to connect to server";
+    document.getElementById("code").innerHTML = connectionFailMessage;
     return;
   }
 
   if (!lobbyStatus.Active) {
     code = await API_lobbyCreate();
     if (code == null) {
-      document.getElementById("code").innerHTML = "Failed to connect to server";
+      document.getElementById("code").innerHTML = connectionFailMessage;
       return;
     }
   }
