@@ -164,8 +164,8 @@ func main() {
 	go ConsoleListener()
 	go lobbyCleaner()
 
-	http.HandleFunc("/api/lobby/create", handlerLobbyCreate)
-	http.HandleFunc("/api/lobby/join/web", handlerLobbyJoinWeb)
+	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
+	http.HandleFunc("/api/web/lobby/join", handlerLobbyJoinWeb)
 	http.HandleFunc("/move", moveEndpointHandler)
 	http.ListenAndServe("localhost:4242", nil)
 }
