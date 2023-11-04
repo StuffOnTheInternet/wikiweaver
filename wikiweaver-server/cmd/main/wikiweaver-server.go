@@ -153,7 +153,7 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
-func moveEndpointHandler(w http.ResponseWriter, r *http.Request) {
+func handlerPage(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		body, err := ioutil.ReadAll(r.Body)
@@ -197,6 +197,7 @@ func main() {
 	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
 	http.HandleFunc("/api/web/lobby/join", handlerLobbyJoinWeb)
 	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
+	http.HandleFunc("/api/ext/page", handlerPage)
 	http.ListenAndServe("localhost:4242", nil)
 }
 
