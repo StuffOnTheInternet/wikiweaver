@@ -34,6 +34,13 @@ h1 {
   font-family: Verdana;
 }
 
+h2 {
+  font-size: 30px;
+  text-align: center;
+  font-family: Verdana;
+  margin-bottom: 0;
+}
+
 .text {
   font-size: 26px;
   font-family: Verdana;
@@ -72,4 +79,10 @@ h1 {
 
 .page-input {
   background: lightgray;
+}
+
+.leaderboard-row {
+  background-color: lightgray;
+  font-family: Verdana;
+  text-align: center;
 }
