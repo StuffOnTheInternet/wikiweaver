@@ -4,6 +4,8 @@ async function connect() {
     return;
   }
 
+  document.getElementById("code").innerHTML = "Connecting to server...";
+
   await fetch("http://localhost:4242/api/lobby/create")
     .then((response) => response.text())
     .then((code) => {
