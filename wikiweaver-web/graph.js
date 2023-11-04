@@ -42,70 +42,75 @@ var FromGreen;
 var FromBlue;
 
 function AddNewPage(Player, ToString) {
+  // The server calls this function to add new pages
+  AddNewElement(Player, ToString);
+}
+
+function AddNewElement(PColor, ToString) {
   if (!webgraph.getElementById(ToString).inside()) {
     var FromNode = FromRed;
-    if (Player == "Blue") {
+    if (PColor == "Blue") {
       var FromNode = FromBlue;
-    } else if (Player == "Green") {
+    } else if (PColor == "Green") {
       var FromNode = FromGreen;
     }
     webgraph.add({
-      data: { id: ToString, group: Player },
+      data: { id: ToString, group: PColor },
       position: { x: webgraph.getElementById(FromNode).position('x'), y: webgraph.getElementById(FromNode).position('y') }
     });
-    SetNodeColor(Player, ToString);
+    SetNodeColor(PColor, ToString);
   }
 
   var FromString;
-  if (Player == "Red") {
+  if (PColor == "Red") {
     FromString = FromRed;
     FromRed = ToString;
-  } else if (Player == "Green") {
+  } else if (PColor == "Green") {
     FromString = FromGreen;
     FromGreen = ToString;
-  } else if (Player == "Blue") {
+  } else if (PColor == "Blue") {
     FromString = FromBlue;
     FromBlue = ToString;
   }
 
   webgraph.add({
     data: {
-      group: Player,
+      group: PColor,
       source: FromString,
       target: ToString,
     },
   });
-  SetEdgeColor(Player, ToString);
+  SetEdgeColor(PColor, ToString);
 
   // Force a new layout
   var layout = webgraph.layout({ name: 'cola', ...defaults });
   layout.run();
 }
 
-function SetEdgeColor(Player, ElementID) {
+function SetEdgeColor(PColor, ElementID) {
   // Unoptimized, this gets *every* edge of the intended color
   // Ought to work by ID rather than group
 
-  if (Player == "Red") {
+  if (PColor == "Red") {
     webgraph.edges('[group = "Red"]').style("line-color", "#c00");
     webgraph.edges('[group = "Red"]').style("target-arrow-color", "#a00");
-  } else if (Player == "Green") {
+  } else if (PColor == "Green") {
     webgraph.edges('[group = "Green"]').style("line-color", "#0c0");
     webgraph.edges('[group = "Green"]').style("target-arrow-color", "#0a0");
-  } else if (Player == "Blue") {
+  } else if (PColor == "Blue") {
     webgraph.edges('[group = "Blue"]').style("line-color", "#00c");
     webgraph.edges('[group = "Blue"]').style("target-arrow-color", "#00a");
   }
 }
 
-function SetNodeColor(Player, ElementID) {
+function SetNodeColor(PColor, ElementID) {
   // Unoptimized, this gets *every* node of the intended color
   // Ought to work by ID rather than group
-  if (Player == "Red") {
+  if (PColor == "Red") {
     webgraph.nodes('[group = "Red"]').style("background-color", "#b00");
-  } else if (Player == "Green") {
+  } else if (PColor == "Green") {
     webgraph.nodes('[group = "Green"]').style("background-color", "#0b0");
-  } else if (Player == "Blue") {
+  } else if (PColor == "Blue") {
     webgraph.nodes('[group = "Blue"]').style("background-color", "#00b");
   }
 }
