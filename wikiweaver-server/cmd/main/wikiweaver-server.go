@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,7 +20,8 @@ const (
 )
 
 type GlobalState struct {
-	Lobbies map[string]*Lobby
+	Lobbies      map[string]*Lobby
+	LobbiesMutex sync.Mutex
 }
 
 var globalState GlobalState
@@ -54,7 +56,9 @@ func handlerLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateCode()
 
+	globalState.LobbiesMutex.Lock()
 	globalState.Lobbies[code] = &Lobby{Code: code}
+	globalState.LobbiesMutex.Unlock()
 
 	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
 
@@ -66,7 +70,9 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
+	globalState.LobbiesMutex.Lock()
 	lobby := globalState.Lobbies[code]
+	globalState.LobbiesMutex.Unlock()
 
 	if lobby == nil {
 		log.Printf("%s tried to join non existent lobby: %s", r.RemoteAddr, code)
@@ -81,7 +87,9 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	globalState.LobbiesMutex.Lock()
 	lobby.HostConn = conn
+	globalState.LobbiesMutex.Unlock()
 	log.Printf("web client %s joined lobby %s", conn.RemoteAddr(), lobby.Code)
 
 	for {
@@ -188,7 +196,10 @@ func ConsoleHandler(conn net.Conn) {
 				continue
 			}
 
+			globalState.LobbiesMutex.Lock()
 			lobby := globalState.Lobbies[cmd[1]]
+			globalState.LobbiesMutex.Unlock()
+
 			if lobby == nil {
 				conn.Write([]byte("lobby does not exist\n"))
 				continue
