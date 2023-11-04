@@ -117,10 +117,40 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, _, err := conn.ReadMessage()
 		if err != nil {
-			log.Printf("closed connection %s\n", conn.RemoteAddr())
+			log.Printf("web client %s closed connection\n", conn.RemoteAddr())
 			return
 		}
 	}
+}
+
+type LobbyStatusResponse struct {
+	Active bool
+}
+
+func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
+
+	code := r.URL.Query().Get("code")
+
+	globalState.LobbiesMutex.Lock()
+	lobby := globalState.Lobbies[code]
+	globalState.LobbiesMutex.Unlock()
+
+	var response LobbyStatusResponse
+
+	if lobby != nil {
+		response = LobbyStatusResponse{Active: true}
+	} else {
+		response = LobbyStatusResponse{Active: false}
+	}
+
+	msg, err := json.Marshal(response)
+	if err != nil {
+		log.Printf("failed to marshal status response: %s", err)
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+	w.Write(msg)
 }
 
 func moveEndpointHandler(w http.ResponseWriter, r *http.Request) {
@@ -166,7 +196,7 @@ func main() {
 
 	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
 	http.HandleFunc("/api/web/lobby/join", handlerLobbyJoinWeb)
-	http.HandleFunc("/move", moveEndpointHandler)
+	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
 	http.ListenAndServe("localhost:4242", nil)
 }
 

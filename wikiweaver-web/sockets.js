@@ -1,28 +1,55 @@
-async function connect() {
-  if (globalThis.socket) {
-    // Do not try to connect again if we are already connected
-    return;
-  }
-
-  document.getElementById("code").innerHTML = "Connecting to server...";
-
-  await fetch("http://localhost:4242/api/web/lobby/create")
+async function API_lobbyCreate() {
+  return await fetch("http://localhost:4242/api/web/lobby/create")
     .then((response) => response.text())
     .then((code) => {
-      document.getElementById("code").innerHTML = code;
-
-      globalThis.socket = new WebSocket(
-        "ws://localhost:4242/api/web/lobby/join" + "?code=" + code
-      );
-
-      globalThis.socket.addEventListener("message", (event) => {
-        const msg = JSON.parse(event.data);
-        AddNewPage(msg.Username, msg.Page);
-      });
+      return code;
     })
     .catch((_) => {
-      document.getElementById("code").innerHTML = "Failed to connect to server";
+      return null;
     });
+}
+
+function API_lobbyJoin(code) {
+  globalThis.socket = new WebSocket(
+    "ws://localhost:4242/api/web/lobby/join" + "?code=" + code
+  );
+
+  globalThis.socket.addEventListener("message", (event) => {
+    const msg = JSON.parse(event.data);
+    AddNewPage(msg.Username, msg.Page);
+  });
+}
+
+async function API_lobbyStatus(code) {
+  return await fetch("http://localhost:4242/api/web/lobby/status?code=" + code)
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch((_) => {
+      return null;
+    });
+}
+
+async function connect() {
+  document.getElementById("code").innerHTML = "Connecting to server...";
+
+  code = localStorage.getItem("code");
+
+  lobbyStatus = await API_lobbyStatus(code);
+  if (lobbyStatus == null) {
+    document.getElementById("code").innerHTML = "Failed to connect to server";
+  }
+
+  if (!lobbyStatus.Active) {
+    code = await API_lobbyCreate();
+    if (code == null) {
+      document.getElementById("code").innerHTML = "Failed to connect to server";
+    }
+  }
+
+  API_lobbyJoin(code);
+
+  document.getElementById("code").innerHTML = code;
+  localStorage.setItem("code", code);
 }
 
 document.addEventListener("DOMContentLoaded", () => connect(), false);
