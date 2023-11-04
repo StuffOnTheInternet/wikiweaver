@@ -25,6 +25,11 @@
   text-align: center;
 }
 
+body {
+  background-color: #aaa;
+  margin: 0;
+}
+
 .flex-horizontal {
   display: flex;
   justify-content: flex-start;
