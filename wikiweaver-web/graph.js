@@ -1,6 +1,22 @@
-colors = {
-  red: { edges: "Red", style: "#c00", "target-arrow-color": "#a00" },
-  blue: { edges: "Green", style: "#0c0", "target-arrow-color": "#0a0" },
+var CMap = {
+  red: {
+    group: "Red",
+    bgcolor: "#b00",
+    linecolor: "#c00",
+    arrowcolor: "#a00",
+  },
+  green: {
+    group: "Green",
+    bgcolor: "#0b0",
+    linecolor: "#0c0",
+    arrowcolor: "#0a0",
+  },
+  blue: {
+    group: "Blue",
+    bgcolor: "#00b",
+    linecolor: "#00c",
+    arrowcolor: "#00a",
+  },
 };
 
 var defaults = {
@@ -14,15 +30,17 @@ var defaults = {
   nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
 
   // layout event callbacks
-  ready: function () { }, // on layoutready
-  stop: function () { }, // on layoutstop
+  ready: function () {}, // on layoutready
+  stop: function () {}, // on layoutstop
 
   // positioning options
   randomize: false, // use random node positions at beginning of layout
   avoidOverlap: true, // if true, prevents overlap of node bounding boxes
   handleDisconnected: true, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
-  nodeSpacing: function (node) { return 10; }, // extra spacing around nodes
+  nodeSpacing: function (node) {
+    return 10;
+  }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
   alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
   gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
@@ -50,6 +68,13 @@ function AddNewPage(Player, ToString) {
 }
 
 function AddNewElement(PColor, ToString) {
+  var CList = CMap.red;
+  if (PColor == "Green") {
+    CList = CMap.green;
+  } else if (PColor == "Blue") {
+    CList = CMap.blue;
+  }
+
   if (!webgraph.getElementById(ToString).inside()) {
     var FromNode = FromRed;
     if (PColor == "Blue") {
@@ -59,9 +84,14 @@ function AddNewElement(PColor, ToString) {
     }
     webgraph.add({
       data: { id: ToString, group: PColor },
-      position: { x: webgraph.getElementById(FromNode).position('x'), y: webgraph.getElementById(FromNode).position('y') }
+      position: {
+        x: webgraph.getElementById(FromNode).position("x"),
+        y: webgraph.getElementById(FromNode).position("y"),
+      },
     });
-    SetNodeColor(PColor, ToString);
+    webgraph
+      .nodes('[group = "' + CList.group + '"]')
+      .style("background-color", CList.bgcolor);
   }
 
   var FromString;
@@ -83,39 +113,17 @@ function AddNewElement(PColor, ToString) {
       target: ToString,
     },
   });
-  SetEdgeColor(PColor, ToString);
+
+  webgraph
+    .edges('[group = "' + CList.group + '"]')
+    .style("line-color", CList.linecolor);
+  webgraph
+    .edges('[group = "' + CList.group + '"]')
+    .style("target-arrow-color", CList.arrowcolor);
 
   // Force a new layout
-  var layout = webgraph.layout({ name: 'cola', ...defaults });
+  var layout = webgraph.layout({ name: "cola", ...defaults });
   layout.run();
-}
-
-function SetEdgeColor(PColor, ElementID) {
-  // Unoptimized, this gets *every* edge of the intended color
-  // Ought to work by ID rather than group
-
-  if (PColor == "Red") {
-    webgraph.edges('[group = "Red"]').style("line-color", "#c00");
-    webgraph.edges('[group = "Red"]').style("target-arrow-color", "#a00");
-  } else if (PColor == "Green") {
-    webgraph.edges('[group = "Green"]').style("line-color", "#0c0");
-    webgraph.edges('[group = "Green"]').style("target-arrow-color", "#0a0");
-  } else if (PColor == "Blue") {
-    webgraph.edges('[group = "Blue"]').style("line-color", "#00c");
-    webgraph.edges('[group = "Blue"]').style("target-arrow-color", "#00a");
-  }
-}
-
-function SetNodeColor(PColor, ElementID) {
-  // Unoptimized, this gets *every* node of the intended color
-  // Ought to work by ID rather than group
-  if (PColor == "Red") {
-    webgraph.nodes('[group = "Red"]').style("background-color", "#b00");
-  } else if (PColor == "Green") {
-    webgraph.nodes('[group = "Green"]').style("background-color", "#0b0");
-  } else if (PColor == "Blue") {
-    webgraph.nodes('[group = "Blue"]').style("background-color", "#00b");
-  }
 }
 
 var webgraph = cytoscape({
