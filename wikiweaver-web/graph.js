@@ -1,21 +1,25 @@
+// Color settings
 var CMap = {
   red: {
     group: "Red",
     bgcolor: "#b00",
     linecolor: "#c00",
     arrowcolor: "#a00",
+    fromnode: "", // Assigned at startup
   },
   green: {
     group: "Green",
     bgcolor: "#0b0",
     linecolor: "#0c0",
     arrowcolor: "#0a0",
+    fromnode: "", // Assigned at startup
   },
   blue: {
     group: "Blue",
     bgcolor: "#00b",
     linecolor: "#00c",
     arrowcolor: "#00a",
+    fromnode: "", // Assigned at startup
   },
 };
 
@@ -58,35 +62,28 @@ var defaults = {
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 };
 
-var FromRed;
-var FromGreen;
-var FromBlue;
-
 function AddNewPage(Player, ToString) {
   // The server calls this function to add new pages
   AddNewElement(Player, ToString);
 }
 
 function AddNewElement(PColor, ToString) {
-  var CList = CMap.red;
+  // Add a new edge and possibly a new node for a player click
+
+  var CList = CMap.red; // Default to red if something goes wrong
   if (PColor == "Green") {
     CList = CMap.green;
   } else if (PColor == "Blue") {
     CList = CMap.blue;
   }
 
+  // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
-    var FromNode = FromRed;
-    if (PColor == "Blue") {
-      var FromNode = FromBlue;
-    } else if (PColor == "Green") {
-      var FromNode = FromGreen;
-    }
     webgraph.add({
       data: { id: ToString, group: PColor },
       position: {
-        x: webgraph.getElementById(FromNode).position("x"),
-        y: webgraph.getElementById(FromNode).position("y"),
+        x: webgraph.getElementById(CList.fromnode).position("x"),
+        y: webgraph.getElementById(CList.fromnode).position("y"),
       },
     });
     webgraph
@@ -94,32 +91,23 @@ function AddNewElement(PColor, ToString) {
       .style("background-color", CList.bgcolor);
   }
 
-  var FromString;
-  if (PColor == "Red") {
-    FromString = FromRed;
-    FromRed = ToString;
-  } else if (PColor == "Green") {
-    FromString = FromGreen;
-    FromGreen = ToString;
-  } else if (PColor == "Blue") {
-    FromString = FromBlue;
-    FromBlue = ToString;
-  }
-
+  // Always add a new edge
   webgraph.add({
     data: {
       group: PColor,
-      source: FromString,
+      source: CList.fromnode,
       target: ToString,
     },
   });
-
   webgraph
     .edges('[group = "' + CList.group + '"]')
     .style("line-color", CList.linecolor);
   webgraph
     .edges('[group = "' + CList.group + '"]')
     .style("target-arrow-color", CList.arrowcolor);
+
+  // Reposition the player to the new node
+  CList.fromnode = ToString;
 
   // Force a new layout
   var layout = webgraph.layout({ name: "cola", ...defaults });
@@ -175,9 +163,9 @@ var webgraph = cytoscape({
   },
 });
 
-FromRed = "Santa Claus";
-FromGreen = "Santa Claus";
-FromBlue = "Santa Claus";
+CMap.red.fromnode = "Santa Claus";
+CMap.green.fromnode = "Santa Claus";
+CMap.blue.fromnode = "Santa Claus";
 
 webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
 webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
