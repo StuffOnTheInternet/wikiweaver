@@ -27,6 +27,12 @@ body {
   margin: 0;
 }
 
+h1 {
+  font-size: 42px;
+  text-align: center;
+  font-family: Verdana;
+}
+
 .text {
   font-size: 26px;
   font-family: Verdana;
