@@ -6,5 +6,5 @@ fi
 rm -rdf ./build
 mkdir -p ./build
 cp -r icons ./build/icons
-cp -r popup ./build/popups
+cp -r popup ./build/popup
 cp -r $1/* ./build

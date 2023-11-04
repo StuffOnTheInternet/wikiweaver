@@ -8,7 +8,10 @@
         "96": "icons/96.png"
     },
     "action": {
-        "default_icon": "../icons/96.png",
+        "default_icon": {
+            "48": "icons/48.png",
+            "96": "icons/96.png"
+        },
         "default_title": "WikiWeaver",
         "default_popup": "popup/popup.html"
     },
