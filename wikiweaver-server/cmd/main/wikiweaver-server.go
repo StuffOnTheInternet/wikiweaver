@@ -239,7 +239,7 @@ func main() {
 	http.HandleFunc("/api/web/lobby/join", handlerLobbyJoinWeb)
 	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
 	http.HandleFunc("/api/ext/page", handlerPage)
-	http.ListenAndServe("localhost:4242", nil)
+	http.ListenAndServe("0.0.0.0:4242", nil)
 }
 
 func ConsoleListener() {
