@@ -166,6 +166,7 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &msg)
 		if err != nil {
 			log.Printf("failed to parse json from extension: %s", err)
+			return
 		}
 
 		log.Printf("received data from extension: %v", msg)
@@ -176,9 +177,15 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 		for code, lobby := range globalState.Lobbies {
 			log.Printf("sending %v to lobby %s", msg, code)
 
+			if lobby.HostConn == nil {
+				log.Printf("no host for lobby %s, refusing to send page", code)
+				continue
+			}
+
 			err = lobby.HostConn.WriteJSON(msg)
 			if err != nil {
 				log.Printf("failed to send data to lobby %s", code)
+				continue
 			}
 		}
 
