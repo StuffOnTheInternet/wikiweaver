@@ -21,7 +21,8 @@
     ],
     "permissions": [
         "webNavigation",
-        "webRequest"
+        "webRequest",
+        "storage"
     ],
     "background": {
         "scripts": [
