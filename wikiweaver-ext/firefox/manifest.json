@@ -1,32 +1,28 @@
 {
-    "manifest_version": 3,
-    "name": "WikiWeaver",
-    "version": "0.1",
-    "description": "Send wikipedia urls to a WikiWeaver server",
-    "icons": {
-        "48": "icons/48.png",
-        "96": "icons/96.png"
+  "manifest_version": 3,
+  "name": "WikiWeaver",
+  "version": "0.1",
+  "description": "Send wikipedia urls to a WikiWeaver server",
+  "icons": {
+    "48": "icons/48.png",
+    "96": "icons/96.png"
+  },
+  "action": {
+    "default_icon": {
+      "48": "icons/48.png",
+      "96": "icons/96.png"
     },
-    "action": {
-        "default_icon": {
-            "48": "icons/48.png",
-            "96": "icons/96.png"
-        },
-        "default_title": "WikiWeaver",
-        "default_popup": "popup/popup.html"
-    },
-    "host_permissions": [
-        "*://*.wikipedia.org/wiki/*",
-        "*://localhost/*"
-    ],
-    "permissions": [
-        "webNavigation",
-        "webRequest",
-        "storage"
-    ],
-    "background": {
-        "scripts": [
-            "background.js"
-        ]
-    }
+    "default_title": "WikiWeaver",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": [
+    "webNavigation",
+    "webRequest",
+    "storage"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
 }
