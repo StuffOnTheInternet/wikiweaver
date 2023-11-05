@@ -28,11 +28,6 @@ type GlobalState struct {
 
 var globalState GlobalState
 
-type NewPageMessage struct {
-	Username string
-	Page     string
-}
-
 type Lobby struct {
 	Code                string
 	HostConn            *websocket.Conn
@@ -153,40 +148,79 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
+type PageFromExtMessage struct {
+	Code     string
+	Username string
+	Page     string
+}
+
+type PageToWebMessage struct {
+	Username string
+	Page     string
+}
+
 func handlerPage(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("error reading extension request: %s", err)
+
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+
 			return
 		}
 
-		var msg NewPageMessage
-		err = json.Unmarshal(body, &msg)
+		var pageFromExtMessage PageFromExtMessage
+		err = json.Unmarshal(body, &pageFromExtMessage)
 		if err != nil {
-			log.Printf("failed to parse json from extension: %s", err)
+			log.Printf("failed to parse message from extension: %s", err)
+
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+
 			return
 		}
 
-		log.Printf("received data from extension: %v", msg)
+		log.Printf("received data from extension: %v", pageFromExtMessage)
 
-		// TODO: Send only to specific, cant handle that right now since
-		// extension isn't used web sockets and doesnt send code in request
+		code := pageFromExtMessage.Code
 
-		for code, lobby := range globalState.Lobbies {
-			log.Printf("sending %v to lobby %s", msg, code)
+		lobby := globalState.Lobbies[code]
+		if lobby == nil {
+			log.Printf("lobby %s not found, refusing to forward message", code)
 
-			if lobby.HostConn == nil {
-				log.Printf("no host for lobby %s, refusing to send page", code)
-				continue
-			}
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
 
-			err = lobby.HostConn.WriteJSON(msg)
-			if err != nil {
-				log.Printf("failed to send data to lobby %s", code)
-				continue
-			}
+			return
+		}
+
+		if lobby.HostConn == nil {
+			log.Printf("no host for lobby %s, refusing to forward message", code)
+
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+
+			return
+		}
+
+		pageToWebMessage := PageToWebMessage{
+			Username: pageFromExtMessage.Username,
+			Page:     pageFromExtMessage.Page,
+		}
+
+		log.Printf("forwarding %v to lobby %s", pageToWebMessage, code)
+
+		err = lobby.HostConn.WriteJSON(pageToWebMessage)
+		if err != nil {
+			log.Printf("failed to forward message lobby %s", code)
+
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -268,7 +302,7 @@ func ConsoleHandler(conn net.Conn) {
 
 			lobby.LastInteractionTime = time.Now()
 
-			msg := NewPageMessage{Username: cmd[2], Page: cmd[3]}
+			msg := PageToWebMessage{Username: cmd[2], Page: cmd[3]}
 			lobby.HostConn.WriteJSON(msg)
 		}
 	}
