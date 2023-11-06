@@ -6,6 +6,7 @@ var CMap = {
   Red: {
     group: "Red",
     bgcolor: "#d22",
+    bordercolor: "#c11",
     linecolor: "#e22",
     arrowcolor: "#c22",
     arrowshape: "triangle",
@@ -14,6 +15,7 @@ var CMap = {
   Orange: {
     group: "Orange",
     bgcolor: "#e90",
+    bordercolor: "#d80",
     linecolor: "#fa0",
     arrowcolor: "#d80",
     arrowshape: "chevron",
@@ -22,6 +24,7 @@ var CMap = {
   Yellow: {
     group: "Yellow",
     bgcolor: "#ed0",
+    bordercolor: "#dc0",
     linecolor: "#fe0",
     arrowcolor: "#cb0",
     arrowshape: "triangle",
@@ -30,6 +33,7 @@ var CMap = {
   Lime: {
     group: "Lime",
     bgcolor: "#ac1",
+    bordercolor: "#9b0",
     linecolor: "#ad1",
     arrowcolor: "#ab1",
     arrowshape: "chevron",
@@ -38,6 +42,7 @@ var CMap = {
   Green: {
     group: "Green",
     bgcolor: "#4b4",
+    bordercolor: "#3a3",
     linecolor: "#4c4",
     arrowcolor: "#4a4",
     arrowshape: "triangle",
@@ -46,6 +51,7 @@ var CMap = {
   Cyan: {
     group: "Cyan",
     bgcolor: "#0cd",
+    bordercolor: "#0bc",
     linecolor: "#0cc",
     arrowcolor: "#0aa",
     arrowshape: "chevron",
@@ -54,6 +60,7 @@ var CMap = {
   Blue: {
     group: "Blue",
     bgcolor: "#44e",
+    bordercolor: "#33d",
     linecolor: "#44f",
     arrowcolor: "#44d",
     arrowshape: "triangle",
@@ -62,6 +69,7 @@ var CMap = {
   Violet: {
     group: "Violet",
     bgcolor: "#92c",
+    bordercolor: "#81b",
     linecolor: "#92d",
     arrowcolor: "#92b",
     arrowshape: "chevron",
@@ -70,6 +78,7 @@ var CMap = {
   Magenta: {
     group: "Magenta",
     bgcolor: "#c0c",
+    bordercolor: "#b0b",
     linecolor: "#d0d",
     arrowcolor: "#b0b",
     arrowshape: "triangle",
@@ -80,7 +89,7 @@ var CMap = {
 var options = {
   animate: true, // whether to show the layout as it's running
   refresh: 1, // number of ticks per frame; higher is faster but more jerky
-  maxSimulationTime: 5000, // max length in ms to run the layout
+  maxSimulationTime: 3000, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
   fit: true, // on every layout reposition of nodes, fit the viewport
   padding: 50, // padding around the simulation
@@ -137,6 +146,9 @@ function AddNewElement(PColor, ToString) {
     webgraph
       .nodes('[group = "' + CList.group + '"]')
       .style("background-color", CList.bgcolor);
+    webgraph
+      .nodes('[group = "' + CList.group + '"]')
+      .style("border-color", CList.bordercolor);
   }
 
   // Always add a new edge
@@ -173,12 +185,14 @@ function StartGame(StartNode, GoalNode) {
       {
         selector: "node",
         style: {
-          "background-color": "#333",
+          "background-color": "#fff",
           label: "data(id)",
           "font-size": 18,
           "text-outline-color": "#555",
           "text-outline-width": 1.6,
           color: "#fff",
+          "border-width": 4,
+          "border-color": "#bbb",
         },
       },
       {
