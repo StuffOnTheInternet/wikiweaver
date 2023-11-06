@@ -143,6 +143,10 @@ function AddNewElement(PColor, ToString) {
   // Add a new edge and possibly a new node for a player click
   var CList = CMap[PColor];
 
+  if (CList.fromnode == ToString) {
+    return;
+  }
+
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
@@ -251,6 +255,10 @@ StartGame("That guy in the coca cola commercials", "Fish");
 function createExampleGraph() {
   // A three player example of a race between Santa Claus and Fish
   AddNewPage("Red", "East-West Schism");
+  AddNewPage("Red", "Lent");
+  AddNewPage("Red", "Lent");
+  AddNewPage("Red", "Lent");
+  AddNewPage("Red", "Lent");
   AddNewPage("Red", "Lent");
   AddNewPage("Red", "Fish");
 
