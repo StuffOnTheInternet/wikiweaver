@@ -23,7 +23,7 @@ var CMap = {
   },
   Yellow: {
     group: "Yellow",
-    bgcolor: "#ed0",
+    bgcolor: "#fe0",
     bordercolor: "#dc0",
     linecolor: "#fe0",
     arrowcolor: "#cb0",
@@ -82,6 +82,15 @@ var CMap = {
     linecolor: "#d0d",
     arrowcolor: "#b0b",
     arrowshape: "triangle",
+    fromnode: "", // Assigned at startup
+  },
+  Brown: {
+    group: "Brown",
+    bgcolor: "#b63",
+    bordercolor: "#a53",
+    linecolor: "#c73",
+    arrowcolor: "#a53",
+    arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
 };
@@ -191,7 +200,7 @@ function StartGame(StartNode, GoalNode) {
           "text-outline-color": "#555",
           "text-outline-width": 1.6,
           color: "#fff",
-          "border-width": 4,
+          "border-width": 3,
           "border-color": "#bbb",
         },
       },
@@ -228,6 +237,7 @@ function StartGame(StartNode, GoalNode) {
   CMap.Blue.fromnode = StartNode;
   CMap.Violet.fromnode = StartNode;
   CMap.Magenta.fromnode = StartNode;
+  CMap.Brown.fromnode = StartNode;
 
   webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
   webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
@@ -273,6 +283,12 @@ function createExampleGraph() {
   AddNewPage("Violet", "Coca Cola");
   AddNewPage("Violet", "Pepsi Cola");
   AddNewPage("Violet", "Pepsi");
+
+  AddNewPage("Brown", "Coca Cola");
+  AddNewPage("Brown", "Pepsi Cola");
+  AddNewPage("Brown", "Pepsi");
+  AddNewPage("Brown", "Soda");
+  AddNewPage("Brown", "United States");
 
   AddNewPage("Orange", "Beard");
   AddNewPage("Orange", "Hair");
