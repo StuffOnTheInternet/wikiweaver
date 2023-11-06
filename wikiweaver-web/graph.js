@@ -5,37 +5,74 @@ var webgraph;
 var CMap = {
   Red: {
     group: "Red",
-    bgcolor: "#b00",
-    linecolor: "#c00",
-    arrowcolor: "#a00",
+    bgcolor: "#d22",
+    linecolor: "#e22",
+    arrowcolor: "#c22",
+    arrowshape: "triangle",
+    fromnode: "", // Assigned at startup
+  },
+  Orange: {
+    group: "Orange",
+    bgcolor: "#e90",
+    linecolor: "#fa0",
+    arrowcolor: "#d80",
+    arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Yellow: {
     group: "Yellow",
-    bgcolor: "#dc0",
-    linecolor: "#dc0",
-    arrowcolor: "#ba0",
+    bgcolor: "#ed0",
+    linecolor: "#fe0",
+    arrowcolor: "#cb0",
+    arrowshape: "triangle",
+    fromnode: "", // Assigned at startup
+  },
+  Lime: {
+    group: "Lime",
+    bgcolor: "#ac1",
+    linecolor: "#ad1",
+    arrowcolor: "#ab1",
+    arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Green: {
     group: "Green",
-    bgcolor: "#0b0",
-    linecolor: "#0c0",
-    arrowcolor: "#0a0",
+    bgcolor: "#4b4",
+    linecolor: "#4c4",
+    arrowcolor: "#4a4",
+    arrowshape: "triangle",
+    fromnode: "", // Assigned at startup
+  },
+  Cyan: {
+    group: "Cyan",
+    bgcolor: "#0cd",
+    linecolor: "#0cc",
+    arrowcolor: "#0aa",
+    arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Blue: {
     group: "Blue",
-    bgcolor: "#00b",
-    linecolor: "#00c",
-    arrowcolor: "#00a",
+    bgcolor: "#44e",
+    linecolor: "#44f",
+    arrowcolor: "#44d",
+    arrowshape: "triangle",
+    fromnode: "", // Assigned at startup
+  },
+  Violet: {
+    group: "Violet",
+    bgcolor: "#92c",
+    linecolor: "#92d",
+    arrowcolor: "#92b",
+    arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Magenta: {
     group: "Magenta",
-    bgcolor: "#b0b",
-    linecolor: "#c0c",
-    arrowcolor: "#a0a",
+    bgcolor: "#c0c",
+    linecolor: "#d0d",
+    arrowcolor: "#b0b",
+    arrowshape: "triangle",
     fromnode: "", // Assigned at startup
   },
 };
@@ -116,6 +153,9 @@ function AddNewElement(PColor, ToString) {
   webgraph
     .edges('[group = "' + CList.group + '"]')
     .style("target-arrow-color", CList.arrowcolor);
+  webgraph
+    .edges('[group = "' + CList.group + '"]')
+    .style("target-arrow-shape", CList.arrowshape);
 
   // Reposition the player to the new node
   CList.fromnode = ToString;
@@ -133,7 +173,7 @@ function StartGame(StartNode, GoalNode) {
       {
         selector: "node",
         style: {
-          "background-color": "#666",
+          "background-color": "#333",
           label: "data(id)",
           "font-size": 18,
           "text-outline-color": "#555",
@@ -145,14 +185,12 @@ function StartGame(StartNode, GoalNode) {
         selector: "edge",
         style: {
           width: 4,
-          // label: "data(group)", Implement this as colorblind mode as a toggle
+          //label: "data(group)", //Implement this as colorblind mode as a toggle
           "text-rotation": "autorotate",
           color: "#fff",
           "font-size": 10,
           "text-outline-color": "#000",
           "text-outline-width": 0.6,
-          "line-color": "#abc",
-          "target-arrow-color": "#abc",
           "target-arrow-shape": "triangle",
           "curve-style": "bezier",
         },
@@ -168,9 +206,13 @@ function StartGame(StartNode, GoalNode) {
   });
 
   CMap.Red.fromnode = StartNode;
-  CMap.Green.fromnode = StartNode;
-  CMap.Blue.fromnode = StartNode;
+  CMap.Orange.fromnode = StartNode;
   CMap.Yellow.fromnode = StartNode;
+  CMap.Lime.fromnode = StartNode;
+  CMap.Green.fromnode = StartNode;
+  CMap.Cyan.fromnode = StartNode;
+  CMap.Blue.fromnode = StartNode;
+  CMap.Violet.fromnode = StartNode;
   CMap.Magenta.fromnode = StartNode;
 
   webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
@@ -190,13 +232,17 @@ function createExampleGraph() {
 
   AddNewPage("Magenta", "East-West Schism");
   AddNewPage("Magenta", "Lent");
-  AddNewPage("Magenta", "Fish");
+  AddNewPage("Magenta", "Winter");
 
   AddNewPage("Yellow", "Saint Nick");
   AddNewPage("Yellow", "Christianty");
   AddNewPage("Yellow", "Catholicism");
   AddNewPage("Yellow", "Lent");
   AddNewPage("Yellow", "Fish");
+
+  AddNewPage("Lime", "Coca Cola");
+  AddNewPage("Lime", "Atlanta");
+  AddNewPage("Lime", "Georgia");
 
   AddNewPage("Green", "East-West Schism");
   AddNewPage("Green", "Passover");
@@ -205,6 +251,18 @@ function createExampleGraph() {
   AddNewPage("Green", "Carp");
   AddNewPage("Green", "Rough Fish");
   AddNewPage("Green", "Fish");
+
+  AddNewPage("Cyan", "Coca Cola");
+  AddNewPage("Cyan", "United States");
+  AddNewPage("Cyan", "Fish");
+
+  AddNewPage("Violet", "Coca Cola");
+  AddNewPage("Violet", "Pepsi Cola");
+  AddNewPage("Violet", "Pepsi");
+
+  AddNewPage("Orange", "Beard");
+  AddNewPage("Orange", "Hair");
+  AddNewPage("Orange", "Head");
 
   AddNewPage("Blue", "East-West Schism");
   AddNewPage("Blue", "Passover");
