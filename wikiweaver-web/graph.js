@@ -1,3 +1,6 @@
+// The graph
+var webgraph;
+
 // Color settings
 var CMap = {
   Red: {
@@ -122,66 +125,62 @@ function AddNewElement(PColor, ToString) {
   layout.run();
 }
 
-var webgraph = cytoscape({
-  container: document.getElementById("maincanvas"), // container to render in
-  elements: [
-    // list of graph elements to start with
-    {
-      // Start node
-      data: { id: "Santa Claus", group: "Start" },
-    },
-    {
-      // Goal node
-      data: { id: "Fish", group: "Goal" },
-    },
-  ],
-  style: [
-    // the stylesheet for the graph
-    {
-      selector: "node",
-      style: {
-        "background-color": "#666",
-        label: "data(id)",
-        "font-size": 18,
-        "text-outline-color": "#555",
-        "text-outline-width": 1.6,
-        color: "#fff",
+function StartGame(StartNode, GoalNode) {
+  webgraph = cytoscape({
+    container: document.getElementById("maincanvas"), // container to render in
+    style: [
+      // the stylesheet for the graph
+      {
+        selector: "node",
+        style: {
+          "background-color": "#666",
+          label: "data(id)",
+          "font-size": 18,
+          "text-outline-color": "#555",
+          "text-outline-width": 1.6,
+          color: "#fff",
+        },
       },
-    },
-    {
-      selector: "edge",
-      style: {
-        width: 4,
-        // label: "data(group)", Implement this as colorblind mode as a toggle
-        "text-rotation": "autorotate",
-        color: "#fff",
-        "font-size": 10,
-        "text-outline-color": "#000",
-        "text-outline-width": 0.6,
-        "line-color": "#abc",
-        "target-arrow-color": "#abc",
-        "target-arrow-shape": "triangle",
-        "curve-style": "bezier",
+      {
+        selector: "edge",
+        style: {
+          width: 4,
+          // label: "data(group)", Implement this as colorblind mode as a toggle
+          "text-rotation": "autorotate",
+          color: "#fff",
+          "font-size": 10,
+          "text-outline-color": "#000",
+          "text-outline-width": 0.6,
+          "line-color": "#abc",
+          "target-arrow-color": "#abc",
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+        },
       },
-    },
-  ],
-  layout: {
-    name: "grid",
-    rows: 1,
-  },
-});
+    ],
+  });
 
-CMap.Red.fromnode = "Santa Claus";
-CMap.Green.fromnode = "Santa Claus";
-CMap.Blue.fromnode = "Santa Claus";
-CMap.Yellow.fromnode = "Santa Claus";
-CMap.Magenta.fromnode = "Santa Claus";
+  webgraph.add({
+    data: { id: StartNode, group: "Start" },
+  });
+  webgraph.add({
+    data: { id: GoalNode, group: "Goal" },
+  });
 
-webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
-webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
+  CMap.Red.fromnode = StartNode;
+  CMap.Green.fromnode = StartNode;
+  CMap.Blue.fromnode = StartNode;
+  CMap.Yellow.fromnode = StartNode;
+  CMap.Magenta.fromnode = StartNode;
 
-webgraph.nodes('[group = "Goal"]').style("shape", "star");
-webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
+  webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
+  webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
+
+  webgraph.nodes('[group = "Goal"]').style("shape", "star");
+  webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
+}
+
+StartGame("That guy in the coca cola commercials", "Fish");
 
 function createExampleGraph() {
   // A three player example of a race between Santa Claus and Fish
