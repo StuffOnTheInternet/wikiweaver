@@ -138,13 +138,13 @@ function AddNewPage(Player, ToString) {
   var ColorArray = [
     "Red",
     "Blue",
-    "Yellow",
-    "Lime",
     "Green",
+    "Yellow",
     "Cyan",
     "Orange",
     "Violet",
     "Magenta",
+    "Lime",
     "Brown",
   ];
 
@@ -250,21 +250,16 @@ function StartGame(StartNode, GoalNode) {
 
   webgraph.add({
     data: { id: StartNode, group: "Start" },
+    position: { x: 0, y: 0 },
   });
   webgraph.add({
     data: { id: GoalNode, group: "Goal" },
+    position: { x: 500, y: 0 },
   });
 
-  CMap.Red.fromnode = StartNode;
-  CMap.Orange.fromnode = StartNode;
-  CMap.Yellow.fromnode = StartNode;
-  CMap.Lime.fromnode = StartNode;
-  CMap.Green.fromnode = StartNode;
-  CMap.Cyan.fromnode = StartNode;
-  CMap.Blue.fromnode = StartNode;
-  CMap.Violet.fromnode = StartNode;
-  CMap.Magenta.fromnode = StartNode;
-  CMap.Brown.fromnode = StartNode;
+  for (let color in CMap) {
+    CMap[color].fromnode = StartNode;
+  }
 
   webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
   webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
@@ -324,6 +319,46 @@ function createExampleGraph() {
   AddNewPage("asdfghjk", "Beard");
   AddNewPage("asdfghjk", "Hair");
   AddNewPage("asdfghjk", "Head");
+
+  AddNewPage("Paul", "East-West Schism");
+  AddNewPage("Paul", "Passover");
+  AddNewPage("Paul", "Carp");
+  AddNewPage("Paul", "Aquaculture");
+  AddNewPage("Paul", "Goldfish");
+  AddNewPage("Paul", "Fish");
+}
+
+function CreateNicerExample() {
+  StartGame("Santa Claus", "Fish");
+
+  // A three player example of a race between Santa Claus and Fish
+  AddNewPage("Bob", "East-West Schism");
+  AddNewPage("Bob", "Lent");
+  AddNewPage("Bob", "Fish");
+
+  AddNewPage("Mark", "Saint Nick");
+  AddNewPage("Mark", "Christianity");
+  AddNewPage("Mark", "Catholicism");
+  AddNewPage("Mark", "Lent");
+  AddNewPage("Mark", "Fish");
+
+  AddNewPage("Emma", "East-West Schism");
+  AddNewPage("Emma", "Passover");
+  AddNewPage("Emma", "Pike");
+  AddNewPage("Emma", "Passover");
+  AddNewPage("Emma", "Carp");
+  AddNewPage("Emma", "Rough Fish");
+  AddNewPage("Emma", "Fish");
+
+  AddNewPage("Robert", "Pepsi");
+  AddNewPage("Robert", "Fat");
+  AddNewPage("Robert", "Tuna");
+  AddNewPage("Robert", "Game Fish");
+  AddNewPage("Robert", "Fish");
+
+  AddNewPage("XXANTSLAYERXX", "Coca Cola");
+  AddNewPage("XXANTSLAYERXX", "Pepsi Cola");
+  AddNewPage("XXANTSLAYERXX", "Pepsi");
 
   AddNewPage("Paul", "East-West Schism");
   AddNewPage("Paul", "Passover");

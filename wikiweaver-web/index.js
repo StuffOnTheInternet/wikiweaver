@@ -1,6 +1,6 @@
 function init() {
   connect();
-  createExampleGraph();
+  CreateNicerExample();
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
