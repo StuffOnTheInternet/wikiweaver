@@ -266,6 +266,9 @@ function StartGame(StartNode, GoalNode) {
 
   webgraph.nodes('[group = "Goal"]').style("shape", "star");
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
+
+  var layout = webgraph.layout({ name: "cola", ...options });
+  layout.run();
 }
 
 function createExampleGraph() {

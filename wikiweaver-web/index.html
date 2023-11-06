@@ -24,10 +24,11 @@
                 <div class="text">Lobby: </div>
                 <div id="code" class="flex-horizontal-item text"></div>
             </div>
-            <input placeholder="Start page" class="page-input text"></input>
-            <input placeholder="End page" class="page-input text"></input>
+            <input placeholder="Start page" id="start-page-input" class="page-input text"></input>
+            <input placeholder="Goal page" id="goal-page-input" class="page-input text"></input>
             <div class="flex-horizontal">
-                <button id="start-button" class="flex-horizontal-item text">Start</button>
+                <button id="start-button" class="flex-horizontal-item text"
+                    onclick="HandleStartGameClicked()">Start</button>
                 <button id="stop-button" class="flex-horizontal-item text">Stop</button>
             </div>
             <h2>Lobby leaderboard</h2>
@@ -54,4 +55,5 @@
         </div>
     </div>
 </body>
+
 </html>
