@@ -4,7 +4,7 @@ var webgraph;
 // Color settings
 var CMap = {
   Red: {
-    group: "Red",
+    group: "UNUSED",
     bgcolor: "#d22",
     bordercolor: "#c11",
     linecolor: "#e22",
@@ -13,7 +13,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Orange: {
-    group: "Orange",
+    group: "UNUSED",
     bgcolor: "#e90",
     bordercolor: "#d80",
     linecolor: "#fa0",
@@ -22,7 +22,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Yellow: {
-    group: "Yellow",
+    group: "UNUSED",
     bgcolor: "#fe0",
     bordercolor: "#dc0",
     linecolor: "#fe0",
@@ -31,7 +31,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Lime: {
-    group: "Lime",
+    group: "UNUSED",
     bgcolor: "#ac1",
     bordercolor: "#9b0",
     linecolor: "#ad1",
@@ -40,7 +40,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Green: {
-    group: "Green",
+    group: "UNUSED",
     bgcolor: "#4b4",
     bordercolor: "#3a3",
     linecolor: "#4c4",
@@ -49,7 +49,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Cyan: {
-    group: "Cyan",
+    group: "UNUSED",
     bgcolor: "#0cd",
     bordercolor: "#0bc",
     linecolor: "#0cc",
@@ -58,7 +58,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Blue: {
-    group: "Blue",
+    group: "UNUSED",
     bgcolor: "#44e",
     bordercolor: "#33d",
     linecolor: "#44f",
@@ -67,7 +67,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Violet: {
-    group: "Violet",
+    group: "UNUSED",
     bgcolor: "#92c",
     bordercolor: "#81b",
     linecolor: "#92d",
@@ -76,7 +76,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Magenta: {
-    group: "Magenta",
+    group: "UNUSED",
     bgcolor: "#c0c",
     bordercolor: "#b0b",
     linecolor: "#d0d",
@@ -85,7 +85,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Brown: {
-    group: "Brown",
+    group: "UNUSED",
     bgcolor: "#b63",
     bordercolor: "#a53",
     linecolor: "#c73",
@@ -135,8 +135,31 @@ var options = {
 };
 
 function AddNewPage(Player, ToString) {
+  var ColorArray = [
+    "Red",
+    "Blue",
+    "Yellow",
+    "Lime",
+    "Green",
+    "Cyan",
+    "Orange",
+    "Violet",
+    "Magenta",
+    "Brown",
+  ];
+
+  for (let color of ColorArray) {
+    if (CMap[color].group == Player) {
+      AddNewElement(color, ToString);
+      break;
+    } else if (CMap[color].group == "UNUSED") {
+      CMap[color].group = Player;
+      AddNewElement(color, ToString);
+      break;
+    }
+  }
+
   // The server calls this function to add new pages
-  AddNewElement(Player, ToString);
 }
 
 function AddNewElement(PColor, ToString) {
@@ -254,58 +277,58 @@ StartGame("That guy in the coca cola commercials", "Fish");
 
 function createExampleGraph() {
   // A three player example of a race between Santa Claus and Fish
-  AddNewPage("Red", "East-West Schism");
-  AddNewPage("Red", "Lent");
-  AddNewPage("Red", "Lent");
-  AddNewPage("Red", "Lent");
-  AddNewPage("Red", "Lent");
-  AddNewPage("Red", "Lent");
-  AddNewPage("Red", "Fish");
+  AddNewPage("Bob", "East-West Schism");
+  AddNewPage("Bob", "Lent");
+  AddNewPage("Bob", "Lent");
+  AddNewPage("Bob", "Lent");
+  AddNewPage("Bob", "Lent");
+  AddNewPage("Bob", "Lent");
+  AddNewPage("Bob", "Fish");
 
-  AddNewPage("Magenta", "East-West Schism");
-  AddNewPage("Magenta", "Lent");
-  AddNewPage("Magenta", "Winter");
+  AddNewPage("Charlie", "East-West Schism");
+  AddNewPage("Charlie", "Lent");
+  AddNewPage("Charlie", "Winter");
 
-  AddNewPage("Yellow", "Saint Nick");
-  AddNewPage("Yellow", "Christianty");
-  AddNewPage("Yellow", "Catholicism");
-  AddNewPage("Yellow", "Lent");
-  AddNewPage("Yellow", "Fish");
+  AddNewPage("Mark", "Saint Nick");
+  AddNewPage("Mark", "Christianty");
+  AddNewPage("Mark", "Catholicism");
+  AddNewPage("Mark", "Lent");
+  AddNewPage("Mark", "Fish");
 
-  AddNewPage("Lime", "Coca Cola");
-  AddNewPage("Lime", "Atlanta");
-  AddNewPage("Lime", "Georgia");
+  AddNewPage("Alice", "Coca Cola");
+  AddNewPage("Alice", "Atlanta");
+  AddNewPage("Alice", "Georgia");
 
-  AddNewPage("Green", "East-West Schism");
-  AddNewPage("Green", "Passover");
-  AddNewPage("Green", "Pike");
-  AddNewPage("Green", "Passover");
-  AddNewPage("Green", "Carp");
-  AddNewPage("Green", "Rough Fish");
-  AddNewPage("Green", "Fish");
+  AddNewPage("Emma", "East-West Schism");
+  AddNewPage("Emma", "Passover");
+  AddNewPage("Emma", "Pike");
+  AddNewPage("Emma", "Passover");
+  AddNewPage("Emma", "Carp");
+  AddNewPage("Emma", "Rough Fish");
+  AddNewPage("Emma", "Fish");
 
-  AddNewPage("Cyan", "Coca Cola");
-  AddNewPage("Cyan", "United States");
-  AddNewPage("Cyan", "Fish");
+  AddNewPage("Robert", "Coca Cola");
+  AddNewPage("Robert", "United States");
+  AddNewPage("Robert", "Fish");
 
-  AddNewPage("Violet", "Coca Cola");
-  AddNewPage("Violet", "Pepsi Cola");
-  AddNewPage("Violet", "Pepsi");
+  AddNewPage("XXANTSLAYERXX", "Coca Cola");
+  AddNewPage("XXANTSLAYERXX", "Pepsi Cola");
+  AddNewPage("XXANTSLAYERXX", "Pepsi");
 
-  AddNewPage("Brown", "Coca Cola");
-  AddNewPage("Brown", "Pepsi Cola");
-  AddNewPage("Brown", "Pepsi");
-  AddNewPage("Brown", "Soda");
-  AddNewPage("Brown", "United States");
+  AddNewPage("Your dad", "Coca Cola");
+  AddNewPage("Your dad", "Pepsi Cola");
+  AddNewPage("Your dad", "Pepsi");
+  AddNewPage("Your dad", "Soda");
+  AddNewPage("Your dad", "United States");
 
-  AddNewPage("Orange", "Beard");
-  AddNewPage("Orange", "Hair");
-  AddNewPage("Orange", "Head");
+  AddNewPage("asdfghjk", "Beard");
+  AddNewPage("asdfghjk", "Hair");
+  AddNewPage("asdfghjk", "Head");
 
-  AddNewPage("Blue", "East-West Schism");
-  AddNewPage("Blue", "Passover");
-  AddNewPage("Blue", "Carp");
-  AddNewPage("Blue", "Aquaculture");
-  AddNewPage("Blue", "Goldfish");
-  AddNewPage("Blue", "Fish");
+  AddNewPage("Paul", "East-West Schism");
+  AddNewPage("Paul", "Passover");
+  AddNewPage("Paul", "Carp");
+  AddNewPage("Paul", "Aquaculture");
+  AddNewPage("Paul", "Goldfish");
+  AddNewPage("Paul", "Fish");
 }
