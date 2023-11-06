@@ -273,9 +273,9 @@ function StartGame(StartNode, GoalNode) {
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
 }
 
-StartGame("That guy in the coca cola commercials", "Fish");
-
 function createExampleGraph() {
+  StartGame("That guy in the coca cola commercials", "Fish");
+
   // A three player example of a race between Santa Claus and Fish
   AddNewPage("Bob", "East-West Schism");
   AddNewPage("Bob", "Lent");
