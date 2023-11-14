@@ -1,6 +1,7 @@
 {
-    "recommendations": [
-        "esbenp.prettier-vscode",
-        "golang.go"
-    ]
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "golang.go",
+    "ms-vscode-remote.vscode-remote-extensionpack"
+  ]
 }
