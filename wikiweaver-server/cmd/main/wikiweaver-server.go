@@ -215,7 +215,7 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 
 		err = lobby.HostConn.WriteJSON(pageToWebMessage)
 		if err != nil {
-			log.Printf("failed to forward message lobby %s", code)
+			log.Printf("failed to forward message to lobby: %s", err)
 
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
@@ -236,10 +236,13 @@ func main() {
 	go lobbyCleaner()
 
 	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
-	http.HandleFunc("/api/web/lobby/join", handlerLobbyJoinWeb)
+	http.HandleFunc("/api/ws/web/lobby/join", handlerLobbyJoinWeb)
 	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
 	http.HandleFunc("/api/ext/page", handlerPage)
-	http.ListenAndServe("0.0.0.0:4242", nil)
+	err := http.ListenAndServeTLS("0.0.0.0:4242", "/secrets/ssl_certificate.txt", "/secrets/ssl_privatekey.txt", nil)
+	if err != nil {
+	  log.Fatalf("ListenAndServeTLS: %s", err)
+	}
 }
 
 func ConsoleListener() {
