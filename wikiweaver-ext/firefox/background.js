@@ -6,7 +6,7 @@ chrome.webNavigation.onCommitted.addListener(
     const options = await chrome.storage.local.get();
     const page = event.url.split("wiki/")[1].split("#")[0].replace(/_/g, " ");
 
-    const response = await fetch("http://localhost:4242/api/ext/page", {
+    const response = await fetch("https://lofen.tplinkdns.com:/api/ext/page", {
       method: "POST",
       mode: "no-cors",
       body: JSON.stringify({
