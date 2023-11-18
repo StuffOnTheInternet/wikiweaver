@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -16,6 +17,7 @@ import (
 )
 
 const (
+	PORT                            = 4242
 	CONSOLE_SOCKET_PATH             = "/tmp/ww-console.sock"
 	CODE_LENGTH                     = 4
 	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 15 * time.Minute
@@ -230,6 +232,13 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	dev := false
+	for _, arg := range os.Args[1:] {
+		if arg == "--dev" {
+			dev = true
+		}
+	}
+
 	globalState = GlobalState{Lobbies: make(map[string]*Lobby)}
 
 	go ConsoleListener()
@@ -239,9 +248,26 @@ func main() {
 	http.HandleFunc("/api/ws/web/lobby/join", handlerLobbyJoinWeb)
 	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
 	http.HandleFunc("/api/ext/page", handlerPage)
-	err := http.ListenAndServeTLS("0.0.0.0:4242", "/secrets/ssl_certificate.txt", "/secrets/ssl_privatekey.txt", nil)
+
+	address := "0.0.0.0"
+	if dev {
+		address = "localhost"
+	}
+
+	address = fmt.Sprintf("%s:%d", address, PORT)
+
+	log.Printf("listening on %s", address)
+
+	var err error
+
+	if dev {
+		err = http.ListenAndServe(address, nil)
+	} else {
+		err = http.ListenAndServeTLS(address, "/secrets/ssl_certificate.txt", "/secrets/ssl_privatekey.txt", nil)
+	}
+
 	if err != nil {
-	  log.Fatalf("ListenAndServeTLS: %s", err)
+		log.Fatalf("listen error: %s", err)
 	}
 }
 
