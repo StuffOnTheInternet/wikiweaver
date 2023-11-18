@@ -3,6 +3,8 @@ const connectionFailMessage = "Connection failure";
 const backend = "s://lofen.tplinkdns.com"; // Use this for production
 // const backend = "://localhost:4242"; // Use this for local development
 
+const pingInterval = 30000; // milliseconds
+
 async function API_lobbyCreate() {
   return await fetch("http" + backend + "/api/web/lobby/create")
     .then((response) => response.text())
@@ -19,9 +21,32 @@ function API_lobbyJoin(code) {
     "ws" + backend + "/api/ws/web/lobby/join" + "?code=" + code
   );
 
+  globalThis.socket.addEventListener("open", (event) => {
+    // Send ping every so often to keep the websocket connection alive
+    interval = setInterval(() => {
+      const ping = JSON.stringify({ type: "ping" });
+      globalThis.socket.send(ping);
+    }, pingInterval);
+  });
+
+  globalThis.socket.addEventListener("close", (event) => {
+    clearInterval(interval);
+  });
+
   globalThis.socket.addEventListener("message", (event) => {
     const msg = JSON.parse(event.data);
-    AddNewPage(msg.Username, msg.Page);
+
+    switch (msg.Type) {
+      case "pong":
+        // Server is alive, good. Ignore.
+        break;
+      case "page":
+        AddNewPage(msg.Username, msg.Page);
+        break;
+      default:
+        console.log("Unrecognized message: ", msg);
+        break;
+    }
   });
 }
 
