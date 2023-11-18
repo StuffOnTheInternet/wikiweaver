@@ -1,9 +1,10 @@
 const connectionFailMessage = "Connection failure";
 
-const backend = "lofen.tplinkdns.com/api";
+const backend = "s://lofen.tplinkdns.com"; // Use this for production
+// const backend = "://localhost:4242"; // Use this for local development
 
 async function API_lobbyCreate() {
-  return await fetch("https://" + backend + "/web/lobby/create")
+  return await fetch("http" + backend + "/api/web/lobby/create")
     .then((response) => response.text())
     .then((code) => {
       return code;
@@ -15,7 +16,7 @@ async function API_lobbyCreate() {
 
 function API_lobbyJoin(code) {
   globalThis.socket = new WebSocket(
-    "wss://" + backend + "/ws/web/lobby/join" + "?code=" + code
+    "ws" + backend + "/api/ws/web/lobby/join" + "?code=" + code
   );
 
   globalThis.socket.addEventListener("message", (event) => {
@@ -25,7 +26,7 @@ function API_lobbyJoin(code) {
 }
 
 async function API_lobbyStatus(code) {
-  return await fetch("https://" + backend + "/web/lobby/status?code=" + code)
+  return await fetch("http" + backend + "/api/web/lobby/status?code=" + code)
     .then((response) => response.json())
     .then((json) => json)
     .catch((_) => {
