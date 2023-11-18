@@ -260,7 +260,7 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			Page:     pageFromExtMessage.Page,
 		}
 
-		log.Printf("forwarding %v to lobby %s", pageToWebMessage, code)
+		log.Printf("forwarding page '%s' from user '%s' to lobby %s", pageToWebMessage.Page, pageToWebMessage.Username, code)
 
 		err = lobby.HostConn.WriteJSON(pageToWebMessage)
 		if err != nil {
