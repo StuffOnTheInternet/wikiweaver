@@ -6,9 +6,9 @@ chrome.webNavigation.onCommitted.addListener(
     const options = await chrome.storage.local.get();
     const page = event.url.split("wiki/")[1].split("#")[0].replace(/_/g, " ");
 
-    let domain = options.domain;
-    if (domain == null) {
-      domain = "s://lofen.tplinkdns.com";
+    let domain = "s://lofen.tplinkdns.com";
+    if (options.domain == "dev") {
+      domain = "://localhost:4242";
     }
 
     const response = await fetch("http" + domain + "/api/ext/page", {
