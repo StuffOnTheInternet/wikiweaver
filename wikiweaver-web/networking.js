@@ -60,6 +60,10 @@ async function API_lobbyStatus(code) {
 }
 
 async function connect() {
+  if (globalThis.socket) {
+    await globalThis.socket.close();
+  }
+
   document.getElementById("code").innerHTML = "Connecting to server...";
 
   code = localStorage.getItem("code");
