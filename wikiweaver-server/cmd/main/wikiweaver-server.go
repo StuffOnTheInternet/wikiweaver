@@ -85,6 +85,14 @@ func handlerLobbyCreate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(code))
 }
 
+type Message struct {
+	Type string
+}
+
+type PongMessage struct {
+	Message
+}
+
 func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
@@ -121,10 +129,36 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 	log.Printf("web client %s joined lobby %s", lobby.HostConnAddress, lobby.Code)
 
 	for {
-		_, _, err := conn.ReadMessage()
+		_, buf, err := conn.ReadMessage()
 		if err != nil {
-			log.Printf("web client %s disconnected\n", conn.RemoteAddr())
+			log.Printf("web client %s disconnected\n", lobby.HostConnAddress)
 			return
+		}
+
+		var msg Message
+		err = json.Unmarshal(buf, &msg)
+		if err != nil {
+			log.Printf("failed to unmarshal message: %s", err)
+			continue
+		}
+
+		switch msg.Type {
+		case "ping":
+			log.Printf("received ping from: %s", lobby.HostConnAddress)
+
+			pongMessage := PongMessage{
+				Message: Message{
+					Type: "pong",
+				},
+			}
+
+			err = lobby.HostConn.WriteJSON(pongMessage)
+			if err != nil {
+				log.Printf("failed to respond with pong: %s", err)
+				continue
+			}
+
+			log.Printf("responding with pong to: %s", lobby.HostConnAddress)
 		}
 	}
 }
@@ -166,6 +200,7 @@ type PageFromExtMessage struct {
 }
 
 type PageToWebMessage struct {
+	Message
 	Username string
 	Page     string
 }
@@ -218,6 +253,9 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		pageToWebMessage := PageToWebMessage{
+			Message: Message{
+				Type: "page",
+			},
 			Username: pageFromExtMessage.Username,
 			Page:     pageFromExtMessage.Page,
 		}
