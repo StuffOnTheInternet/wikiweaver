@@ -35,6 +35,10 @@ type Lobby struct {
 	LastInteractionTime time.Time
 }
 
+func (l *Lobby) close() {
+	l.HostConn.Close()
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -61,6 +65,7 @@ func lobbyCleaner() {
 			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
 				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
 				log.Printf("lobby %s idle for %s, closing", code, idleTime)
+				lobby.close()
 				delete(globalState.Lobbies, code)
 			}
 		}
