@@ -136,6 +136,8 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 		case "ping":
 			log.Printf("received ping from: %s", lobby.HostConnAddress)
 
+			lobby.LastInteractionTime = time.Now()
+
 			pongMessage := PongMessage{
 				Message: Message{
 					Type: "pong",
@@ -161,9 +163,7 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
-	globalState.LobbiesMutex.Lock()
 	lobby := globalState.Lobbies[code]
-	globalState.LobbiesMutex.Unlock()
 
 	var response LobbyStatusResponse
 
@@ -241,6 +241,8 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
+
+		lobby.LastInteractionTime = time.Now()
 
 		pageToWebMessage := PageToWebMessage{
 			Message: Message{
