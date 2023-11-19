@@ -48,11 +48,27 @@ func generateCode() string {
 	CAPITAL_LETTERS := "ABCDEFGHIJKLMNOPQRSTUVXYZ"
 
 	b := make([]byte, CODE_LENGTH)
+
 	for i := range b {
 		b[i] = CAPITAL_LETTERS[rand.Intn(len(CAPITAL_LETTERS))]
 	}
 
 	return string(b)
+}
+
+func generateUniqueCode() string {
+
+	code := generateCode()
+
+	for {
+		if _, ok := globalState.Lobbies[code]; !ok {
+			break
+		}
+
+		code = generateCode()
+	}
+
+	return code
 }
 
 func lobbyCleaner() {
@@ -74,7 +90,7 @@ func lobbyCleaner() {
 
 func handlerLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
-	code := generateCode()
+	code := generateUniqueCode()
 
 	globalState.Lobbies[code] = &Lobby{Code: code, LastInteractionTime: time.Now()}
 
