@@ -31,8 +31,7 @@ function API_lobbyJoin(code) {
 
   globalThis.socket.addEventListener("close", (event) => {
     clearInterval(interval);
-    document.getElementById("code").innerHTML =
-      "disconnected, please refresh page";
+    document.getElementById("code").innerHTML = connectionFailMessage;
   });
 
   globalThis.socket.addEventListener("message", (event) => {
