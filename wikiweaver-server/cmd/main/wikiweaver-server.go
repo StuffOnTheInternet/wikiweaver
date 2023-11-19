@@ -104,7 +104,6 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	defer conn.Close()
 
 	address, ok := conn.RemoteAddr().(*net.TCPAddr)
 	if !ok {
@@ -118,8 +117,14 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("web client %s joined lobby %s", lobby.HostConnAddress, lobby.Code)
 
+	go hostListener(lobby)
+}
+
+func hostListener(lobby *Lobby) {
+	defer lobby.HostConn.Close()
+
 	for {
-		_, buf, err := conn.ReadMessage()
+		_, buf, err := lobby.HostConn.ReadMessage()
 		if err != nil {
 			log.Printf("web client %s disconnected\n", lobby.HostConnAddress)
 			return
