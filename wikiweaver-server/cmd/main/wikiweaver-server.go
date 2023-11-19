@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -24,8 +23,7 @@ const (
 )
 
 type GlobalState struct {
-	Lobbies      map[string]*Lobby
-	LobbiesMutex sync.Mutex
+	Lobbies map[string]*Lobby
 }
 
 var globalState GlobalState
@@ -59,7 +57,6 @@ func lobbyCleaner() {
 
 		log.Printf("closing idle lobbies")
 
-		globalState.LobbiesMutex.Lock()
 		for code, lobby := range globalState.Lobbies {
 			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
 				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
@@ -67,7 +64,6 @@ func lobbyCleaner() {
 				delete(globalState.Lobbies, code)
 			}
 		}
-		globalState.LobbiesMutex.Unlock()
 	}
 }
 
@@ -75,9 +71,7 @@ func handlerLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateCode()
 
-	globalState.LobbiesMutex.Lock()
 	globalState.Lobbies[code] = &Lobby{Code: code, LastInteractionTime: time.Now()}
-	globalState.LobbiesMutex.Unlock()
 
 	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
 
@@ -97,9 +91,7 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
-	globalState.LobbiesMutex.Lock()
 	lobby := globalState.Lobbies[code]
-	globalState.LobbiesMutex.Unlock()
 
 	if lobby == nil {
 		log.Printf("%s tried to join non existent lobby: %s", r.RemoteAddr, code)
@@ -120,11 +112,9 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	globalState.LobbiesMutex.Lock()
 	lobby.HostConn = conn
 	lobby.HostConnAddress = address.IP.String()
 	lobby.LastInteractionTime = time.Now()
-	globalState.LobbiesMutex.Unlock()
 
 	log.Printf("web client %s joined lobby %s", lobby.HostConnAddress, lobby.Code)
 
@@ -367,9 +357,7 @@ func ConsoleHandler(conn net.Conn) {
 				continue
 			}
 
-			globalState.LobbiesMutex.Lock()
 			lobby := globalState.Lobbies[cmd[1]]
-			globalState.LobbiesMutex.Unlock()
 
 			if lobby == nil {
 				conn.Write([]byte("lobby does not exist\n"))
