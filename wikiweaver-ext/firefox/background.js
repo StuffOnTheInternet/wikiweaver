@@ -26,5 +26,5 @@ chrome.webNavigation.onCommitted.addListener(
 );
 
 function pageNameFromWikipediaURL(url) {
-  return url.split("wiki/")[1].split("#")[0].replace(/_/g, " ");
+  return decodeURI(url).split("wiki/")[1].split("#")[0].replace(/_/g, " ");
 }
