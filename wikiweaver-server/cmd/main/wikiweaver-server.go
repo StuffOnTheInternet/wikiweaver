@@ -136,8 +136,6 @@ func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
 		case "ping":
 			log.Printf("received ping from: %s", lobby.HostConnAddress)
 
-			lobby.LastInteractionTime = time.Now()
-
 			pongMessage := PongMessage{
 				Message: Message{
 					Type: "pong",
