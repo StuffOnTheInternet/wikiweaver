@@ -4,12 +4,13 @@ chrome.webNavigation.onCommitted.addListener(
     if (event.transitionType == "reload") return;
 
     const options = await chrome.storage.local.get();
-    const page = event.url.split("wiki/")[1].split("#")[0].replace(/_/g, " ");
 
     let domain = "s://lofen.tplinkdns.com";
     if (options.domain == "dev") {
       domain = "://localhost:4242";
     }
+
+    const page = pageNameFromWikipediaURL(event.url);
 
     const response = await fetch("http" + domain + "/api/ext/page", {
       method: "POST",
@@ -23,3 +24,7 @@ chrome.webNavigation.onCommitted.addListener(
   },
   { url: [{ hostSuffix: ".wikipedia.org" }] }
 );
+
+function pageNameFromWikipediaURL(url) {
+  return url.split("wiki/")[1].split("#")[0].replace(/_/g, " ");
+}
