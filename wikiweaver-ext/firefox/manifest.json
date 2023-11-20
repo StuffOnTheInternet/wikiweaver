@@ -3,6 +3,9 @@
   "name": "WikiWeaver",
   "version": "0.1",
   "description": "Send wikipedia urls to a WikiWeaver server",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self';"
+  },
   "icons": {
     "48": "icons/48.png",
     "96": "icons/96.png"
@@ -18,7 +21,8 @@
   "permissions": [
     "webNavigation",
     "webRequest",
-    "storage"
+    "storage",
+    "alarms"
   ],
   "background": {
     "scripts": [

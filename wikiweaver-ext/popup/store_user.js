@@ -1,3 +1,5 @@
+const pingInterval = 5000;
+
 async function init() {
   const form = document.querySelector("#connect_form");
 
@@ -23,5 +25,19 @@ async function init() {
     form.input_domain.value = options.domain;
   }
 }
+
+document.addEventListener("click", async (e) => {
+  if (e.target.id != "connect") return;
+
+  await browser.runtime.sendMessage({ type: "connect" });
+
+  console.log("popup sending ping");
+  await browser.runtime.sendMessage({ type: "ping" });
+
+  interval = setInterval(() => {
+    console.log("popup sending ping");
+    browser.runtime.sendMessage({ type: "ping" });
+  }, pingInterval);
+});
 
 document.addEventListener("DOMContentLoaded", () => init(), false);

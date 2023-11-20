@@ -31,6 +31,7 @@ var globalState GlobalState
 type Lobby struct {
 	Code                string
 	HostConn            *websocket.Conn
+	ClientConns         []*websocket.Conn
 	HostConnAddress     string
 	LastInteractionTime time.Time
 }
@@ -147,7 +148,7 @@ func hostListener(lobby *Lobby) {
 	for {
 		_, buf, err := lobby.HostConn.ReadMessage()
 		if err != nil {
-			log.Printf("web client %s disconnected\n", lobby.HostConnAddress)
+			log.Printf("web client %s disconnected: %s", lobby.HostConnAddress, err)
 			return
 		}
 
@@ -175,6 +176,70 @@ func hostListener(lobby *Lobby) {
 			}
 
 			log.Printf("responding with pong to: %s", lobby.HostConnAddress)
+		}
+	}
+}
+
+func handlerLobbyJoinExt(w http.ResponseWriter, r *http.Request) {
+
+	code := r.URL.Query().Get("code")
+
+	lobby := globalState.Lobbies[code]
+
+	if lobby == nil {
+		log.Printf("extension %s tried to join non existent lobby: %s", r.RemoteAddr, code)
+		return
+	}
+
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	lobby.ClientConns = append(lobby.ClientConns, conn)
+	lobby.LastInteractionTime = time.Now()
+
+	log.Printf("extension client %s joined lobby %s", conn.RemoteAddr(), lobby.Code)
+
+	go clientListener(lobby, conn)
+}
+
+func clientListener(lobby *Lobby, conn *websocket.Conn) {
+	defer conn.Close()
+
+	for {
+		_, buf, err := conn.ReadMessage()
+		if err != nil {
+			log.Printf("extension client %s disconnected: %s", conn.RemoteAddr(), err)
+			return
+		}
+
+		var msg Message
+		err = json.Unmarshal(buf, &msg)
+		if err != nil {
+			log.Printf("failed to unmarshal message: %s", err)
+			continue
+		}
+
+		switch msg.Type {
+		case "ping":
+			log.Printf("received ping from: %s", conn.RemoteAddr())
+
+			pongMessage := PongMessage{
+				Message: Message{
+					Type: "pong",
+				},
+			}
+
+			err = conn.WriteJSON(pongMessage)
+			if err != nil {
+				log.Printf("failed to respond with pong: %s", err)
+				continue
+			}
+
+			log.Printf("responding with pong to: %s", conn.RemoteAddr())
 		}
 	}
 }
@@ -309,6 +374,7 @@ func main() {
 
 	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
 	http.HandleFunc("/api/ws/web/lobby/join", handlerLobbyJoinWeb)
+	http.HandleFunc("/api/ws/ext/lobby/join", handlerLobbyJoinExt)
 	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
 	http.HandleFunc("/api/ext/page", handlerPage)
 
