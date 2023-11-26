@@ -17,8 +17,8 @@ WORKDIR /server
 
 COPY . .
 
-RUN make dev
+RUN make build
 
 EXPOSE 4242
 
-CMD ["./bin/wikiweaver-server" , "--dev"]
+CMD ["./bin/wikiweaver-server"]
