@@ -217,7 +217,7 @@ type PageToWebMessage struct {
 	Message
 	Username  string
 	Page      string
-	TimeAdded string
+	TimeAdded int
 }
 
 func handlerPage(w http.ResponseWriter, r *http.Request) {
