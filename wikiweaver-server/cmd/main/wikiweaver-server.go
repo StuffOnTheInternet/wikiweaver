@@ -208,16 +208,18 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 type PageFromExtMessage struct {
-	Code     string
-	Username string
-	Page     string
+	Code       string
+	Username   string
+	Page       string
+	IsBackmove bool
 }
 
 type PageToWebMessage struct {
 	Message
-	Username  string
-	Page      string
-	TimeAdded int
+	Username   string
+	Page       string
+	TimeAdded  int
+	IsBackmove bool
 }
 
 func handlerPage(w http.ResponseWriter, r *http.Request) {
@@ -273,9 +275,10 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			Message: Message{
 				Type: "page",
 			},
-			Username:  pageFromExtMessage.Username,
-			Page:      pageFromExtMessage.Page,
-			TimeAdded: 10,
+			Username:   pageFromExtMessage.Username,
+			Page:       pageFromExtMessage.Page,
+			TimeAdded:  10,
+			IsBackmove: pageFromExtMessage.IsBackmove,
 		}
 
 		log.Printf("forwarding page '%s' from user '%s' to lobby %s", pageToWebMessage.Page, pageToWebMessage.Username, code)

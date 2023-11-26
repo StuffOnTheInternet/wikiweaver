@@ -19,6 +19,7 @@ chrome.webNavigation.onCommitted.addListener(
         code: options.lobby,
         username: options.username,
         page: page,
+        backmove: event.transitionQualifiers.includes("forward_back"),
       }),
     });
   },
