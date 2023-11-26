@@ -215,8 +215,9 @@ type PageFromExtMessage struct {
 
 type PageToWebMessage struct {
 	Message
-	Username string
-	Page     string
+	Username  string
+	Page      string
+	TimeAdded string
 }
 
 func handlerPage(w http.ResponseWriter, r *http.Request) {
@@ -272,8 +273,9 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			Message: Message{
 				Type: "page",
 			},
-			Username: pageFromExtMessage.Username,
-			Page:     pageFromExtMessage.Page,
+			Username:  pageFromExtMessage.Username,
+			Page:      pageFromExtMessage.Page,
+			TimeAdded: 10,
 		}
 
 		log.Printf("forwarding page '%s' from user '%s' to lobby %s", pageToWebMessage.Page, pageToWebMessage.Username, code)

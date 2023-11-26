@@ -134,7 +134,7 @@ var options = {
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 };
 
-function AddNewPage(Player, ToString, backmove = false) {
+function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
   var ColorArray = [
     "Red",
     "Blue",
@@ -150,11 +150,11 @@ function AddNewPage(Player, ToString, backmove = false) {
 
   for (let color of ColorArray) {
     if (CMap[color].group == Player) {
-      AddNewElement(color, ToString, backmove);
+      AddNewElement(color, ToString, timeadded, backmove);
       break;
     } else if (CMap[color].group == "UNUSED") {
       CMap[color].group = Player;
-      AddNewElement(color, ToString, backmove);
+      AddNewElement(color, ToString, timeadded, backmove);
       break;
     }
   }
@@ -162,7 +162,7 @@ function AddNewPage(Player, ToString, backmove = false) {
   // The server calls this function to add new pages
 }
 
-function AddNewElement(PColor, ToString, backmove) {
+function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Add a new edge and possibly a new node for a player click
   var CList = CMap[PColor];
 
@@ -173,7 +173,7 @@ function AddNewElement(PColor, ToString, backmove) {
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
-      data: { id: ToString, group: CList.group },
+      data: { id: ToString, group: CList.group, time: timeadded },
       position: {
         x: webgraph.getElementById(CList.fromnode).position("x"),
         y: webgraph.getElementById(CList.fromnode).position("y"),
@@ -193,6 +193,7 @@ function AddNewElement(PColor, ToString, backmove) {
       group: CList.group,
       source: CList.fromnode,
       target: ToString,
+      time: timeadded,
     },
   });
   webgraph
@@ -279,101 +280,101 @@ function StartGame(StartNode, GoalNode) {
 }
 
 function createExampleGraph() {
-  StartGame("That guy in the coca cola commercials", "Fish");
+  StartGame("That guy in the coca cola commercials", "Fish", 0);
 
   // A three player example of a race between Santa Claus and Fish
-  AddNewPage("Bob", "East-West Schism");
-  AddNewPage("Bob", "Lent");
-  AddNewPage("Bob", "Lent");
-  AddNewPage("Bob", "Lent");
-  AddNewPage("Bob", "Lent");
-  AddNewPage("Bob", "Lent");
-  AddNewPage("Bob", "Fish");
+  AddNewPage("Bob", "East-West Schism", 10);
+  AddNewPage("Bob", "Lent", 10);
+  AddNewPage("Bob", "Lent", 10);
+  AddNewPage("Bob", "Lent", 10);
+  AddNewPage("Bob", "Lent", 10);
+  AddNewPage("Bob", "Lent", 10);
+  AddNewPage("Bob", "Fish", 10);
 
-  AddNewPage("Charlie", "East-West Schism");
-  AddNewPage("Charlie", "Lent");
-  AddNewPage("Charlie", "Winter");
+  AddNewPage("Charlie", "East-West Schism", 10);
+  AddNewPage("Charlie", "Lent", 10);
+  AddNewPage("Charlie", "Winter", 10);
 
-  AddNewPage("Mark", "Saint Nick");
-  AddNewPage("Mark", "Christianty");
-  AddNewPage("Mark", "Catholicism");
-  AddNewPage("Mark", "Lent");
-  AddNewPage("Mark", "Fish");
+  AddNewPage("Mark", "Saint Nick", 10);
+  AddNewPage("Mark", "Christianty", 10);
+  AddNewPage("Mark", "Catholicism", 10);
+  AddNewPage("Mark", "Lent", 10);
+  AddNewPage("Mark", "Fish", 10);
 
-  AddNewPage("Alice", "Coca Cola");
-  AddNewPage("Alice", "Atlanta");
-  AddNewPage("Alice", "Georgia");
+  AddNewPage("Alice", "Coca Cola", 10);
+  AddNewPage("Alice", "Atlanta", 10);
+  AddNewPage("Alice", "Georgia", 10);
 
-  AddNewPage("Emma", "East-West Schism");
-  AddNewPage("Emma", "Passover");
-  AddNewPage("Emma", "Pike");
-  AddNewPage("Emma", "Passover");
-  AddNewPage("Emma", "Carp");
-  AddNewPage("Emma", "Rough Fish");
-  AddNewPage("Emma", "Fish");
+  AddNewPage("Emma", "East-West Schism", 10);
+  AddNewPage("Emma", "Passover", 10);
+  AddNewPage("Emma", "Pike", 10);
+  AddNewPage("Emma", "Passover", 10);
+  AddNewPage("Emma", "Carp", 10);
+  AddNewPage("Emma", "Rough Fish", 10);
+  AddNewPage("Emma", "Fish", 10);
 
-  AddNewPage("Robert", "Coca Cola");
-  AddNewPage("Robert", "United States");
-  AddNewPage("Robert", "Fish");
+  AddNewPage("Robert", "Coca Cola", 10);
+  AddNewPage("Robert", "United States", 10);
+  AddNewPage("Robert", "Fish", 10);
 
-  AddNewPage("XXANTSLAYERXX", "Coca Cola");
-  AddNewPage("XXANTSLAYERXX", "Pepsi Cola");
-  AddNewPage("XXANTSLAYERXX", "Pepsi");
+  AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
+  AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
+  AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
 
-  AddNewPage("Your dad", "Coca Cola");
-  AddNewPage("Your dad", "Pepsi Cola");
-  AddNewPage("Your dad", "Pepsi");
-  AddNewPage("Your dad", "Soda");
-  AddNewPage("Your dad", "United States");
+  AddNewPage("Your dad", "Coca Cola", 10);
+  AddNewPage("Your dad", "Pepsi Cola", 10);
+  AddNewPage("Your dad", "Pepsi", 10);
+  AddNewPage("Your dad", "Soda", 10);
+  AddNewPage("Your dad", "United States", 10);
 
-  AddNewPage("asdfghjk", "Beard");
-  AddNewPage("asdfghjk", "Hair");
-  AddNewPage("asdfghjk", "Head");
+  AddNewPage("asdfghjk", "Beard", 10);
+  AddNewPage("asdfghjk", "Hair", 10);
+  AddNewPage("asdfghjk", "Head", 10);
 
-  AddNewPage("Paul", "East-West Schism");
-  AddNewPage("Paul", "Passover");
-  AddNewPage("Paul", "Carp");
-  AddNewPage("Paul", "Aquaculture");
-  AddNewPage("Paul", "Goldfish");
-  AddNewPage("Paul", "Fish");
+  AddNewPage("Paul", "East-West Schism", 10);
+  AddNewPage("Paul", "Passover", 10);
+  AddNewPage("Paul", "Carp", 10);
+  AddNewPage("Paul", "Aquaculture", 10);
+  AddNewPage("Paul", "Goldfish", 10);
+  AddNewPage("Paul", "Fish", 10);
 }
 
 function CreateNicerExample() {
-  StartGame("Santa Claus", "Fish");
+  StartGame("Santa Claus", "Fish", 0);
 
   // A three player example of a race between Santa Claus and Fish
-  AddNewPage("Bob", "East-West Schism");
-  AddNewPage("Bob", "Lent");
-  AddNewPage("Bob", "Fish");
+  AddNewPage("Bob", "East-West Schism", 10);
+  AddNewPage("Bob", "Lent", 10);
+  AddNewPage("Bob", "Fish", 10);
 
-  AddNewPage("Mark", "Saint Nick");
-  AddNewPage("Mark", "Christianity");
-  AddNewPage("Mark", "Catholicism");
-  AddNewPage("Mark", "Lent");
-  AddNewPage("Mark", "Fish");
+  AddNewPage("Mark", "Saint Nick", 10);
+  AddNewPage("Mark", "Christianity", 10);
+  AddNewPage("Mark", "Catholicism", 10);
+  AddNewPage("Mark", "Lent", 10);
+  AddNewPage("Mark", "Fish", 10);
 
-  AddNewPage("Emma", "East-West Schism");
-  AddNewPage("Emma", "Passover");
-  AddNewPage("Emma", "Pike");
-  AddNewPage("Emma", "Passover", true);
-  AddNewPage("Emma", "Carp");
-  AddNewPage("Emma", "Rough Fish");
-  AddNewPage("Emma", "Fish");
+  AddNewPage("Emma", "East-West Schism", 10);
+  AddNewPage("Emma", "Passover", 10);
+  AddNewPage("Emma", "Pike", 10);
+  AddNewPage("Emma", "Passover", 10, true);
+  AddNewPage("Emma", "Carp", 10);
+  AddNewPage("Emma", "Rough Fish", 10);
+  AddNewPage("Emma", "Fish", 10);
 
-  AddNewPage("Robert", "Pepsi");
-  AddNewPage("Robert", "Fat");
-  AddNewPage("Robert", "Tuna");
-  AddNewPage("Robert", "Game Fish");
-  AddNewPage("Robert", "Fish");
+  AddNewPage("Robert", "Pepsi", 10);
+  AddNewPage("Robert", "Fat", 10);
+  AddNewPage("Robert", "Tuna", 10);
+  AddNewPage("Robert", "Game Fish", 10);
+  AddNewPage("Robert", "Fish", 10);
 
-  AddNewPage("XXANTSLAYERXX", "Coca Cola");
-  AddNewPage("XXANTSLAYERXX", "Pepsi Cola");
-  AddNewPage("XXANTSLAYERXX", "Pepsi");
+  AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
+  AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
+  AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
 
-  AddNewPage("Paul", "East-West Schism");
-  AddNewPage("Paul", "Passover");
-  AddNewPage("Paul", "Carp");
-  AddNewPage("Paul", "Aquaculture");
-  AddNewPage("Paul", "Goldfish");
-  AddNewPage("Paul", "Fish");
+  AddNewPage("Paul", "East-West Schism", 10);
+  AddNewPage("Paul", "Passover", 10);
+  AddNewPage("Paul", "Carp", 10);
+  AddNewPage("Paul", "Aquaculture", 10);
+  AddNewPage("Paul", "Goldfish", 10);
+  AddNewPage("Paul", "Fish", 10);
 }
