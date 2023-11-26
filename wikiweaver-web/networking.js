@@ -42,7 +42,7 @@ function API_lobbyJoin(code) {
         // Server is alive, good. Ignore.
         break;
       case "page":
-        AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.IsBackmove);
+        AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
         break;
       default:
         console.log("Unrecognized message: ", msg);
