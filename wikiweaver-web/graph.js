@@ -106,8 +106,8 @@ var options = {
   nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
 
   // layout event callbacks
-  ready: function () {}, // on layoutready
-  stop: function () {}, // on layoutstop
+  ready: function () { }, // on layoutready
+  stop: function () { }, // on layoutstop
 
   // positioning options
   randomize: false, // use random node positions at beginning of layout
@@ -134,7 +134,7 @@ var options = {
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 };
 
-function AddNewPage(Player, ToString) {
+function AddNewPage(Player, ToString, backmove = false) {
   var ColorArray = [
     "Red",
     "Blue",
@@ -150,11 +150,11 @@ function AddNewPage(Player, ToString) {
 
   for (let color of ColorArray) {
     if (CMap[color].group == Player) {
-      AddNewElement(color, ToString);
+      AddNewElement(color, ToString, backmove);
       break;
     } else if (CMap[color].group == "UNUSED") {
       CMap[color].group = Player;
-      AddNewElement(color, ToString);
+      AddNewElement(color, ToString, backmove);
       break;
     }
   }
@@ -162,7 +162,7 @@ function AddNewPage(Player, ToString) {
   // The server calls this function to add new pages
 }
 
-function AddNewElement(PColor, ToString) {
+function AddNewElement(PColor, ToString, backmove) {
   // Add a new edge and possibly a new node for a player click
   var CList = CMap[PColor];
 
@@ -204,6 +204,13 @@ function AddNewElement(PColor, ToString) {
   webgraph
     .edges('[group = "' + CList.group + '"]')
     .style("target-arrow-shape", CList.arrowshape);
+
+  if (backmove) {
+    webgraph
+      .edges('[target = "' + ToString + '"][source = "' + CList.fromnode + '"][group = "' + CList.group + '"]')
+      .style("line-style", "dashed");
+  }
+
 
   // Reposition the player to the new node
   CList.fromnode = ToString;
@@ -348,7 +355,7 @@ function CreateNicerExample() {
   AddNewPage("Emma", "East-West Schism");
   AddNewPage("Emma", "Passover");
   AddNewPage("Emma", "Pike");
-  AddNewPage("Emma", "Passover");
+  AddNewPage("Emma", "Passover", true);
   AddNewPage("Emma", "Carp");
   AddNewPage("Emma", "Rough Fish");
   AddNewPage("Emma", "Fish");
