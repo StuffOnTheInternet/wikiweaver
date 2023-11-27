@@ -256,10 +256,8 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("error reading extension request: %s", err)
-
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
-
 			return
 		}
 
@@ -267,10 +265,8 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &pageFromExtMessage)
 		if err != nil {
 			log.Printf("failed to parse message from extension: %s", err)
-
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
-
 			return
 		}
 
@@ -280,20 +276,16 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 
 		lobby := globalState.Lobbies[code]
 		if lobby == nil {
-			log.Printf("lobby %s not found, refusing to forward message", code)
-
+			log.Printf("refusing to forward page to lobby %s: lobby not found", code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
-
 			return
 		}
 
 		if lobby.HostConn == nil {
-			log.Printf("no host for lobby %s, refusing to forward message", code)
-
+			log.Printf("refusing to forward page to lobby %s: no host for lobby", code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
-
 			return
 		}
 
@@ -313,11 +305,9 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 
 		err = lobby.HostConn.WriteJSON(pageToWebMessage)
 		if err != nil {
-			log.Printf("failed to forward message to lobby: %s", err)
-
+			log.Printf("failed to forward message to lobby %s", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
-
 			return
 		}
 
