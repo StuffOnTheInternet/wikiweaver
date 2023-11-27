@@ -289,6 +289,13 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if lobby.StartTime.IsZero() {
+			log.Printf("refusing to forward page to lobby %s: lobby is not started", code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
 		lobby.LastInteractionTime = time.Now()
 
 		pageToWebMessage := PageToWebMessage{
