@@ -189,13 +189,7 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 
 	lobby := globalState.Lobbies[code]
 
-	var response LobbyStatusResponse
-
-	if lobby != nil {
-		response = LobbyStatusResponse{Active: true}
-	} else {
-		response = LobbyStatusResponse{Active: false}
-	}
+	response := LobbyStatusResponse{Active: lobby != nil}
 
 	msg, err := json.Marshal(response)
 	if err != nil {
