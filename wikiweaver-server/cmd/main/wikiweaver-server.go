@@ -246,7 +246,7 @@ type PageToWebMessage struct {
 	Message
 	Username  string
 	Page      string
-	TimeAdded int
+	TimeAdded int64
 	Backmove  bool
 }
 
@@ -304,7 +304,7 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			},
 			Username:  pageFromExtMessage.Username,
 			Page:      pageFromExtMessage.Page,
-			TimeAdded: 10,
+			TimeAdded: time.Since(lobby.StartTime).Milliseconds(),
 			Backmove:  pageFromExtMessage.Backmove,
 		}
 
