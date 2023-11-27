@@ -227,6 +227,7 @@ func handleLobbyStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	lobby.StartTime = time.Now()
+	lobby.LastInteractionTime = time.Now()
 
 	log.Printf("successfully started lobby %s", code)
 
