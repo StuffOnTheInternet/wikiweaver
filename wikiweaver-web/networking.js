@@ -1,4 +1,4 @@
-const connectionFailMessage = "Connection failure";
+const connectionFailMessage = "Disconnected";
 
 const backend = "s://lofen.tplinkdns.com"; // Use this for production
 // const backend = "://localhost:4242"; // Use this for local development
