@@ -60,6 +60,14 @@ async function API_lobbyStatus(code) {
     });
 }
 
+async function API_lobbyStart(code) {
+  return await fetch("http" + backend + "/api/web/lobby/start?code=" + code)
+    .then((response) => response.status == 200)
+    .catch((_) => {
+      return false;
+    });
+}
+
 async function connect() {
   if (globalThis.socket) {
     await globalThis.socket.close();

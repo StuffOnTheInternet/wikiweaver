@@ -33,6 +33,7 @@ type Lobby struct {
 	HostConn            *websocket.Conn
 	HostConnAddress     string
 	LastInteractionTime time.Time
+	StartTime           time.Time
 }
 
 func (l *Lobby) close() {
@@ -201,6 +202,38 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
+func handleLobbyStart(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	code := r.URL.Query().Get("code")
+
+	log.Printf("web client %s requested to start lobby %s", r.RemoteAddr, code)
+
+	lobby := globalState.Lobbies[code]
+
+	if lobby == nil {
+		log.Printf("failed to start lobby %s: lobby does not exist", code)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte{})
+		return
+	}
+
+	if !lobby.StartTime.IsZero() {
+		log.Printf("failed to start lobby %s: lobby already started", code)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte{})
+		return
+	}
+
+	lobby.StartTime = time.Now()
+
+	log.Printf("successfully started lobby %s", code)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte{})
+}
+
 type PageFromExtMessage struct {
 	Code     string
 	Username string
@@ -309,6 +342,7 @@ func main() {
 	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
 	http.HandleFunc("/api/ws/web/lobby/join", handlerLobbyJoinWeb)
 	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
+	http.HandleFunc("/api/web/lobby/start", handleLobbyStart)
 	http.HandleFunc("/api/ext/page", handlerPage)
 
 	address := "0.0.0.0"
