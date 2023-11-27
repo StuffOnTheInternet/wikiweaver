@@ -89,7 +89,7 @@ func lobbyCleaner() {
 	}
 }
 
-func handlerLobbyCreate(w http.ResponseWriter, r *http.Request) {
+func handleWebLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateUniqueCode()
 
@@ -109,7 +109,7 @@ type PongMessage struct {
 	Message
 }
 
-func handlerLobbyJoinWeb(w http.ResponseWriter, r *http.Request) {
+func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
@@ -184,7 +184,7 @@ type LobbyStatusResponse struct {
 	Active bool
 }
 
-func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
+func handleWebLobbyStatus(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
@@ -202,7 +202,7 @@ func handlerLobbyStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
-func handleLobbyStart(w http.ResponseWriter, r *http.Request) {
+func handleWebLobbyStart(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -250,7 +250,7 @@ type PageToWebMessage struct {
 	Backmove  bool
 }
 
-func handlerPage(w http.ResponseWriter, r *http.Request) {
+func handleExtPage(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		body, err := io.ReadAll(r.Body)
@@ -337,11 +337,12 @@ func main() {
 	go ConsoleListener()
 	go lobbyCleaner()
 
-	http.HandleFunc("/api/web/lobby/create", handlerLobbyCreate)
-	http.HandleFunc("/api/ws/web/lobby/join", handlerLobbyJoinWeb)
-	http.HandleFunc("/api/web/lobby/status", handlerLobbyStatus)
-	http.HandleFunc("/api/web/lobby/start", handleLobbyStart)
-	http.HandleFunc("/api/ext/page", handlerPage)
+	http.HandleFunc("/api/web/lobby/create", handleWebLobbyCreate)
+	http.HandleFunc("/api/ws/web/lobby/join", handleWebLobbyJoin)
+	http.HandleFunc("/api/web/lobby/status", handleWebLobbyStatus)
+	http.HandleFunc("/api/web/lobby/start", handleWebLobbyStart)
+
+	http.HandleFunc("/api/ext/page", handleExtPage)
 
 	address := "0.0.0.0"
 	if dev {
