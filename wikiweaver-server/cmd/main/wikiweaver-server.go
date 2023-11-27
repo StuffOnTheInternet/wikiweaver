@@ -270,7 +270,7 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Printf("received data from extension: %v", pageFromExtMessage)
+		log.Printf("received message from extension: %v", pageFromExtMessage)
 
 		code := pageFromExtMessage.Code
 
@@ -308,7 +308,7 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			Backmove:  pageFromExtMessage.Backmove,
 		}
 
-		log.Printf("forwarding page '%s' from user '%s' to lobby %s", pageToWebMessage.Page, pageToWebMessage.Username, code)
+		log.Printf("forwarding message to lobby %s: %v", code, pageToWebMessage)
 
 		err = lobby.HostConn.WriteJSON(pageToWebMessage)
 		if err != nil {
