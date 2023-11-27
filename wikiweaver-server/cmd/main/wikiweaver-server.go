@@ -275,10 +275,10 @@ func handlerPage(w http.ResponseWriter, r *http.Request) {
 			Message: Message{
 				Type: "page",
 			},
-			Username:   pageFromExtMessage.Username,
-			Page:       pageFromExtMessage.Page,
-			TimeAdded:  10,
-			Backmove: pageFromExtMessage.Backmove,
+			Username:  pageFromExtMessage.Username,
+			Page:      pageFromExtMessage.Page,
+			TimeAdded: 10,
+			Backmove:  pageFromExtMessage.Backmove,
 		}
 
 		log.Printf("forwarding page '%s' from user '%s' to lobby %s", pageToWebMessage.Page, pageToWebMessage.Username, code)
