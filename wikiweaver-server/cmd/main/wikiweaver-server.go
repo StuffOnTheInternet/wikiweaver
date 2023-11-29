@@ -194,8 +194,6 @@ func handleWebLobbyStart(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
-	log.Printf("web client %s requested to start lobby %s", r.RemoteAddr, code)
-
 	lobby := globalState.Lobbies[code]
 
 	if lobby == nil {
@@ -215,7 +213,7 @@ func handleWebLobbyStart(w http.ResponseWriter, r *http.Request) {
 	lobby.StartTime = time.Now()
 	lobby.LastInteractionTime = time.Now()
 
-	log.Printf("successfully started lobby %s", code)
+	log.Printf("web client %s started lobby %s", r.RemoteAddr, code)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte{})
