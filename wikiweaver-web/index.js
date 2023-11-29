@@ -24,6 +24,13 @@ async function HandleStartGameClicked() {
     return;
   }
 
+  if (startPage == goalPage) {
+    console.log(
+      "failed to start lobby: start and goal pages cannot have the same value"
+    );
+    return;
+  }
+
   let success = await API_lobbyStart(code);
   if (!success) {
     console.log("failed to start lobby: server failed to start lobby");
