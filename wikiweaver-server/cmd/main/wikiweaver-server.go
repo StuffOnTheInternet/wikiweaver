@@ -254,8 +254,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Printf("extension %s sent new page: %v", r.RemoteAddr, pageFromExtMessage)
-
 		code := pageFromExtMessage.Code
 
 		lobby := globalState.Lobbies[code]
@@ -292,7 +290,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			Backmove:  pageFromExtMessage.Backmove,
 		}
 
-		log.Printf("forwarding page to web client %s in lobby %s: %v", lobby.HostConn.RemoteAddr(), code, pageToWebMessage)
+		log.Printf("forwarding page from extension %s to web client %s in lobby %s: %v", r.RemoteAddr, lobby.HostConn.RemoteAddr(), code, pageToWebMessage)
 
 		err = lobby.HostConn.WriteJSON(pageToWebMessage)
 		if err != nil {
