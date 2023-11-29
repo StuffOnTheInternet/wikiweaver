@@ -20,6 +20,8 @@ async function HandleStartGameClicked() {
   startPage = document.getElementById("start-page-input").value;
   goalPage = document.getElementById("goal-page-input").value;
   StartGame(startPage, goalPage);
+
+  document.getElementById("start-button").disabled = true;
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
