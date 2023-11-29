@@ -161,8 +161,6 @@ func hostListener(lobby *Lobby) {
 
 		switch msg.Type {
 		case "ping":
-			log.Printf("received ping from: %s", lobby.HostConnAddress)
-
 			pongMessage := PongMessage{
 				Message: Message{
 					Type: "pong",
@@ -174,8 +172,6 @@ func hostListener(lobby *Lobby) {
 				log.Printf("failed to respond with pong: %s", err)
 				continue
 			}
-
-			log.Printf("responding with pong to: %s", lobby.HostConnAddress)
 		}
 	}
 }
