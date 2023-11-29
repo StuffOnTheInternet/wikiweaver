@@ -3,4 +3,3 @@ build:
 
 dev:
 	go run ./cmd/main/wikiweaver-server.go --dev
-	
