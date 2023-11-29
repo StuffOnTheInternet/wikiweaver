@@ -1,7 +1,7 @@
 const connectionFailMessage = "Disconnected";
 
-const backend = "s://lofen.tplinkdns.com"; // Use this for production
-// const backend = "://localhost:4242"; // Use this for local development
+// const backend = "s://lofen.tplinkdns.com"; // Use this for production
+const backend = "://localhost:4242"; // Use this for local development
 
 const pingInterval = 30000; // milliseconds
 
@@ -84,6 +84,15 @@ async function connect() {
   }
 
   if (!lobbyStatus.Active) {
+    code = await API_lobbyCreate();
+    if (code == null) {
+      document.getElementById("code").innerHTML = connectionFailMessage;
+      return;
+    }
+  } else {
+    // Since we dont store anything in the server (for now), it does not make
+    // sense to attempt to join the same lobby again. Always create a new one,
+    // regardless of if the previous lobby is still active or not
     code = await API_lobbyCreate();
     if (code == null) {
       document.getElementById("code").innerHTML = connectionFailMessage;
