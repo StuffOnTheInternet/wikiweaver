@@ -75,8 +75,6 @@ func lobbyCleaner() {
 	for {
 		time.Sleep(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)
 
-		log.Printf("closing idle lobbies")
-
 		for code, lobby := range globalState.Lobbies {
 			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
 				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
