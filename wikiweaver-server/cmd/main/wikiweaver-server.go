@@ -31,7 +31,6 @@ var globalState GlobalState
 type Lobby struct {
 	Code                string
 	HostConn            *websocket.Conn
-	HostConnAddress     string
 	LastInteractionTime time.Time
 	StartTime           time.Time
 }
@@ -127,17 +126,10 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	address, ok := conn.RemoteAddr().(*net.TCPAddr)
-	if !ok {
-		log.Printf("failed to convert address to TCP address: %s", conn.RemoteAddr())
-		return
-	}
-
 	lobby.HostConn = conn
-	lobby.HostConnAddress = address.IP.String()
 	lobby.LastInteractionTime = time.Now()
 
-	log.Printf("web client %s joined lobby %s", lobby.HostConnAddress, lobby.Code)
+	log.Printf("web client %s joined lobby %s", lobby.HostConn.RemoteAddr(), lobby.Code)
 
 	go hostListener(lobby)
 }
@@ -148,7 +140,7 @@ func hostListener(lobby *Lobby) {
 	for {
 		_, buf, err := lobby.HostConn.ReadMessage()
 		if err != nil {
-			log.Printf("web client %s disconnected\n", lobby.HostConnAddress)
+			log.Printf("web client %s disconnected from lobby %s\n", lobby.HostConn.RemoteAddr(), lobby.Code)
 			return
 		}
 
