@@ -356,7 +356,6 @@ func ConsoleListener() {
 
 	_, err := os.Stat(CONSOLE_SOCKET_PATH)
 	if !os.IsNotExist(err) {
-		log.Println("deleting old console socket")
 		os.Remove(CONSOLE_SOCKET_PATH)
 	}
 
@@ -365,6 +364,8 @@ func ConsoleListener() {
 		log.Fatal("listen error: ", err)
 	}
 	defer listener.Close()
+
+	log.Printf("developer console listening on %s", CONSOLE_SOCKET_PATH)
 
 	for {
 		conn, err := listener.Accept()
