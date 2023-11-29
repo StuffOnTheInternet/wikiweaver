@@ -19,6 +19,17 @@ async function HandleStartGameClicked() {
 
   startPage = document.getElementById("start-page-input").value;
   goalPage = document.getElementById("goal-page-input").value;
+
+  if (!startPage) {
+    console.log(`failed to start lobby: invalid start page '${startPage}'`);
+    return;
+  }
+
+  if (!goalPage) {
+    console.log(`failed to start lobby: invalid goal page '${goalPage}'`);
+    return;
+  }
+
   StartGame(startPage, goalPage);
 
   document.getElementById("start-button").disabled = true;
