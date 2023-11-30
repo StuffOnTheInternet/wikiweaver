@@ -33,6 +33,7 @@ type Lobby struct {
 	HostConn            *websocket.Conn
 	LastInteractionTime time.Time
 	StartTime           time.Time
+	History             []PageToWebMessage
 }
 
 func (l *Lobby) close() {
@@ -299,6 +300,8 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte{})
 			return
 		}
+
+		lobby.History = append(lobby.History, pageToWebMessage)
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte{})
