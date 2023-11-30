@@ -20,6 +20,7 @@ const (
 	CONSOLE_SOCKET_PATH             = "/tmp/ww-console.sock"
 	CODE_LENGTH                     = 4
 	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 15 * time.Minute
+	HISTORY_SEND_INTERVAL           = 200 * time.Millisecond
 )
 
 type GlobalState struct {
@@ -131,6 +132,18 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 	log.Printf("web client %s joined lobby %s", lobby.HostConn.RemoteAddr(), lobby.Code)
 
 	go hostListener(lobby)
+	go sendHistory(lobby)
+}
+
+func sendHistory(lobby *Lobby) {
+	for _, msg := range lobby.History {
+		time.Sleep(HISTORY_SEND_INTERVAL)
+		err := lobby.HostConn.WriteJSON(msg)
+		if err != nil {
+			log.Printf("failed to send history: %s", err)
+			break
+		}
+	}
 }
 
 func hostListener(lobby *Lobby) {
