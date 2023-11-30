@@ -44,6 +44,12 @@ function API_lobbyJoin(code) {
       case "page":
         AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
         break;
+      case "start":
+        document.getElementById("start-page-input").value = msg.StartPage;
+        document.getElementById("goal-page-input").value = msg.GoalPage;
+        StartGame(msg.StartPage, msg.GoalPage);
+        document.getElementById("start-button").disabled = true;
+        break;
       default:
         console.log("Unrecognized message: ", msg);
         break;
@@ -60,8 +66,16 @@ async function API_lobbyStatus(code) {
     });
 }
 
-async function API_lobbyStart(code) {
-  return await fetch("http" + backend + "/api/web/lobby/start?code=" + code)
+async function API_lobbyStart(code, startpage, goalpage) {
+  return await fetch("http" + backend + "/api/web/lobby/start", {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify({
+      code: code,
+      startpage: startpage,
+      goalpage: goalpage,
+    }),
+  })
     .then((response) => response.status == 200)
     .catch((_) => {
       return false;

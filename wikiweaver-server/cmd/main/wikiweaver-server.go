@@ -34,6 +34,8 @@ type Lobby struct {
 	HostConn            *websocket.Conn
 	LastInteractionTime time.Time
 	StartTime           time.Time
+	StartPage           string
+	GoalPage            string
 	History             []PageToWebMessage
 }
 
@@ -108,6 +110,12 @@ type PongMessage struct {
 	Message
 }
 
+type StartMessage struct {
+	Message
+	StartPage string
+	GoalPage  string
+}
+
 func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
@@ -132,10 +140,30 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 	log.Printf("web client %s joined lobby %s", lobby.HostConn.RemoteAddr(), lobby.Code)
 
 	go hostListener(lobby)
-	go sendHistory(lobby)
+
+	if !lobby.StartTime.IsZero() {
+		// Lobby has already started, he have history to send
+		go sendHistory(lobby)
+	}
 }
 
 func sendHistory(lobby *Lobby) {
+	log.Printf("sending history from lobby %s to web client %s", lobby.Code, lobby.HostConn.RemoteAddr())
+
+	startMsg := StartMessage{
+		Message: Message{
+			Type: "start",
+		},
+		StartPage: lobby.StartPage,
+		GoalPage:  lobby.GoalPage,
+	}
+
+	err := lobby.HostConn.WriteJSON(startMsg)
+	if err != nil {
+		log.Printf("failed to send history: %s", err)
+		return
+	}
+
 	for _, msg := range lobby.History {
 		time.Sleep(HISTORY_SEND_INTERVAL)
 		err := lobby.HostConn.WriteJSON(msg)
@@ -202,35 +230,63 @@ func handleWebLobbyStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
+type StartMessageFromWeb struct {
+	Code      string
+	StartPage string
+	GoalPage  string
+}
+
 func handleWebLobbyStart(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	code := r.URL.Query().Get("code")
+	switch r.Method {
+	case http.MethodPost:
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("error reading extension request: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
 
-	lobby := globalState.Lobbies[code]
+		var startMessageFromWeb StartMessageFromWeb
+		err = json.Unmarshal(body, &startMessageFromWeb)
+		if err != nil {
+			log.Printf("failed to parse start message from web: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
 
-	if lobby == nil {
-		log.Printf("failed to start lobby %s: lobby does not exist", code)
-		w.WriteHeader(http.StatusNotFound)
+		code := startMessageFromWeb.Code
+
+		lobby := globalState.Lobbies[code]
+
+		if lobby == nil {
+			log.Printf("failed to start lobby %s: lobby does not exist", code)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte{})
+			return
+		}
+
+		if !lobby.StartTime.IsZero() {
+			log.Printf("failed to start lobby %s: lobby already started", code)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte{})
+			return
+		}
+
+		lobby.StartTime = time.Now()
+		lobby.StartPage = startMessageFromWeb.StartPage
+		lobby.GoalPage = startMessageFromWeb.GoalPage
+		lobby.LastInteractionTime = time.Now()
+
+		log.Printf("web client %s started lobby %s: '%s' -> '%s'", r.RemoteAddr, code, lobby.StartPage, lobby.GoalPage)
+
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte{})
-		return
 	}
-
-	if !lobby.StartTime.IsZero() {
-		log.Printf("failed to start lobby %s: lobby already started", code)
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte{})
-		return
-	}
-
-	lobby.StartTime = time.Now()
-	lobby.LastInteractionTime = time.Now()
-
-	log.Printf("web client %s started lobby %s", r.RemoteAddr, code)
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte{})
 }
 
 type PageFromExtMessage struct {

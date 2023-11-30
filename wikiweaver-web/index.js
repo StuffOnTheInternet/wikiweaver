@@ -31,7 +31,7 @@ async function HandleStartGameClicked() {
     return;
   }
 
-  let success = await API_lobbyStart(code);
+  let success = await API_lobbyStart(code, startPage, goalPage);
   if (!success) {
     console.log("failed to start lobby: server failed to start lobby");
     return;
