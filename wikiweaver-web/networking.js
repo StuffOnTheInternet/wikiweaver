@@ -89,15 +89,6 @@ async function connect() {
       document.getElementById("code").innerHTML = connectionFailMessage;
       return;
     }
-  } else {
-    // Since we dont store anything in the server (for now), it does not make
-    // sense to attempt to join the same lobby again. Always create a new one,
-    // regardless of if the previous lobby is still active or not
-    code = await API_lobbyCreate();
-    if (code == null) {
-      document.getElementById("code").innerHTML = connectionFailMessage;
-      return;
-    }
   }
 
   API_lobbyJoin(code);
