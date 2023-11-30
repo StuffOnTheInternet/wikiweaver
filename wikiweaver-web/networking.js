@@ -87,7 +87,7 @@ async function connect() {
     await globalThis.socket.close();
   }
 
-  document.getElementById("code").innerHTML = "Connecting to server...";
+  document.getElementById("code").innerHTML = "Connecting...";
 
   code = localStorage.getItem("code");
 
