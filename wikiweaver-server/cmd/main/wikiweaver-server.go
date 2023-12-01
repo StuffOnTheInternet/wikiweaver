@@ -6,10 +6,8 @@ import (
 	"io"
 	"log"
 	"math/rand"
-	"net"
 	"net/http"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -448,7 +446,6 @@ func main() {
 
 	globalState = GlobalState{Lobbies: make(map[string]*Lobby)}
 
-	go ConsoleListener()
 	go lobbyCleaner()
 
 	http.HandleFunc("/api/web/lobby/create", handleWebLobbyCreate)
@@ -477,70 +474,5 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("listen error: %s", err)
-	}
-}
-
-func ConsoleListener() {
-
-	_, err := os.Stat(CONSOLE_SOCKET_PATH)
-	if !os.IsNotExist(err) {
-		os.Remove(CONSOLE_SOCKET_PATH)
-	}
-
-	listener, err := net.Listen("unix", CONSOLE_SOCKET_PATH)
-	if err != nil {
-		log.Fatal("listen error: ", err)
-	}
-	defer listener.Close()
-
-	log.Printf("developer console listening on %s", CONSOLE_SOCKET_PATH)
-
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			log.Fatal("accept error:", err)
-		}
-
-		log.Printf("received console connection")
-		go ConsoleHandler(conn)
-	}
-}
-
-func ConsoleHandler(conn net.Conn) {
-	defer conn.Close()
-
-	for {
-		buf := make([]byte, 512)
-		n, err := conn.Read(buf)
-		if err != nil {
-			log.Printf("console connection closed")
-			return
-		}
-
-		cmd := strings.Fields(string(buf[:n]))
-
-		if len(cmd) > 0 {
-			if cmd[0] != "newpage" {
-				conn.Write([]byte("unknown command\n"))
-				continue
-			}
-
-			if len(cmd) != 4 {
-				conn.Write([]byte("usage: newpage <lobby> <username> <page>\n"))
-				continue
-			}
-
-			lobby := globalState.Lobbies[cmd[1]]
-
-			if lobby == nil {
-				conn.Write([]byte("lobby does not exist\n"))
-				continue
-			}
-
-			lobby.LastInteractionTime = time.Now()
-
-			// msg := PageToWebMessage{Username: cmd[2], Page: cmd[3]}
-			// lobby.Host.WriteJSON(msg)
-		}
 	}
 }
