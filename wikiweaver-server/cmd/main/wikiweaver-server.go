@@ -31,7 +31,7 @@ var globalState GlobalState
 
 type Lobby struct {
 	Code                string
-	HostConn            *websocket.Conn
+	Host                *websocket.Conn
 	LastInteractionTime time.Time
 	StartTime           time.Time
 	StartPage           string
@@ -40,7 +40,7 @@ type Lobby struct {
 }
 
 func (l *Lobby) close() {
-	l.HostConn.Close()
+	l.Host.Close()
 }
 
 var upgrader = websocket.Upgrader{
@@ -134,10 +134,10 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lobby.HostConn = conn
+	lobby.Host = conn
 	lobby.LastInteractionTime = time.Now()
 
-	log.Printf("web client %s joined lobby %s", lobby.HostConn.RemoteAddr(), lobby.Code)
+	log.Printf("web client %s joined lobby %s", lobby.Host.RemoteAddr(), lobby.Code)
 
 	go hostListener(lobby)
 
@@ -148,7 +148,7 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendHistory(lobby *Lobby) {
-	log.Printf("sending history from lobby %s to web client %s", lobby.Code, lobby.HostConn.RemoteAddr())
+	log.Printf("sending history from lobby %s to web client %s", lobby.Code, lobby.Host.RemoteAddr())
 
 	startMsg := StartMessage{
 		Message: Message{
@@ -158,7 +158,7 @@ func sendHistory(lobby *Lobby) {
 		GoalPage:  lobby.GoalPage,
 	}
 
-	err := lobby.HostConn.WriteJSON(startMsg)
+	err := lobby.Host.WriteJSON(startMsg)
 	if err != nil {
 		log.Printf("failed to send history: %s", err)
 		return
@@ -166,7 +166,7 @@ func sendHistory(lobby *Lobby) {
 
 	for _, msg := range lobby.History {
 		time.Sleep(HISTORY_SEND_INTERVAL)
-		err := lobby.HostConn.WriteJSON(msg)
+		err := lobby.Host.WriteJSON(msg)
 		if err != nil {
 			log.Printf("failed to send history: %s", err)
 			break
@@ -175,12 +175,12 @@ func sendHistory(lobby *Lobby) {
 }
 
 func hostListener(lobby *Lobby) {
-	defer lobby.HostConn.Close()
+	defer lobby.Host.Close()
 
 	for {
-		_, buf, err := lobby.HostConn.ReadMessage()
+		_, buf, err := lobby.Host.ReadMessage()
 		if err != nil {
-			log.Printf("web client %s disconnected from lobby %s\n", lobby.HostConn.RemoteAddr(), lobby.Code)
+			log.Printf("web client %s disconnected from lobby %s\n", lobby.Host.RemoteAddr(), lobby.Code)
 			return
 		}
 
@@ -199,7 +199,7 @@ func hostListener(lobby *Lobby) {
 				},
 			}
 
-			err = lobby.HostConn.WriteJSON(pongMessage)
+			err = lobby.Host.WriteJSON(pongMessage)
 			if err != nil {
 				log.Printf("failed to respond with pong: %s", err)
 				continue
@@ -334,7 +334,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if lobby.HostConn == nil {
+		if lobby.Host == nil {
 			log.Printf("refusing to forward page to lobby %s: no host for lobby", code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
@@ -360,9 +360,9 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			Backmove:  pageFromExtMessage.Backmove,
 		}
 
-		log.Printf("forwarding page from extension %s to web client %s in lobby %s: %v", r.RemoteAddr, lobby.HostConn.RemoteAddr(), code, pageToWebMessage)
+		log.Printf("forwarding page from extension %s to web client %s in lobby %s: %v", r.RemoteAddr, lobby.Host.RemoteAddr(), code, pageToWebMessage)
 
-		err = lobby.HostConn.WriteJSON(pageToWebMessage)
+		err = lobby.Host.WriteJSON(pageToWebMessage)
 		if err != nil {
 			log.Printf("failed to forward message to lobby %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -480,7 +480,7 @@ func ConsoleHandler(conn net.Conn) {
 			lobby.LastInteractionTime = time.Now()
 
 			msg := PageToWebMessage{Username: cmd[2], Page: cmd[3]}
-			lobby.HostConn.WriteJSON(msg)
+			lobby.Host.WriteJSON(msg)
 		}
 	}
 }
