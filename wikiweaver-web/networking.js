@@ -69,7 +69,6 @@ async function API_lobbyStatus(code) {
 async function API_lobbyStart(code, startpage, goalpage) {
   return await fetch("http" + backend + "/api/web/lobby/start", {
     method: "POST",
-    mode: "no-cors",
     body: JSON.stringify({
       code: code,
       startpage: startpage,
