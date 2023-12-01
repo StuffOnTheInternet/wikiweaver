@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -42,6 +43,7 @@ type Lobby struct {
 	StartPage           string
 	GoalPage            string
 	History             []PageToWebMessage
+	Mutex               sync.Mutex
 }
 
 func (l *Lobby) close() {
@@ -61,6 +63,8 @@ func (l *Lobby) hasHost() bool {
 }
 
 func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
+	l.Mutex.Lock()
+
 	index := -1
 	for i, wc := range l.WebClients {
 		if wc == wcToRemove {
@@ -78,6 +82,8 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	l.WebClients[index] = l.WebClients[length-1]
 	l.WebClients[length-1] = nil
 	l.WebClients = l.WebClients[:length-1]
+
+	l.Mutex.Unlock()
 
 	return nil
 }
@@ -175,7 +181,10 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	shouldBeHost := !lobby.hasHost()
 	wc := &WebClient{conn: conn, isHost: shouldBeHost}
+
+	lobby.Mutex.Lock()
 	lobby.WebClients = append(lobby.WebClients, wc)
+	lobby.Mutex.Unlock()
 
 	if shouldBeHost {
 		log.Printf("web client %s joined lobby %s as host", conn.RemoteAddr(), lobby.Code)
@@ -405,7 +414,9 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			Backmove:  pageFromExtMessage.Backmove,
 		}
 
+		lobby.Mutex.Lock()
 		lobby.History = append(lobby.History, pageToWebMessage)
+		lobby.Mutex.Unlock()
 
 		log.Printf("forwarding page from extension %s to %d web clients in lobby %s: %v", r.RemoteAddr, len(lobby.WebClients), code, pageToWebMessage)
 
