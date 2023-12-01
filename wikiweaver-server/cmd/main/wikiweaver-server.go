@@ -26,6 +26,7 @@ const (
 
 type GlobalState struct {
 	Lobbies map[string]*Lobby
+	Mutex   sync.Mutex
 }
 
 var globalState GlobalState
@@ -124,6 +125,7 @@ func lobbyCleaner() {
 	for {
 		time.Sleep(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)
 
+		globalState.Mutex.Lock()
 		for code, lobby := range globalState.Lobbies {
 			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
 				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
@@ -132,6 +134,7 @@ func lobbyCleaner() {
 				delete(globalState.Lobbies, code)
 			}
 		}
+		globalState.Mutex.Unlock()
 	}
 }
 
@@ -139,7 +142,9 @@ func handleWebLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateUniqueCode()
 
+	globalState.Mutex.Lock()
 	globalState.Lobbies[code] = &Lobby{Code: code, LastInteractionTime: time.Now()}
+	globalState.Mutex.Unlock()
 
 	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
 
