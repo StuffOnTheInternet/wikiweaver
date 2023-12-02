@@ -1,30 +1,40 @@
+:root {
+  --green: #dcfd97;
+  --red: #fabdbd;
+  --maincanvas-background: #ffe;
+  --sidepane-background: #cddcf2;
+  --sidepane-text: #3f3d3d;
+  --box-background: #f1f0ff;
+}
+
 #maincanvas {
-  background: #ffe;
+  background: var(--maincanvas-background);
   flex-grow: 4;
   min-width: 75%;
   max-width: 80%;
 }
 
 #code {
-  background: lightgray;
+  background: var(--box-background);
   text-align: center;
-  color: rgb(90, 90, 90);
+  color: var(--sidepane-text);
 }
 
 #start-button {
-  background: lightgreen;
-  border-color: lightgreen;
+  background: var(--green);
+  border-color: var(--green);
   text-align: center;
+  color: var(--sidepane-text);
 }
 
-#stop-button {
-  background: lightcoral;
-  border-color: lightcoral;
+#pause-button {
+  background: var(--red);
+  border-color: var(--red);
   text-align: center;
+  color: var(--sidepane-text);
 }
 
 body {
-  background-color: #aaa;
   margin: 0;
 }
 
@@ -48,7 +58,6 @@ h2 {
 
 .maincanvas-sidepane-container {
   display: flex;
-  gap: 10px;
   height: 100vh;
   width: 100vw;
 }
@@ -65,7 +74,7 @@ h2 {
 }
 
 .sidepane {
-  background-color: gray;
+  background: var(--sidepane-background);
 
   display: flex;
   flex-direction: column;
@@ -78,7 +87,8 @@ h2 {
 }
 
 .page-input {
-  background: lightgray;
+  background: var(--box-background);
+  color: var(--sidepane-text);
 }
 
 .leaderboard-row {
