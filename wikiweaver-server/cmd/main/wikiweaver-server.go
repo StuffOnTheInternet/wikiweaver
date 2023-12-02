@@ -312,6 +312,13 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				continue
 			}
 
+			if !wc.isHost {
+				errMsg := fmt.Sprintf("failed to start lobby %s: web client %s is not host", code, wc.conn.RemoteAddr())
+				log.Print(errMsg)
+				wc.sendStartResponse(false, errMsg)
+				continue
+			}
+
 			if !lobby.StartTime.IsZero() {
 				errMsg := fmt.Sprintf("failed to start lobby %s: lobby already started", code)
 				log.Print(errMsg)
