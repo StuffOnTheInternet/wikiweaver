@@ -24,7 +24,7 @@ const (
 
 type GlobalState struct {
 	Lobbies map[string]*Lobby
-	Mutex   sync.Mutex
+	mu      sync.Mutex
 }
 
 var globalState GlobalState
@@ -42,7 +42,7 @@ type Lobby struct {
 	StartPage           string
 	GoalPage            string
 	History             []PageToWebMessage
-	Mutex               sync.Mutex
+	mu                  sync.Mutex
 }
 
 func (l *Lobby) close() {
@@ -62,7 +62,7 @@ func (l *Lobby) hasHost() bool {
 }
 
 func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
-	l.Mutex.Lock()
+	l.mu.Lock()
 
 	index := -1
 	for i, wc := range l.WebClients {
@@ -82,7 +82,7 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	l.WebClients[length-1] = nil
 	l.WebClients = l.WebClients[:length-1]
 
-	l.Mutex.Unlock()
+	l.mu.Unlock()
 
 	return nil
 }
@@ -123,7 +123,7 @@ func lobbyCleaner() {
 	for {
 		time.Sleep(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)
 
-		globalState.Mutex.Lock()
+		globalState.mu.Lock()
 		for code, lobby := range globalState.Lobbies {
 			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
 				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
@@ -132,7 +132,7 @@ func lobbyCleaner() {
 				delete(globalState.Lobbies, code)
 			}
 		}
-		globalState.Mutex.Unlock()
+		globalState.mu.Unlock()
 	}
 }
 
@@ -140,9 +140,9 @@ func handleWebLobbyCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateUniqueCode()
 
-	globalState.Mutex.Lock()
+	globalState.mu.Lock()
 	globalState.Lobbies[code] = &Lobby{Code: code, LastInteractionTime: time.Now()}
-	globalState.Mutex.Unlock()
+	globalState.mu.Unlock()
 
 	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
 
@@ -196,9 +196,9 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 	shouldBeHost := !lobby.hasHost()
 	wc := &WebClient{conn: conn, isHost: shouldBeHost}
 
-	lobby.Mutex.Lock()
+	lobby.mu.Lock()
 	lobby.WebClients = append(lobby.WebClients, wc)
-	lobby.Mutex.Unlock()
+	lobby.mu.Unlock()
 
 	if shouldBeHost {
 		log.Printf("web client %s joined lobby %s as host", conn.RemoteAddr(), lobby.Code)
@@ -345,9 +345,9 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			lobby.GoalPage = startMessageFromWeb.GoalPage
 			lobby.LastInteractionTime = time.Now()
 
-			lobby.Mutex.Lock()
+			lobby.mu.Lock()
 			lobby.History = lobby.History[:0]
-			lobby.Mutex.Unlock()
+			lobby.mu.Unlock()
 
 			log.Printf("web client %s started lobby %s: '%s' -> '%s'", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
 
@@ -468,9 +468,9 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			Backmove:  pageFromExtMessage.Backmove,
 		}
 
-		lobby.Mutex.Lock()
+		lobby.mu.Lock()
 		lobby.History = append(lobby.History, pageToWebMessage)
-		lobby.Mutex.Unlock()
+		lobby.mu.Unlock()
 
 		log.Printf("forwarding page from extension %s to %d web clients in lobby %s: %v", r.RemoteAddr, len(lobby.WebClients), code, pageToWebMessage)
 
