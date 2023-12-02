@@ -96,6 +96,7 @@ body {
 }
 
 .flex-horizontal-item {
+  width: 0;
   min-width: 0;
   flex-grow: 1;
 }
