@@ -69,6 +69,7 @@ body {
 
 #start-button {
   background: var(--green);
+  flex-grow: 2;
 }
 
 #pause-button {
