@@ -64,6 +64,7 @@ func (l *Lobby) hasHost() bool {
 
 func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	l.mu.Lock()
+	defer l.mu.Unlock()
 
 	index := -1
 	for i, wc := range l.WebClients {
@@ -82,8 +83,6 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	l.WebClients[index] = l.WebClients[length-1]
 	l.WebClients[length-1] = nil
 	l.WebClients = l.WebClients[:length-1]
-
-	l.mu.Unlock()
 
 	return nil
 }
@@ -129,8 +128,14 @@ func lobbyCleaner() {
 			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
 				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
 				log.Printf("lobby %s idle for %s, closing", code, idleTime)
+
+				lobby.mu.Lock()
 				lobby.close()
+				lobby.mu.Unlock()
+
+				globalState.mu.Lock()
 				delete(globalState.Lobbies, code)
+				globalState.mu.Unlock()
 			}
 		}
 		globalState.mu.Unlock()
@@ -198,6 +203,7 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 	wc := &WebClient{conn: conn, isHost: shouldBeHost}
 
 	lobby.mu.Lock()
+	lobby.LastInteractionTime = time.Now()
 	lobby.WebClients = append(lobby.WebClients, wc)
 	lobby.mu.Unlock()
 
@@ -206,8 +212,6 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Printf("web client %s joined lobby %s as spectator", conn.RemoteAddr(), lobby.Code)
 	}
-
-	lobby.LastInteractionTime = time.Now()
 
 	wc.sendJoinResponse(wc.isHost)
 
@@ -462,8 +466,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		lobby.LastInteractionTime = time.Now()
-
 		pageToWebMessage := PageToWebMessage{
 			Message: Message{
 				Type: "page",
@@ -475,6 +477,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		lobby.mu.Lock()
+		lobby.LastInteractionTime = time.Now()
 		lobby.History = append(lobby.History, pageToWebMessage)
 		lobby.mu.Unlock()
 
