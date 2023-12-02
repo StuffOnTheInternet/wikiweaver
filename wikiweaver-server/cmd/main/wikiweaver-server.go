@@ -53,6 +53,8 @@ func (l *Lobby) close() {
 }
 
 func (l *Lobby) hasHost() bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	for _, wc := range l.WebClients {
 		if wc.isHost {
 			return true
@@ -60,6 +62,12 @@ func (l *Lobby) hasHost() bool {
 	}
 
 	return false
+}
+
+func (l *Lobby) hasStarted() bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return !l.StartTime.IsZero()
 }
 
 func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
@@ -215,7 +223,7 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	wc.sendJoinResponse(wc.isHost)
 
-	if !lobby.StartTime.IsZero() {
+	if lobby.hasStarted() {
 		// Lobby has already started, we have history to send
 		go sendHistory(lobby, wc)
 	}
@@ -240,6 +248,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		return
 	}
 
+	lobby.mu.Lock()
 	for _, msg := range lobby.History {
 		time.Sleep(HISTORY_SEND_INTERVAL)
 		err := wc.send(msg)
@@ -248,6 +257,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			break
 		}
 	}
+	lobby.mu.Unlock()
 }
 
 func (wc *WebClient) sendStartResponse(success bool, reason string) {
@@ -374,7 +384,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 					GoalPage:  lobby.GoalPage,
 				}
 
-				err := spectator.conn.WriteJSON(startMsg)
+				err := spectator.send(startMsg)
 				if err != nil {
 					log.Printf("failed to notify web client %s of game start: %s", spectator.conn.RemoteAddr(), err)
 					return
@@ -459,7 +469,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if lobby.StartTime.IsZero() {
+		if !lobby.hasStarted() {
 			log.Printf("refusing to forward page to lobby %s: lobby is not started", code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
