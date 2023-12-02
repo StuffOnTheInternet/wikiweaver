@@ -64,7 +64,6 @@ function API_lobbyJoin(code) {
         document.getElementById("start-page-input").value = msg.StartPage;
         document.getElementById("goal-page-input").value = msg.GoalPage;
         StartGame(msg.StartPage, msg.GoalPage);
-        document.getElementById("start-button").disabled = true;
         break;
       case "startResponse":
         if (!msg.Success) {
@@ -72,7 +71,6 @@ function API_lobbyJoin(code) {
           break;
         }
         StartGame(startPage, goalPage);
-        document.getElementById("start-button").disabled = true;
         break;
       default:
         console.log("Unrecognized message: ", msg);

@@ -340,17 +340,14 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				continue
 			}
 
-			if !lobby.StartTime.IsZero() {
-				errMsg := fmt.Sprintf("failed to start lobby %s: lobby already started", code)
-				log.Print(errMsg)
-				wc.sendStartResponse(false, errMsg)
-				continue
-			}
-
 			lobby.StartTime = time.Now()
 			lobby.StartPage = startMessageFromWeb.StartPage
 			lobby.GoalPage = startMessageFromWeb.GoalPage
 			lobby.LastInteractionTime = time.Now()
+
+			lobby.Mutex.Lock()
+			lobby.History = lobby.History[:0]
+			lobby.Mutex.Unlock()
 
 			log.Printf("web client %s started lobby %s: '%s' -> '%s'", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
 
