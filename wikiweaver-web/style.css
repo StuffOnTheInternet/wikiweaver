@@ -22,16 +22,10 @@
 
 #start-button {
   background: var(--green);
-  border-color: var(--green);
-  text-align: center;
-  color: var(--sidepane-text);
 }
 
 #pause-button {
   background: var(--red);
-  border-color: var(--red);
-  text-align: center;
-  color: var(--sidepane-text);
 }
 
 body {
@@ -89,6 +83,14 @@ h2 {
 .page-input {
   background: var(--box-background);
   color: var(--sidepane-text);
+  border-width: 0px;
+}
+
+.button {
+  border-width: 0px;
+  text-align: center;
+  color: var(--sidepane-text);
+  cursor: pointer;
 }
 
 .leaderboard-row {
