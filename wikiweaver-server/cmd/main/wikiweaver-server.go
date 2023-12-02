@@ -32,6 +32,7 @@ var globalState GlobalState
 type WebClient struct {
 	conn   *websocket.Conn
 	isHost bool
+	mu     sync.Mutex
 }
 
 type Lobby struct {
@@ -229,7 +230,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		GoalPage:  lobby.GoalPage,
 	}
 
-	err := wc.conn.WriteJSON(startMsg)
+	err := wc.send(startMsg)
 	if err != nil {
 		log.Printf("failed to send history: %s", err)
 		return
@@ -237,7 +238,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 
 	for _, msg := range lobby.History {
 		time.Sleep(HISTORY_SEND_INTERVAL)
-		err := wc.conn.WriteJSON(msg)
+		err := wc.send(msg)
 		if err != nil {
 			log.Printf("failed to send history: %s", err)
 			break
@@ -254,7 +255,7 @@ func (wc *WebClient) sendStartResponse(success bool, reason string) {
 		Reason:  reason,
 	}
 
-	err := wc.conn.WriteJSON(startResponseMessage)
+	err := wc.send(startResponseMessage)
 	if err != nil {
 		log.Printf("failed to send start response to %s: %s", wc.conn.RemoteAddr(), err)
 	}
@@ -268,10 +269,16 @@ func (wc *WebClient) sendJoinResponse(isHost bool) {
 		IsHost: isHost,
 	}
 
-	err := wc.conn.WriteJSON(joinResponseMessage)
+	err := wc.send(joinResponseMessage)
 	if err != nil {
 		log.Printf("failed to send join response to %s: %s", wc.conn.RemoteAddr(), err)
 	}
+}
+
+func (wc *WebClient) send(v interface{}) error {
+	wc.mu.Lock()
+	defer wc.mu.Unlock()
+	return wc.conn.WriteJSON(v)
 }
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
@@ -305,7 +312,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				},
 			}
 
-			err = wc.conn.WriteJSON(pongMessage)
+			err = wc.send(pongMessage)
 			if err != nil {
 				log.Printf("failed to respond with pong: %s", err)
 				continue
@@ -475,7 +482,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		log.Printf("forwarding page from extension %s to %d web clients in lobby %s: %v", r.RemoteAddr, len(lobby.WebClients), code, pageToWebMessage)
 
 		for _, wc := range lobby.WebClients {
-			err = wc.conn.WriteJSON(pageToWebMessage)
+			err = wc.send(pageToWebMessage)
 			if err != nil {
 				log.Printf("failed to forward message to web client %s: %s", wc.conn.RemoteAddr(), err)
 			}
