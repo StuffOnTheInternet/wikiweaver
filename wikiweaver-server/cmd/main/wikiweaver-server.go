@@ -333,6 +333,26 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 
 			log.Printf("web client %s started lobby %s: '%s' -> '%s'", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
 
+			for _, spectator := range lobby.WebClients {
+				if spectator == wc {
+					continue
+				}
+
+				startMsg := StartMessage{
+					Message: Message{
+						Type: "start",
+					},
+					StartPage: lobby.StartPage,
+					GoalPage:  lobby.GoalPage,
+				}
+
+				err := spectator.conn.WriteJSON(startMsg)
+				if err != nil {
+					log.Printf("failed to notify web client %s of game start: %s", spectator.conn.RemoteAddr(), err)
+					return
+				}
+			}
+
 			wc.sendStartResponse(true, "")
 		}
 	}
