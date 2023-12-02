@@ -170,6 +170,11 @@ type StartResponseMessage struct {
 	Reason  string
 }
 
+type JoinResponseMessage struct {
+	Message
+	IsHost bool
+}
+
 func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
@@ -253,8 +258,24 @@ func (wc *WebClient) sendStartResponse(success bool, reason string) {
 	}
 }
 
+func (wc *WebClient) sendJoinResponse(isHost bool) {
+	joinResponseMessage := JoinResponseMessage{
+		Message: Message{
+			Type: "joinResponse",
+		},
+		IsHost: isHost,
+	}
+
+	err := wc.conn.WriteJSON(joinResponseMessage)
+	if err != nil {
+		log.Printf("failed to send join response to %s: %s", wc.conn.RemoteAddr(), err)
+	}
+}
+
 func webClientListener(lobby *Lobby, wc *WebClient) {
 	defer wc.conn.Close()
+
+	wc.sendJoinResponse(wc.isHost)
 
 	for {
 		_, buf, err := wc.conn.ReadMessage()

@@ -49,6 +49,14 @@ function API_lobbyJoin(code) {
       case "pong":
         // Server is alive, good. Ignore.
         break;
+      case "joinResponse":
+        if (!msg.IsHost) {
+          document.getElementById("start-page-input").disabled = true;
+          document.getElementById("goal-page-input").disabled = true;
+          document.getElementById("start-button").disabled = true;
+          document.getElementById("stop-button").disabled = true;
+        }
+        break;
       case "page":
         AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
         break;
