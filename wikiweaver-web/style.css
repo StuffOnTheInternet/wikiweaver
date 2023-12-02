@@ -7,6 +7,35 @@
   --box-background: #f1f0ff;
 }
 
+body {
+  margin: 0;
+}
+
+#maincanvas-sidepane-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+#maincanvas-sidepane-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+#sidepane {
+  background: var(--sidepane-background);
+
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 15px;
+
+  padding: 10px;
+  min-width: 20%;
+  max-width: 25%;
+}
+
 #maincanvas {
   background: var(--maincanvas-background);
   flex-grow: 4;
@@ -14,10 +43,28 @@
   max-width: 80%;
 }
 
-#code {
-  background: var(--box-background);
+#sidepane {
+  background: var(--sidepane-background);
+
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 15px;
+
+  padding: 10px;
+  min-width: 20%;
+  max-width: 25%;
+}
+
+#title {
+  font-weight: bold;
+  font-size: 42px;
   text-align: center;
-  color: var(--sidepane-text);
+  font-family: Verdana;
+}
+
+#code {
+  text-align: center;
 }
 
 #start-button {
@@ -28,32 +75,18 @@
   background: var(--red);
 }
 
-body {
-  margin: 0;
-}
-
-h1 {
-  font-size: 42px;
-  text-align: center;
-  font-family: Verdana;
-}
-
-h2 {
-  font-size: 30px;
-  text-align: center;
-  font-family: Verdana;
-  margin-bottom: 0;
+#footer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  font-size: 12px;
+  text-align: right;
 }
 
 .text {
   font-size: 26px;
   font-family: Verdana;
-}
-
-.maincanvas-sidepane-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
 }
 
 .flex-horizontal {
@@ -67,20 +100,7 @@ h2 {
   flex-grow: 1;
 }
 
-.sidepane {
-  background: var(--sidepane-background);
-
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  gap: 15px;
-
-  padding: 10px;
-  min-width: 20%;
-  max-width: 25%;
-}
-
-.page-input {
+.box {
   background: var(--box-background);
   color: var(--sidepane-text);
   border-width: 0px;
@@ -91,19 +111,4 @@ h2 {
   text-align: center;
   color: var(--sidepane-text);
   cursor: pointer;
-}
-
-.leaderboard-row {
-  background-color: lightgray;
-  font-family: Verdana;
-  text-align: center;
-}
-
-.footer {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  font-size: 12px;
-  text-align: right;
 }

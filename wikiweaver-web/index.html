@@ -17,49 +17,27 @@
 </head>
 
 <body>
-    <div class="maincanvas-sidepane-container">
+    <div id="maincanvas-sidepane-container">
         <div id="maincanvas"></div>
-        <div class="sidepane">
-            <h1>WikiWeaver</h1>
+        <div id="sidepane">
+            <div id="title">WikiWeaver</div>
             <div class="flex-horizontal">
-                <div class="text">Lobby: </div>
-                <div id="code" class="flex-horizontal-item text"></div>
+                <div id="code" class="flex-horizontal-item box text"></div>
             </div>
-            <input placeholder="Start page" id="start-page-input" class="page-input text"></input>
-            <input placeholder="Goal page" id="goal-page-input" class="page-input text"></input>
+            <input placeholder="Start page" id="start-page-input" class="box text"></input>
+            <input placeholder="Goal page" id="goal-page-input" class="box text"></input>
             <div class="flex-horizontal">
                 <button id="start-button" class="flex-horizontal-item button text"
                     onclick="HandleStartGameClicked()">Start</button>
                 <button id="pause-button" class="flex-horizontal-item button text">Pause</button>
             </div>
-            <div class="footer">
+            <div id="footer">
                 <div>Made by Gustav Arneving, Victor Löfgren och Beatrice Söderqvist</div>
                 <div>
                     View it on
                     <a href="https://github.com/StuffOnTheInternet/wikiweaver">GitHub</a>
                 </div>
             </div>
-            <!-- <h2>Lobby leaderboard</h2>
-            <table>
-                <tr class="leaderboard-row">
-                    <th>Username</th>
-                    <th>Pages</th>
-                    <th>Clicks</th>
-                    <th>Time</th>
-                </tr>
-                <tr class="leaderboard-row">
-                    <td>Lofen</td>
-                    <td>4</td>
-                    <td>7</td>
-                    <td>00:12:30</td>
-                </tr>
-                <tr class="leaderboard-row">
-                    <td>Beatrice</td>
-                    <td>3</td>
-                    <td>17</td>
-                    <td>00:05:23</td>
-                </tr>
-            </table> -->
         </div>
     </div>
 </body>
