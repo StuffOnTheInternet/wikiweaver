@@ -406,7 +406,9 @@ func handleWebLobbyStatus(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
+	globalState.mu.Lock()
 	lobby := globalState.Lobbies[code]
+	globalState.mu.Unlock()
 
 	response := LobbyStatusResponse{Active: lobby != nil}
 
