@@ -58,10 +58,6 @@ body {
   margin: 15px;
 }
 
-#code {
-  text-align: center;
-}
-
 #start-button {
   background: var(--green);
   flex-grow: 2;
@@ -93,20 +89,20 @@ body {
 }
 
 .text {
-  font-size: 26px;
+  font-size: 32px;
   font-family: Verdana;
+  text-align: center;
 }
 
 .box {
   background: var(--box-background);
   color: var(--sidepane-text);
+  line-height: 48px;
   border-width: 0px;
   outline: none;
 }
 
 .button {
-  border-width: 0px;
   text-align: center;
-  color: var(--sidepane-text);
   cursor: pointer;
 }
