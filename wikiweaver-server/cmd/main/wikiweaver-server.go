@@ -145,9 +145,7 @@ func lobbyCleaner() {
 				lobby.close()
 				lobby.mu.Unlock()
 
-				globalState.mu.Lock()
 				delete(globalState.Lobbies, code)
-				globalState.mu.Unlock()
 			}
 		}
 		globalState.mu.Unlock()
