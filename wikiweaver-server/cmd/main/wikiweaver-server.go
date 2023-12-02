@@ -18,7 +18,8 @@ const (
 	PORT                            = 4242
 	CONSOLE_SOCKET_PATH             = "/tmp/ww-console.sock"
 	CODE_LENGTH                     = 4
-	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 15 * time.Minute
+	LOBBY_CLEANING_INTERVAL         = 15 * time.Minute
+	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 60 * time.Minute
 	HISTORY_SEND_INTERVAL           = 200 * time.Millisecond
 )
 
@@ -129,7 +130,7 @@ func generateUniqueCode() string {
 
 func lobbyCleaner() {
 	for {
-		time.Sleep(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)
+		time.Sleep(LOBBY_CLEANING_INTERVAL)
 
 		globalState.mu.Lock()
 		for code, lobby := range globalState.Lobbies {
