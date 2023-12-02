@@ -79,12 +79,7 @@ body {
   text-align: right;
 }
 
-.text {
-  font-size: 26px;
-  font-family: Verdana;
-}
-
-.flex-horizontal {
+.flex-horizontal-container {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
@@ -94,6 +89,11 @@ body {
   width: 0;
   min-width: 0;
   flex-grow: 1;
+}
+
+.text {
+  font-size: 26px;
+  font-family: Verdana;
 }
 
 .box {
