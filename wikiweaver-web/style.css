@@ -49,7 +49,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 15px;
+  gap: 8px;
 
   padding: 10px;
   min-width: 20%;
