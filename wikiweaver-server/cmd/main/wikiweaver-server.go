@@ -369,7 +369,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			lobby.History = lobby.History[:0]
 			lobby.mu.Unlock()
 
-			log.Printf("web client %s started lobby %s: '%s' -> '%s'", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
+			log.Printf("web client %s started lobby %s with %s to %s", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
 
 			for _, spectator := range lobby.WebClients {
 				if spectator == wc {
