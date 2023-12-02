@@ -208,6 +208,8 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	lobby.LastInteractionTime = time.Now()
 
+	wc.sendJoinResponse(wc.isHost)
+
 	go webClientListener(lobby, wc)
 
 	if !lobby.StartTime.IsZero() {
@@ -274,8 +276,6 @@ func (wc *WebClient) sendJoinResponse(isHost bool) {
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
 	defer wc.conn.Close()
-
-	wc.sendJoinResponse(wc.isHost)
 
 	for {
 		_, buf, err := wc.conn.ReadMessage()
