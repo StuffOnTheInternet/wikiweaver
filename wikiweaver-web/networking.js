@@ -16,6 +16,15 @@ async function API_lobbyCreate() {
     });
 }
 
+function sendMessage(message) {
+  if (!globalThis.socket) {
+    console.log("failed to send message, not connected to server: " + message);
+    return;
+  }
+
+  globalThis.socket.send(message);
+}
+
 function API_lobbyJoin(code) {
   globalThis.socket = new WebSocket(
     "ws" + backend + "/api/ws/web/lobby/join" + "?code=" + code
@@ -24,8 +33,7 @@ function API_lobbyJoin(code) {
   globalThis.socket.addEventListener("open", (event) => {
     // Send ping every so often to keep the websocket connection alive
     interval = setInterval(() => {
-      const ping = JSON.stringify({ type: "ping" });
-      globalThis.socket.send(ping);
+      sendMessage(JSON.stringify({ type: "ping" }));
     }, pingInterval);
   });
 
@@ -50,6 +58,14 @@ function API_lobbyJoin(code) {
         StartGame(msg.StartPage, msg.GoalPage);
         document.getElementById("start-button").disabled = true;
         break;
+      case "startResponse":
+        if (!msg.Success) {
+          console.log("server failed to start lobby: " + msg.Reason);
+          break;
+        }
+        StartGame(startPage, goalPage);
+        document.getElementById("start-button").disabled = true;
+        break;
       default:
         console.log("Unrecognized message: ", msg);
         break;
@@ -63,21 +79,6 @@ async function API_lobbyStatus(code) {
     .then((json) => json)
     .catch((_) => {
       return null;
-    });
-}
-
-async function API_lobbyStart(code, startpage, goalpage) {
-  return await fetch("http" + backend + "/api/web/lobby/start", {
-    method: "POST",
-    body: JSON.stringify({
-      code: code,
-      startpage: startpage,
-      goalpage: goalpage,
-    }),
-  })
-    .then((response) => response.status == 200)
-    .catch((_) => {
-      return false;
     });
 }
 

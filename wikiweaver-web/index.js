@@ -31,15 +31,14 @@ async function HandleStartGameClicked() {
     return;
   }
 
-  let success = await API_lobbyStart(code, startPage, goalPage);
-  if (!success) {
-    console.log("failed to start lobby: server failed to start lobby");
-    return;
-  }
+  startMessage = JSON.stringify({
+    type: "start",
+    code: code,
+    startpage: startPage,
+    goalpage: goalPage,
+  });
 
-  StartGame(startPage, goalPage);
-
-  document.getElementById("start-button").disabled = true;
+  sendMessage(startMessage);
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
