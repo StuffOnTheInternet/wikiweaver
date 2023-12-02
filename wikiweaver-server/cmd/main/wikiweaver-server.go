@@ -211,12 +211,12 @@ func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
 
 	wc.sendJoinResponse(wc.isHost)
 
-	go webClientListener(lobby, wc)
-
 	if !lobby.StartTime.IsZero() {
 		// Lobby has already started, we have history to send
 		go sendHistory(lobby, wc)
 	}
+
+	go webClientListener(lobby, wc)
 }
 
 func sendHistory(lobby *Lobby, wc *WebClient) {
@@ -347,12 +347,11 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				continue
 			}
 
+			lobby.mu.Lock()
 			lobby.StartTime = time.Now()
 			lobby.StartPage = startMessageFromWeb.StartPage
 			lobby.GoalPage = startMessageFromWeb.GoalPage
 			lobby.LastInteractionTime = time.Now()
-
-			lobby.mu.Lock()
 			lobby.History = lobby.History[:0]
 			lobby.mu.Unlock()
 
