@@ -133,8 +133,12 @@ func lobbyCleaner() {
 
 		globalState.mu.Lock()
 		for code, lobby := range globalState.Lobbies {
-			if time.Now().After(lobby.LastInteractionTime.Add(LOBBY_IDLE_TIME_BEFORE_SHUTDOWN)) {
-				idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
+
+			lobby.mu.Lock()
+			idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
+			lobby.mu.Unlock()
+
+			if idleTime >= LOBBY_IDLE_TIME_BEFORE_SHUTDOWN {
 				log.Printf("lobby %s idle for %s, closing", code, idleTime)
 
 				lobby.mu.Lock()
