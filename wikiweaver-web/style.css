@@ -84,6 +84,7 @@ body {
   color: var(--sidepane-text);
   line-height: 3rem;
   border-width: 0px;
+  border-radius: 0.5rem;
   outline: none;
 }
 
