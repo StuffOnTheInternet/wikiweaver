@@ -37,19 +37,6 @@ body {
   max-width: 80%;
 }
 
-#sidepane {
-  background: var(--sidepane-background);
-
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  gap: 8px;
-
-  padding: 10px;
-  min-width: 20%;
-  max-width: 25%;
-}
-
 #title {
   font-weight: bold;
   font-size: 42px;
