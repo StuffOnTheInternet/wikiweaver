@@ -50,6 +50,7 @@ body {
 
 #pause-button {
   background: var(--red);
+  flex-grow: 1;
 }
 
 #footer {

@@ -54,7 +54,7 @@ function API_lobbyJoin(code) {
           document.getElementById("start-page-input").disabled = true;
           document.getElementById("goal-page-input").disabled = true;
           document.getElementById("start-button").disabled = true;
-          document.getElementById("stop-button").disabled = true;
+          document.getElementById("pause-button").disabled = true;
         }
         break;
       case "page":
