@@ -19,12 +19,10 @@ body {
 
 #sidepane {
   background: var(--sidepane-background);
-
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   gap: 0.5rem;
-
   padding: 1rem;
   min-width: 20%;
   max-width: 25%;
