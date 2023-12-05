@@ -91,3 +91,7 @@ body {
   text-align: center;
   cursor: pointer;
 }
+
+.button:hover {
+  filter: brightness(85%);
+}
