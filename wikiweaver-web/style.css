@@ -67,7 +67,7 @@ body {
   gap: 0.5rem;
 }
 
-.flex-horizontal-item {
+.flex-horizontal-container > * {
   width: 0;
   min-width: 0;
   flex-grow: 1;
