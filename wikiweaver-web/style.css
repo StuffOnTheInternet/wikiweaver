@@ -23,9 +23,9 @@ body {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 15px;
+  gap: 0.5rem;
 
-  padding: 10px;
+  padding: 1rem;
   min-width: 20%;
   max-width: 25%;
 }
@@ -39,10 +39,10 @@ body {
 
 #title {
   font-weight: bold;
-  font-size: 42px;
+  font-size: 2.5rem;
   text-align: center;
   font-family: Verdana;
-  margin: 15px;
+  margin: 1rem;
 }
 
 #start-button {
@@ -59,14 +59,14 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  font-size: 12px;
+  font-size: 0.75rem;
   text-align: right;
 }
 
 .flex-horizontal-container {
   display: flex;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
 .flex-horizontal-item {
@@ -76,7 +76,7 @@ body {
 }
 
 .text {
-  font-size: 32px;
+  font-size: 1.5rem;
   font-family: Verdana;
   text-align: center;
 }
@@ -84,7 +84,7 @@ body {
 .box {
   background: var(--box-background);
   color: var(--sidepane-text);
-  line-height: 48px;
+  line-height: 3rem;
   border-width: 0px;
   outline: none;
 }
