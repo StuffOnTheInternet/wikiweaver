@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Rubik";
+  src: url("assets/rubik-regular-webfont.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --green: #dcfd97;
   --red: #fabdbd;
@@ -38,8 +45,6 @@ body {
 #title {
   font-weight: bold;
   font-size: 2.5rem;
-  text-align: center;
-  font-family: Verdana;
   margin: 1rem;
 }
 
@@ -79,8 +84,8 @@ body {
 }
 
 .text {
+  font-family: "Rubik", "Verdana";
   font-size: 1.5rem;
-  font-family: Verdana;
   text-align: center;
 }
 
@@ -94,7 +99,6 @@ body {
 }
 
 .button {
-  text-align: center;
   cursor: pointer;
 }
 
