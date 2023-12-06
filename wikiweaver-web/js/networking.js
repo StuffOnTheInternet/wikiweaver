@@ -39,7 +39,7 @@ function API_lobbyJoin(code) {
 
   globalThis.socket.addEventListener("close", (event) => {
     clearInterval(interval);
-    document.getElementById("code").innerHTML = connectionFailMessage;
+    SetCode(connectionFailMessage);
   });
 
   globalThis.socket.addEventListener("message", (event) => {
@@ -93,26 +93,27 @@ async function connect() {
     await globalThis.socket.close();
   }
 
-  document.getElementById("code").innerHTML = "Connecting...";
+  SetCode("Connecting...");
 
   code = localStorage.getItem("code");
 
   lobbyStatus = await API_lobbyStatus(code);
   if (lobbyStatus == null) {
-    document.getElementById("code").innerHTML = connectionFailMessage;
+    SetCode(connectionFailMessage);
     return;
   }
 
   if (!lobbyStatus.Active) {
     code = await API_lobbyCreate();
     if (code == null) {
-      document.getElementById("code").innerHTML = connectionFailMessage;
+      SetCode(connectionFailMessage);
       return;
     }
   }
 
   API_lobbyJoin(code);
 
-  document.getElementById("code").innerHTML = code;
+  SetCode(code);
+
   localStorage.setItem("code", code);
 }

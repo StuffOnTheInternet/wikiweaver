@@ -41,4 +41,13 @@ async function HandleStartGameClicked() {
   sendMessage(startMessage);
 }
 
+function SetCode(code) {
+  codeElement = document.getElementById("code");
+  codeElement.innerHTML = code;
+
+  codeElement.style.background = getComputedStyle(
+    document.documentElement
+  ).getPropertyValue(code.length === 4 ? "--green" : "--red");
+}
+
 document.addEventListener("DOMContentLoaded", () => init(), false);
