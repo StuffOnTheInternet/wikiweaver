@@ -43,6 +43,10 @@ body {
   margin: 1rem;
 }
 
+#code {
+  cursor: default;
+}
+
 #start-button {
   background: var(--green);
   flex-grow: 2;
