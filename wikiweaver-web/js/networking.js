@@ -1,4 +1,4 @@
-const connectionFailMessage = "Disconnected";
+const connectionFailMessage = "disconnected";
 
 // const backend = "s://lofen.tplinkdns.com"; // Use this for production
 const backend = "://localhost:4242"; // Use this for local development
@@ -100,7 +100,7 @@ async function connect() {
     await globalThis.socket.close();
   }
 
-  SetCode("Connecting...");
+  SetCode("connecting...");
 
   code = localStorage.getItem("code");
 
