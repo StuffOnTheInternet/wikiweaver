@@ -49,6 +49,13 @@ function API_lobbyJoin(code) {
       case "pong":
         // Server is alive, good. Ignore.
         break;
+      case "join":
+        leaderboard = document.getElementById("leaderboard");
+        leaderboard.insertAdjacentHTML(
+          "beforeend",
+          "<div>" + msg.Username + "</div>"
+        );
+        break;
       case "joinResponse":
         if (!msg.IsHost) {
           document.getElementById("start-page-input").disabled = true;
