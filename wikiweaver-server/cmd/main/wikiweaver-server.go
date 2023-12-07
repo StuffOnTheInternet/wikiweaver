@@ -38,6 +38,9 @@ type WebClient struct {
 
 type ExtClient struct {
 	Username string
+	Clicks   int
+	Pages    int
+	mu       sync.Mutex
 }
 
 type Lobby struct {
@@ -277,6 +280,8 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 				Type: "join",
 			},
 			Username: extClient.Username,
+			Clicks:   extClient.Clicks,
+			Pages:    extClient.Pages,
 		}
 
 		err := wc.send(joinMessageToWeb)
@@ -465,6 +470,8 @@ type JoinMessageFromExt struct {
 type JoinMessageToWeb struct {
 	Message
 	Username string
+	Clicks   int
+	Pages    int
 }
 
 func handleExtJoin(w http.ResponseWriter, r *http.Request) {
@@ -504,7 +511,12 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		lobby.mu.Lock()
-		lobby.ExtClients = append(lobby.ExtClients, &ExtClient{Username: request.Username})
+		extClient := ExtClient{
+			Username: request.Username,
+			Clicks:   0,
+			Pages:    0,
+		}
+		lobby.ExtClients = append(lobby.ExtClients, &extClient)
 		lobby.mu.Unlock()
 
 		log.Printf("extension %s joined lobby %s as %s", r.RemoteAddr, request.Code, request.Username)
@@ -583,7 +595,8 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if lobby.GetExtClientFromUsername(pageFromExtMessage.Username) == nil {
+		extClient := lobby.GetExtClientFromUsername(pageFromExtMessage.Username)
+		if extClient == nil {
 			log.Printf("refusing to forward page to lobby %s: user %s not in lobby", code, pageFromExtMessage.Username)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
@@ -599,6 +612,20 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			TimeAdded: time.Since(lobby.StartTime).Milliseconds(),
 			Backmove:  pageFromExtMessage.Backmove,
 		}
+
+		extClient.mu.Lock()
+		extClient.Clicks += 1
+
+		if pageFromExtMessage.Backmove {
+			extClient.Pages -= 1
+			if extClient.Pages < 0 {
+				log.Printf("web client %s went back before start page", r.RemoteAddr)
+				extClient.Pages = 0
+			}
+		} else {
+			extClient.Pages += 1
+		}
+		extClient.mu.Unlock()
 
 		lobby.mu.Lock()
 		lobby.LastInteractionTime = time.Now()
