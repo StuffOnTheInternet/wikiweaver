@@ -53,7 +53,13 @@ function API_lobbyJoin(code) {
         leaderboard = document.getElementById("leaderboard");
         leaderboard.insertAdjacentHTML(
           "beforeend",
-          "<div>" + msg.Username + "</div>"
+          "<div>" +
+            msg.Username +
+            ", pages=" +
+            msg.Pages +
+            ", clicks=" +
+            msg.Clicks +
+            "</div>"
         );
         break;
       case "joinResponse":
