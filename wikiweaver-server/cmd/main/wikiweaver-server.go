@@ -97,6 +97,18 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	return nil
 }
 
+func (l *Lobby) UserHasJoined(usernameToCheck string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	for _, username := range l.ExtClients {
+		if usernameToCheck == username {
+			return true
+		}
+	}
+
+	return false
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -463,16 +475,14 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		lobby.mu.Lock()
-		for _, username := range lobby.ExtClients {
-			if request.Username == username {
-				log.Printf("extension %s tried to join, but username %s is already in lobby %s", r.RemoteAddr, request.Username, request.Code)
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte{})
-				return
-			}
+		if lobby.UserHasJoined(request.Username) {
+			log.Printf("extension %s tried to join, but username %s is already in lobby %s", r.RemoteAddr, request.Username, request.Code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
 		}
 
+		lobby.mu.Lock()
 		lobby.ExtClients = append(lobby.ExtClients, request.Username)
 		lobby.mu.Unlock()
 
