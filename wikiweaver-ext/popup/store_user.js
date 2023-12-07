@@ -24,4 +24,10 @@ async function init() {
   }
 }
 
+document.addEventListener("click", async (e) => {
+  if (e.target.id != "connect") return;
+
+  await browser.runtime.sendMessage({ type: "connect" });
+});
+
 document.addEventListener("DOMContentLoaded", () => init(), false);
