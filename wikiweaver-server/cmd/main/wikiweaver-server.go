@@ -583,6 +583,13 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if lobby.GetExtClientFromUsername(pageFromExtMessage.Username) == nil {
+			log.Printf("refusing to forward page to lobby %s: user %s not in lobby", code, pageFromExtMessage.Username)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
 		pageToWebMessage := PageToWebMessage{
 			Message: Message{
 				Type: "page",
