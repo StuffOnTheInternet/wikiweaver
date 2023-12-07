@@ -39,6 +39,7 @@ type WebClient struct {
 type Lobby struct {
 	Code                string
 	WebClients          []*WebClient
+	ExtClients          []string
 	LastInteractionTime time.Time
 	StartTime           time.Time
 	StartPage           string
@@ -423,6 +424,76 @@ func handleWebStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
+type JoinMessageFromExt struct {
+	Username string
+	Code     string
+}
+
+type JoinMessageToWeb struct {
+	Message
+	Username string
+}
+
+func handleExtJoin(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("error reading extension request: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
+		var request JoinMessageFromExt
+		err = json.Unmarshal(body, &request)
+		if err != nil {
+			log.Printf("failed to parse message from extension: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
+		lobby := globalState.Lobbies[request.Code]
+
+		if lobby == nil {
+			log.Printf("extension %s tried to join non-existing lobby %s", r.RemoteAddr, request.Code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
+		lobby.mu.Lock()
+		for _, username := range lobby.ExtClients {
+			if request.Username == username {
+				log.Printf("extension %s tried to join, but username %s is already in lobby %s", r.RemoteAddr, request.Username, request.Code)
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte{})
+				return
+			}
+		}
+
+		lobby.ExtClients = append(lobby.ExtClients, request.Username)
+		lobby.mu.Unlock()
+
+		log.Printf("extension %s joined lobby %s as %s", r.RemoteAddr, request.Code, request.Username)
+
+		joinMessageToWeb := JoinMessageToWeb{
+			Message: Message{
+				Type: "join",
+			},
+			Username: request.Username,
+		}
+
+		for _, wc := range lobby.WebClients {
+			err = wc.send(joinMessageToWeb)
+			if err != nil {
+				log.Printf("failed to forward message %v to web client %s: %s", joinMessageToWeb, wc.conn.RemoteAddr(), err)
+			}
+		}
+	}
+}
+
 type StartMessageFromWeb struct {
 	Code      string
 	StartPage string
@@ -527,6 +598,7 @@ func main() {
 	http.HandleFunc("/api/ws/web/join", handleWebJoin)
 	http.HandleFunc("/api/web/status", handleWebStatus)
 
+	http.HandleFunc("/api/ext/join", handleExtJoin)
 	http.HandleFunc("/api/ext/page", handleExtPage)
 
 	address := "0.0.0.0"
