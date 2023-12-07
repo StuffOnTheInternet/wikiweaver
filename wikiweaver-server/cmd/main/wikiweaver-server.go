@@ -36,10 +36,14 @@ type WebClient struct {
 	mu     sync.Mutex
 }
 
+type ExtClient struct {
+	Username string
+}
+
 type Lobby struct {
 	Code                string
 	WebClients          []*WebClient
-	ExtClients          []string
+	ExtClients          []*ExtClient
 	LastInteractionTime time.Time
 	StartTime           time.Time
 	StartPage           string
@@ -100,8 +104,8 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 func (l *Lobby) UserHasJoined(usernameToCheck string) bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	for _, username := range l.ExtClients {
-		if usernameToCheck == username {
+	for _, extClient := range l.ExtClients {
+		if usernameToCheck == extClient.Username {
 			return true
 		}
 	}
@@ -264,7 +268,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 	}
 
 	lobby.mu.Lock()
-	for _, username := range lobby.ExtClients {
+	for _, extClient := range lobby.ExtClients {
 		time.Sleep(HISTORY_SEND_INTERVAL)
 
 		// Ugly to construct the message like this...
@@ -272,7 +276,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			Message: Message{
 				Type: "join",
 			},
-			Username: username,
+			Username: extClient.Username,
 		}
 
 		err := wc.send(joinMessageToWeb)
@@ -500,7 +504,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		lobby.mu.Lock()
-		lobby.ExtClients = append(lobby.ExtClients, request.Username)
+		lobby.ExtClients = append(lobby.ExtClients, &ExtClient{Username: request.Username})
 		lobby.mu.Unlock()
 
 		log.Printf("extension %s joined lobby %s as %s", r.RemoteAddr, request.Code, request.Username)
