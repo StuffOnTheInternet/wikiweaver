@@ -153,7 +153,7 @@ func lobbyCleaner() {
 	}
 }
 
-func handleWebLobbyCreate(w http.ResponseWriter, r *http.Request) {
+func handleWebCreate(w http.ResponseWriter, r *http.Request) {
 
 	code := generateUniqueCode()
 
@@ -192,7 +192,7 @@ type JoinResponseMessage struct {
 	IsHost bool
 }
 
-func handleWebLobbyJoin(w http.ResponseWriter, r *http.Request) {
+func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
@@ -403,7 +403,7 @@ type LobbyStatusResponse struct {
 	Active bool
 }
 
-func handleWebLobbyStatus(w http.ResponseWriter, r *http.Request) {
+func handleWebStatus(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
 
@@ -523,9 +523,9 @@ func main() {
 
 	go lobbyCleaner()
 
-	http.HandleFunc("/api/web/lobby/create", handleWebLobbyCreate)
-	http.HandleFunc("/api/ws/web/lobby/join", handleWebLobbyJoin)
-	http.HandleFunc("/api/web/lobby/status", handleWebLobbyStatus)
+	http.HandleFunc("/api/web/create", handleWebCreate)
+	http.HandleFunc("/api/ws/web/join", handleWebJoin)
+	http.HandleFunc("/api/web/status", handleWebStatus)
 
 	http.HandleFunc("/api/ext/page", handleExtPage)
 

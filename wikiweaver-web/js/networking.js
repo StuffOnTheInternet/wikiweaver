@@ -6,7 +6,7 @@ const backend = "://localhost:4242"; // Use this for local development
 const pingInterval = 30000; // milliseconds
 
 async function API_lobbyCreate() {
-  return await fetch("http" + backend + "/api/web/lobby/create")
+  return await fetch("http" + backend + "/api/web/create")
     .then((response) => response.text())
     .then((code) => {
       return code;
@@ -27,7 +27,7 @@ function sendMessage(message) {
 
 function API_lobbyJoin(code) {
   globalThis.socket = new WebSocket(
-    "ws" + backend + "/api/ws/web/lobby/join" + "?code=" + code
+    "ws" + backend + "/api/ws/web/join" + "?code=" + code
   );
 
   globalThis.socket.addEventListener("open", (event) => {
@@ -80,7 +80,7 @@ function API_lobbyJoin(code) {
 }
 
 async function API_lobbyStatus(code) {
-  return await fetch("http" + backend + "/api/web/lobby/status?code=" + code)
+  return await fetch("http" + backend + "/api/web/status?code=" + code)
     .then((response) => response.json())
     .then((json) => json)
     .catch((_) => {
