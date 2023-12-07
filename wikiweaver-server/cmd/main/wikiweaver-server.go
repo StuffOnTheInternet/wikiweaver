@@ -239,10 +239,7 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 
 	wc.sendJoinResponse(wc.isHost)
 
-	if lobby.hasStarted() {
-		// Lobby has already started, we have history to send
-		go sendHistory(lobby, wc)
-	}
+	go sendHistory(lobby, wc)
 
 	go webClientListener(lobby, wc)
 }
@@ -250,21 +247,41 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 func sendHistory(lobby *Lobby, wc *WebClient) {
 	log.Printf("sending history from lobby %s to web client %s", lobby.Code, wc.conn.RemoteAddr())
 
-	startMsg := StartMessage{
-		Message: Message{
-			Type: "start",
-		},
-		StartPage: lobby.StartPage,
-		GoalPage:  lobby.GoalPage,
-	}
+	if lobby.hasStarted() {
+		startMsg := StartMessage{
+			Message: Message{
+				Type: "start",
+			},
+			StartPage: lobby.StartPage,
+			GoalPage:  lobby.GoalPage,
+		}
 
-	err := wc.send(startMsg)
-	if err != nil {
-		log.Printf("failed to send history: %s", err)
-		return
+		err := wc.send(startMsg)
+		if err != nil {
+			log.Printf("failed to send history: %s", err)
+			return
+		}
 	}
 
 	lobby.mu.Lock()
+	for _, username := range lobby.ExtClients {
+		time.Sleep(HISTORY_SEND_INTERVAL)
+
+		// Ugly to construct the message like this...
+		joinMessageToWeb := JoinMessageToWeb{
+			Message: Message{
+				Type: "join",
+			},
+			Username: username,
+		}
+
+		err := wc.send(joinMessageToWeb)
+		if err != nil {
+			log.Printf("failed to send history: %s", err)
+			break
+		}
+	}
+
 	for _, msg := range lobby.History {
 		time.Sleep(HISTORY_SEND_INTERVAL)
 		err := wc.send(msg)
