@@ -77,6 +77,7 @@ function API_lobbyJoin(code) {
         document.getElementById("start-page-input").value = msg.StartPage;
         document.getElementById("goal-page-input").value = msg.GoalPage;
         StartGame(msg.StartPage, msg.GoalPage);
+        ResetLeaderboardScores();
         break;
       case "startResponse":
         if (!msg.Success) {
@@ -86,6 +87,7 @@ function API_lobbyJoin(code) {
         startPage = document.getElementById("start-page-input").value;
         goalPage = document.getElementById("goal-page-input").value;
         StartGame(startPage, goalPage);
+        ResetLeaderboardScores();
         break;
       default:
         console.log("Unrecognized message: ", msg);

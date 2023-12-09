@@ -87,8 +87,21 @@ function ClearLeaderboard() {
 
   // Dont not remove the leaderboard header
   const [_, ...rows] = leaderboard.firstElementChild.children;
-  for (elem of rows) {
+  for (let elem of rows) {
     elem.remove();
+  }
+}
+
+function ResetLeaderboardScores() {
+  leaderboard = document.getElementById("leaderboard");
+
+  // Dont not remove the leaderboard header
+  const [_, ...rows] = leaderboard.firstElementChild.children;
+  for (let row of rows) {
+    let [_, __, clicks, pages, time] = row.children;
+    clicks.innerHTML = 0;
+    pages.innerHTML = 0;
+    time.innerHTML = "--:--";
   }
 }
 

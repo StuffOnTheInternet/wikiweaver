@@ -424,6 +424,11 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			lobby.GoalPage = startMessageFromWeb.GoalPage
 			lobby.LastInteractionTime = time.Now()
 			lobby.History = lobby.History[:0]
+
+			for _, extClient := range lobby.ExtClients {
+				extClient.Clicks = 0
+				extClient.Pages = 0
+			}
 			lobby.mu.Unlock()
 
 			log.Printf("web client %s started lobby %s with %s to %s", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
