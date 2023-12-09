@@ -41,6 +41,10 @@ async function HandleStartGameClicked() {
   sendMessage(startMessage);
 }
 
+function HandleRedrawClicked() {
+  ForceNewLayout();
+}
+
 function SetCode(code) {
   let codeElement = document.getElementById("code");
   codeElement.innerHTML = code;
