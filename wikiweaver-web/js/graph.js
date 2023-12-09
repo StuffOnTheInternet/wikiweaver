@@ -177,7 +177,7 @@ function UsernameToColor(username) {
     }
   }
 
-  console.log("failed to find player " + username + " in CMap");
+  console.log("failed to find player " + username + " in CMap: " + CMap);
 
   return undefined;
 }
