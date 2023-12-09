@@ -269,6 +269,7 @@ function StartGame(StartNode, GoalNode) {
 
   for (let color in CMap) {
     CMap[color].fromnode = StartNode;
+    CMap[color].group = "UNUSED";
   }
 
   webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
