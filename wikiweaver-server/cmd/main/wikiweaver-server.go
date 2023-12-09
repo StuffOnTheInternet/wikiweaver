@@ -570,6 +570,8 @@ type PageToWebMessage struct {
 	Page      string
 	TimeAdded int64
 	Backmove  bool
+	Clicks    int
+	Pages     int
 }
 
 func handleExtPage(w http.ResponseWriter, r *http.Request) {
@@ -617,16 +619,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		pageToWebMessage := PageToWebMessage{
-			Message: Message{
-				Type: "page",
-			},
-			Username:  pageFromExtMessage.Username,
-			Page:      pageFromExtMessage.Page,
-			TimeAdded: time.Since(lobby.StartTime).Milliseconds(),
-			Backmove:  pageFromExtMessage.Backmove,
-		}
-
 		extClient.mu.Lock()
 		extClient.Clicks += 1
 
@@ -640,6 +632,18 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			extClient.Pages += 1
 		}
 		extClient.mu.Unlock()
+
+		pageToWebMessage := PageToWebMessage{
+			Message: Message{
+				Type: "page",
+			},
+			Username:  pageFromExtMessage.Username,
+			Page:      pageFromExtMessage.Page,
+			TimeAdded: time.Since(lobby.StartTime).Milliseconds(),
+			Backmove:  pageFromExtMessage.Backmove,
+			Clicks:    extClient.Clicks,
+			Pages:     extClient.Pages,
+		}
 
 		lobby.mu.Lock()
 		lobby.LastInteractionTime = time.Now()
