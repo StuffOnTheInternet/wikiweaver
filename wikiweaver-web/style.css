@@ -42,7 +42,11 @@ th:last-of-type {
 }
 
 tr:nth-of-type(2n) {
-  background: hsl(0 0% 0% / 0.05);
+  background: hsl(0 0% 0% / 0.075);
+}
+
+tr:nth-of-type(2n + 1) {
+  background: hsl(0 0% 0% / 0.025);
 }
 
 img {
