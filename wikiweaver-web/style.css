@@ -41,6 +41,14 @@ th:last-of-type {
   border-radius: 0 0.5rem 0 0;
 }
 
+td {
+  text-align: center;
+}
+
+[data-cell="username"] {
+  text-align: left;
+}
+
 tr:nth-of-type(2n) {
   background: hsl(0 0% 0% / 0.075);
 }
@@ -50,8 +58,8 @@ tr:nth-of-type(2n + 1) {
 }
 
 img {
-  /* This made the svg images vertically centered inside the table header */
   display: block;
+  margin: 0 auto;
 }
 
 #maincanvas-sidepane-container {
@@ -96,6 +104,10 @@ img {
 #pause-button {
   background: var(--red);
   flex-grow: 1;
+}
+
+#leaderboard-header-username img {
+  margin: unset;
 }
 
 #footer {
