@@ -83,6 +83,8 @@ function API_lobbyJoin(code) {
           console.log("server failed to start lobby: " + msg.Reason);
           break;
         }
+        startPage = document.getElementById("start-page-input").value;
+        goalPage = document.getElementById("goal-page-input").value;
         StartGame(startPage, goalPage);
         break;
       default:
