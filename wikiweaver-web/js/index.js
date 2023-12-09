@@ -11,8 +11,8 @@ async function HandleStartGameClicked() {
     return;
   }
 
-  startPage = document.getElementById("start-page-input").value;
-  goalPage = document.getElementById("goal-page-input").value;
+  let startPage = document.getElementById("start-page-input").value;
+  let goalPage = document.getElementById("goal-page-input").value;
 
   if (!startPage) {
     console.log(`failed to start lobby: invalid start page '${startPage}'`);
@@ -31,7 +31,7 @@ async function HandleStartGameClicked() {
     return;
   }
 
-  startMessage = JSON.stringify({
+  let startMessage = JSON.stringify({
     type: "start",
     code: code,
     startpage: startPage,
@@ -42,7 +42,7 @@ async function HandleStartGameClicked() {
 }
 
 function SetCode(code) {
-  codeElement = document.getElementById("code");
+  let codeElement = document.getElementById("code");
   codeElement.innerHTML = code;
 
   codeElement.style.background = getComputedStyle(
