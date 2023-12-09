@@ -22,6 +22,7 @@ const (
 	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 60 * time.Minute
 	HISTORY_SEND_INTERVAL           = 200 * time.Millisecond
 	WORDS_FILEPATH                  = "words.json"
+	MAX_USERNAME_LEN                = 8
 )
 
 type GlobalState struct {
@@ -503,6 +504,13 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &request)
 		if err != nil {
 			log.Printf("failed to parse message from extension: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
+		if len(request.Username) > MAX_USERNAME_LEN {
+			log.Printf("extension %s tried to join with a too long username %s", r.RemoteAddr, request.Username)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
