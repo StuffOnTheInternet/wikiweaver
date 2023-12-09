@@ -134,7 +134,7 @@ var options = {
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 };
 
-function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
+function AddNewPlayer(Player) {
   var ColorArray = [
     "Red",
     "Blue",
@@ -157,15 +157,23 @@ function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
 }
 
 function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
+  let color = UsernameToColor(Player);
+  if (color === undefined) return;
+
+  AddNewElement(color, ToString, timeadded, backmove);
+}
+
+function UsernameToColor(username) {
   // The server calls this function to add new pages
   for (let color in CMap) {
-    if (CMap[color].group == Player) {
-      AddNewElement(color, ToString, timeadded, backmove);
-      return;
+    if (CMap[color].group == username) {
+      return color;
     }
   }
 
-  console.log("failed to find player " + Player + " in CMap");
+  console.log("failed to find player " + username + " in CMap");
+
+  return undefined;
 }
 
 function AddNewElement(PColor, ToString, timeadded, backmove) {
@@ -217,7 +225,6 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
       .edges('[target = "' + ToString + '"][source = "' + CList.fromnode + '"][group = "' + CList.group + '"]')
       .style("line-style", "dashed");
   }
-
 
   // Reposition the player to the new node
   CList.fromnode = ToString;
