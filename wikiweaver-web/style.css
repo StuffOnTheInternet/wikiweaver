@@ -18,6 +18,24 @@ body {
   margin: 0;
 }
 
+table {
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+th {
+  background: hsl(0 0% 0% / 0.2);
+}
+
+tr:nth-of-type(2n) {
+  background: hsl(0 0% 0% / 0.1);
+}
+
 #maincanvas-sidepane-container {
   display: flex;
   height: 100vh;

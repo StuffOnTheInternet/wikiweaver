@@ -59,4 +59,23 @@ function SetCode(code) {
   codeElement.style.textTransform = textTransform;
 }
 
+function AddLeaderboardEntry(username, clicks, pages) {
+  leaderboard = document.getElementById("leaderboard");
+  leaderboard.firstElementChild.insertAdjacentHTML(
+    "beforeend",
+    `<tr id="leaderboard-row-${username}">
+  <td data-cell="username">${username}</td>
+  <td data-cell="clicks">${clicks}</td>
+  <td data-cell="pages">${pages}</td>
+  <td data-cell="time">10:00</td>
+</tr>`
+  );
+}
+
+function UpdateLeaderboardEntry(username, clicks, pages) {
+  children = document.getElementById(`leaderboard-row-${username}`).children;
+  children[1].innerHTML = clicks;
+  children[2].innerHTML = pages;
+}
+
 document.addEventListener("DOMContentLoaded", () => init(), false);

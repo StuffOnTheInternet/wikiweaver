@@ -50,17 +50,7 @@ function API_lobbyJoin(code) {
         // Server is alive, good. Ignore.
         break;
       case "join":
-        leaderboard = document.getElementById("leaderboard");
-        leaderboard.insertAdjacentHTML(
-          "beforeend",
-          "<div>" +
-            msg.Username +
-            ", pages=" +
-            msg.Pages +
-            ", clicks=" +
-            msg.Clicks +
-            "</div>"
-        );
+        AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages);
         break;
       case "joinResponse":
         if (!msg.IsHost) {
@@ -72,6 +62,7 @@ function API_lobbyJoin(code) {
         break;
       case "page":
         AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
+        UpdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages);
         break;
       case "start":
         document.getElementById("start-page-input").value = msg.StartPage;
