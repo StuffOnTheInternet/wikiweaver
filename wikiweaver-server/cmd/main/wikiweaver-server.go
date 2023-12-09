@@ -612,7 +612,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		code := pageFromExtMessage.Code
 
 		if len(code) != CODE_LENGTH {
-			log.Printf("refusing to forward page to lobby %s: invalid lobby code", code)
+			log.Printf("refusing to forward page from %s to lobby %s: invalid lobby code", r.RemoteAddr, code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
@@ -620,14 +620,14 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		lobby := globalState.Lobbies[code]
 		if lobby == nil {
-			log.Printf("refusing to forward page to lobby %s: lobby not found", code)
+			log.Printf("refusing to forward page from %s to lobby %s: lobby not found", r.RemoteAddr, code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
 		}
 
 		if !lobby.hasStarted() {
-			log.Printf("refusing to forward page to lobby %s: lobby is not started", code)
+			log.Printf("refusing to forward page from %s to lobby %s: lobby is not started", r.RemoteAddr, code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
@@ -635,7 +635,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		extClient := lobby.GetExtClientFromUsername(pageFromExtMessage.Username)
 		if extClient == nil {
-			log.Printf("refusing to forward page to lobby %s: user %s not in lobby", code, pageFromExtMessage.Username)
+			log.Printf("refusing to forward page from %s to lobby %s: user %s not in lobby", r.RemoteAddr, code, pageFromExtMessage.Username)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
