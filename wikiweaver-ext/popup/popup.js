@@ -25,7 +25,7 @@ document.addEventListener("click", async (e) => {
   const domainElem = document.getElementById("domain");
 
   chrome.storage.local.set({
-    code: codeElem.value,
+    code: codeElem.value.toLowerCase(),
     username: usernameElem.value,
     domain: domainElem.value,
   });

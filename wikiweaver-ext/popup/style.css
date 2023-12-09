@@ -22,6 +22,10 @@ body {
   margin: 1rem;
 }
 
+#code {
+  text-transform: uppercase;
+}
+
 #join {
   background: var(--green);
 }

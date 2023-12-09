@@ -45,9 +45,18 @@ function SetCode(code) {
   let codeElement = document.getElementById("code");
   codeElement.innerHTML = code;
 
+  let color = "--red";
+  let textTransform = "none";
+
+  if (code.length === 4) {
+    color = "--green";
+    textTransform = "uppercase";
+  }
+
   codeElement.style.background = getComputedStyle(
     document.documentElement
-  ).getPropertyValue(code.length === 4 ? "--green" : "--red");
+  ).getPropertyValue(color);
+  codeElement.style.textTransform = textTransform;
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);

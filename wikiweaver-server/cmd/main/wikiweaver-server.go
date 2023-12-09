@@ -122,12 +122,12 @@ var upgrader = websocket.Upgrader{
 }
 
 func generateCode() string {
-	CAPITAL_LETTERS := "ABCDEFGHIJKLMNOPQRSTUVXYZ"
+	LETTERS := "abcdefghijklmnopqrstuvxyz"
 
 	b := make([]byte, CODE_LENGTH)
 
 	for i := range b {
-		b[i] = CAPITAL_LETTERS[rand.Intn(len(CAPITAL_LETTERS))]
+		b[i] = LETTERS[rand.Intn(len(LETTERS))]
 	}
 
 	return string(b)
