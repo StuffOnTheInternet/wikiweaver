@@ -149,17 +149,23 @@ function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
   ];
 
   for (let color of ColorArray) {
-    if (CMap[color].group == Player) {
-      AddNewElement(color, ToString, timeadded, backmove);
-      break;
-    } else if (CMap[color].group == "UNUSED") {
+    if (CMap[color].group == "UNUSED") {
       CMap[color].group = Player;
-      AddNewElement(color, ToString, timeadded, backmove);
       break;
     }
   }
+}
 
+function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
   // The server calls this function to add new pages
+  for (let color in CMap) {
+    if (CMap[color].group == Player) {
+      AddNewElement(color, ToString, timeadded, backmove);
+      return;
+    }
+  }
+
+  console.log("failed to find player " + Player + " in CMap");
 }
 
 function AddNewElement(PColor, ToString, timeadded, backmove) {
@@ -285,6 +291,7 @@ function createExampleGraph() {
   StartGame("That guy in the coca cola commercials", "Fish", 0);
 
   // A three player example of a race between Santa Claus and Fish
+  AddNewPlayer("Bob");
   AddNewPage("Bob", "East-West Schism", 10);
   AddNewPage("Bob", "Lent", 10);
   AddNewPage("Bob", "Lent", 10);
@@ -293,20 +300,24 @@ function createExampleGraph() {
   AddNewPage("Bob", "Lent", 10);
   AddNewPage("Bob", "Fish", 10);
 
+  AddNewPlayer("Charlie");
   AddNewPage("Charlie", "East-West Schism", 10);
   AddNewPage("Charlie", "Lent", 10);
   AddNewPage("Charlie", "Winter", 10);
 
+  AddNewPlayer("Mark");
   AddNewPage("Mark", "Saint Nick", 10);
   AddNewPage("Mark", "Christianty", 10);
   AddNewPage("Mark", "Catholicism", 10);
   AddNewPage("Mark", "Lent", 10);
   AddNewPage("Mark", "Fish", 10);
 
+  AddNewPlayer("Alice");
   AddNewPage("Alice", "Coca Cola", 10);
   AddNewPage("Alice", "Atlanta", 10);
   AddNewPage("Alice", "Georgia", 10);
 
+  AddNewPlayer("Emma");
   AddNewPage("Emma", "East-West Schism", 10);
   AddNewPage("Emma", "Passover", 10);
   AddNewPage("Emma", "Pike", 10);
@@ -315,24 +326,29 @@ function createExampleGraph() {
   AddNewPage("Emma", "Rough Fish", 10);
   AddNewPage("Emma", "Fish", 10);
 
+  AddNewPlayer("Robert");
   AddNewPage("Robert", "Coca Cola", 10);
   AddNewPage("Robert", "United States", 10);
   AddNewPage("Robert", "Fish", 10);
 
+  AddNewPlayer("XXANTSLAYERXX");
   AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
 
+  AddNewPlayer("Your dad");
   AddNewPage("Your dad", "Coca Cola", 10);
   AddNewPage("Your dad", "Pepsi Cola", 10);
   AddNewPage("Your dad", "Pepsi", 10);
   AddNewPage("Your dad", "Soda", 10);
   AddNewPage("Your dad", "United States", 10);
 
+  AddNewPlayer("asdfghjk");
   AddNewPage("asdfghjk", "Beard", 10);
   AddNewPage("asdfghjk", "Hair", 10);
   AddNewPage("asdfghjk", "Head", 10);
 
+  AddNewPlayer("Paul");
   AddNewPage("Paul", "East-West Schism", 10);
   AddNewPage("Paul", "Passover", 10);
   AddNewPage("Paul", "Carp", 10);
@@ -345,16 +361,19 @@ function CreateNicerExample() {
   StartGame("Santa Claus", "Fish", 0);
 
   // A three player example of a race between Santa Claus and Fish
+  AddNewPlayer("Bob");
   AddNewPage("Bob", "East-West Schism", 10);
   AddNewPage("Bob", "Lent", 10);
   AddNewPage("Bob", "Fish", 10);
 
+  AddNewPlayer("Mark");
   AddNewPage("Mark", "Saint Nick", 10);
   AddNewPage("Mark", "Christianity", 10);
   AddNewPage("Mark", "Catholicism", 10);
   AddNewPage("Mark", "Lent", 10);
   AddNewPage("Mark", "Fish", 10);
 
+  AddNewPlayer("Emma");
   AddNewPage("Emma", "East-West Schism", 10);
   AddNewPage("Emma", "Passover", 10);
   AddNewPage("Emma", "Pike", 10);
@@ -363,16 +382,19 @@ function CreateNicerExample() {
   AddNewPage("Emma", "Rough Fish", 10);
   AddNewPage("Emma", "Fish", 10);
 
+  AddNewPlayer("Robert");
   AddNewPage("Robert", "Pepsi", 10);
   AddNewPage("Robert", "Fat", 10);
   AddNewPage("Robert", "Tuna", 10);
   AddNewPage("Robert", "Game Fish", 10);
   AddNewPage("Robert", "Fish", 10);
 
+  AddNewPlayer("XXANTSLAYERXX");
   AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
 
+  AddNewPlayer("Paul");
   AddNewPage("Paul", "East-West Schism", 10);
   AddNewPage("Paul", "Passover", 10);
   AddNewPage("Paul", "Carp", 10);

@@ -60,10 +60,18 @@ function SetCode(code) {
 }
 
 function AddLeaderboardEntry(username, clicks, pages) {
+  for (let color in CMap) {
+    if (CMap[color].group === username) {
+      var colour = CMap[color].bgcolor;
+      break;
+    }
+  }
+
   leaderboard = document.getElementById("leaderboard");
   leaderboard.firstElementChild.insertAdjacentHTML(
     "beforeend",
     `<tr id="leaderboard-row-${username}">
+  <td data-cell="color" style="color: ${colour}" >⬤</td>
   <td data-cell="username">${username}</td>
   <td data-cell="clicks">${clicks}</td>
   <td data-cell="pages">${pages}</td>
@@ -74,8 +82,8 @@ function AddLeaderboardEntry(username, clicks, pages) {
 
 function UpdateLeaderboardEntry(username, clicks, pages) {
   children = document.getElementById(`leaderboard-row-${username}`).children;
-  children[1].innerHTML = clicks;
-  children[2].innerHTML = pages;
+  children[2].innerHTML = clicks;
+  children[3].innerHTML = pages;
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);

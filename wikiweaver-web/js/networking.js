@@ -50,6 +50,7 @@ function API_lobbyJoin(code) {
         // Server is alive, good. Ignore.
         break;
       case "join":
+        AddNewPlayer(msg.Username);
         AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages);
         break;
       case "joinResponse":
