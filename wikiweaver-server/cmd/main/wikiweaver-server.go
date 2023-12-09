@@ -509,6 +509,13 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(request.Code) != CODE_LENGTH {
+			log.Printf("extension %s tried to join invalid lobby %s", r.RemoteAddr, request.Code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
 		if len(request.Username) > MAX_USERNAME_LEN {
 			log.Printf("extension %s tried to join with a too long username %s", r.RemoteAddr, request.Username)
 			w.WriteHeader(http.StatusBadRequest)
@@ -603,6 +610,13 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		code := pageFromExtMessage.Code
+
+		if len(code) != CODE_LENGTH {
+			log.Printf("refusing to forward page to lobby %s: invalid lobby code", code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
 
 		lobby := globalState.Lobbies[code]
 		if lobby == nil {
