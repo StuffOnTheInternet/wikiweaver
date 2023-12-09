@@ -29,11 +29,19 @@ td {
 }
 
 th {
-  background: hsl(0 0% 0% / 0.2);
+  background: var(--box-background);
+}
+
+th:first-of-type {
+  border-radius: 0.5rem 0 0 0;
+}
+
+th:last-of-type {
+  border-radius: 0 0.5rem 0 0;
 }
 
 tr:nth-of-type(2n) {
-  background: hsl(0 0% 0% / 0.1);
+  background: hsl(0 0% 0% / 0.05);
 }
 
 #maincanvas-sidepane-container {
