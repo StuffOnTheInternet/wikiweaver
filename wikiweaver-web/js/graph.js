@@ -156,6 +156,12 @@ function AddNewPlayer(Player) {
   }
 }
 
+function ResetPlayers() {
+  for (let color in CMap) {
+    CMap[color].group = "UNUSED";
+  }
+}
+
 function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
   let color = UsernameToColor(Player);
   if (color === undefined) return;
@@ -275,6 +281,7 @@ function StartGame(StartNode, GoalNode) {
     data: { id: StartNode, group: "Start" },
     position: { x: 0, y: 0 },
   });
+
   webgraph.add({
     data: { id: GoalNode, group: "Goal" },
     position: { x: 0, y: 0 },
@@ -282,7 +289,6 @@ function StartGame(StartNode, GoalNode) {
 
   for (let color in CMap) {
     CMap[color].fromnode = StartNode;
-    CMap[color].group = "UNUSED";
   }
 
   webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");

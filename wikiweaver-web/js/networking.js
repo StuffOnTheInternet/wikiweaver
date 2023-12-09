@@ -5,6 +5,8 @@ const backend = "://localhost:4242"; // Use this for local development
 
 const pingInterval = 30000; // milliseconds
 
+var ResetOnNextPlayerJoin = true;
+
 async function API_lobbyCreate() {
   return await fetch("http" + backend + "/api/web/create")
     .then((response) => response.text())
@@ -50,6 +52,12 @@ function API_lobbyJoin(code) {
         // Server is alive, good. Ignore.
         break;
       case "join":
+        if (ResetOnNextPlayerJoin) {
+          ResetPlayers();
+          ClearLeaderboard();
+          ResetOnNextPlayerJoin = false;
+        }
+
         AddNewPlayer(msg.Username);
         AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages);
         break;

@@ -82,4 +82,14 @@ function UpdateLeaderboardEntry(username, clicks, pages) {
   children[3].innerHTML = pages;
 }
 
+function ClearLeaderboard() {
+  leaderboard = document.getElementById("leaderboard");
+
+  // Dont not remove the leaderboard header
+  const [_, ...rows] = leaderboard.firstElementChild.children;
+  for (elem of rows) {
+    elem.remove();
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => init(), false);
