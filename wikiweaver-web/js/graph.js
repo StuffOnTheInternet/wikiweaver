@@ -362,11 +362,13 @@ function CreateNicerExample() {
 
   // A three player example of a race between Santa Claus and Fish
   AddNewPlayer("Bob");
+  AddLeaderboardEntry("Bob", 3, 3);
   AddNewPage("Bob", "East-West Schism", 10);
   AddNewPage("Bob", "Lent", 10);
   AddNewPage("Bob", "Fish", 10);
 
   AddNewPlayer("Mark");
+  AddLeaderboardEntry("Mark", 5, 5);
   AddNewPage("Mark", "Saint Nick", 10);
   AddNewPage("Mark", "Christianity", 10);
   AddNewPage("Mark", "Catholicism", 10);
@@ -374,6 +376,7 @@ function CreateNicerExample() {
   AddNewPage("Mark", "Fish", 10);
 
   AddNewPlayer("Emma");
+  AddLeaderboardEntry("Emma", 7, 5);
   AddNewPage("Emma", "East-West Schism", 10);
   AddNewPage("Emma", "Passover", 10);
   AddNewPage("Emma", "Pike", 10);
@@ -383,6 +386,7 @@ function CreateNicerExample() {
   AddNewPage("Emma", "Fish", 10);
 
   AddNewPlayer("Robert");
+  AddLeaderboardEntry("Robert", 5, 5);
   AddNewPage("Robert", "Pepsi", 10);
   AddNewPage("Robert", "Fat", 10);
   AddNewPage("Robert", "Tuna", 10);
@@ -390,11 +394,13 @@ function CreateNicerExample() {
   AddNewPage("Robert", "Fish", 10);
 
   AddNewPlayer("XXANTSLAYERXX");
+  AddLeaderboardEntry("XXANTSLAYERXX", 3, 3);
   AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
 
   AddNewPlayer("Paul");
+  AddLeaderboardEntry("Paul", 6, 6);
   AddNewPage("Paul", "East-West Schism", 10);
   AddNewPage("Paul", "Passover", 10);
   AddNewPage("Paul", "Carp", 10);
