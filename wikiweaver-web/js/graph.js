@@ -216,9 +216,11 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Reposition the player to the new node
   CList.fromnode = ToString;
 
-  // Force a new layout
-  var layout = webgraph.layout({ name: "cola", ...options });
-  layout.run();
+  ForceNewLayout();
+}
+
+function ForceNewLayout() {
+  webgraph.layout({ name: "cola", ...options }).run();
 }
 
 function StartGame(StartNode, GoalNode) {
