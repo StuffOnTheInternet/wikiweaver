@@ -42,7 +42,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     method: "POST",
     mode: "no-cors",
     body: JSON.stringify({
-      code: options.lobby,
+      code: options.code,
       username: options.username,
     }),
   });
