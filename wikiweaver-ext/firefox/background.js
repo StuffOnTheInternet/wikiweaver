@@ -16,7 +16,7 @@ chrome.webNavigation.onCommitted.addListener(
       method: "POST",
       mode: "no-cors",
       body: JSON.stringify({
-        code: options.lobby,
+        code: options.code,
         username: options.username,
         page: page,
         backmove: event.transitionQualifiers.includes("forward_back"),
