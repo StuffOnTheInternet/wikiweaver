@@ -45,6 +45,11 @@ tr:nth-of-type(2n) {
   background: hsl(0 0% 0% / 0.05);
 }
 
+img {
+  /* This made the svg images vertically centered inside the table header */
+  display: block;
+}
+
 #maincanvas-sidepane-container {
   display: flex;
   height: 100vh;
