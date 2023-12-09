@@ -1,10 +1,12 @@
 // The graph
 var webgraph;
 
+const UNUSED = "UNUSED";
+
 // Color settings
 var CMap = {
   Red: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#d22",
     bordercolor: "#c11",
     linecolor: "#e22",
@@ -13,7 +15,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Orange: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#e90",
     bordercolor: "#d80",
     linecolor: "#fa0",
@@ -22,7 +24,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Yellow: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#fe0",
     bordercolor: "#dc0",
     linecolor: "#fe0",
@@ -31,7 +33,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Lime: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#ac1",
     bordercolor: "#9b0",
     linecolor: "#ad1",
@@ -40,7 +42,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Green: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#4b4",
     bordercolor: "#3a3",
     linecolor: "#4c4",
@@ -49,7 +51,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Cyan: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#0cd",
     bordercolor: "#0bc",
     linecolor: "#0cc",
@@ -58,7 +60,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Blue: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#44e",
     bordercolor: "#33d",
     linecolor: "#44f",
@@ -67,7 +69,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Violet: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#92c",
     bordercolor: "#81b",
     linecolor: "#92d",
@@ -76,7 +78,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Magenta: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#c0c",
     bordercolor: "#b0b",
     linecolor: "#d0d",
@@ -85,7 +87,7 @@ var CMap = {
     fromnode: "", // Assigned at startup
   },
   Brown: {
-    group: "UNUSED",
+    group: UNUSED,
     bgcolor: "#b63",
     bordercolor: "#a53",
     linecolor: "#c73",
@@ -149,7 +151,7 @@ function AddNewPlayer(Player) {
   ];
 
   for (let color of ColorArray) {
-    if (CMap[color].group == "UNUSED") {
+    if (CMap[color].group == UNUSED) {
       CMap[color].group = Player;
       break;
     }
@@ -158,7 +160,7 @@ function AddNewPlayer(Player) {
 
 function ResetPlayers() {
   for (let color in CMap) {
-    CMap[color].group = "UNUSED";
+    CMap[color].group = UNUSED;
   }
 }
 
