@@ -75,7 +75,7 @@ function AddLeaderboardEntry(username, clicks, pages) {
   <td data-cell="username">${username}</td>
   <td data-cell="clicks">${clicks}</td>
   <td data-cell="pages">${pages}</td>
-  <td data-cell="time">10:00</td>
+  <td data-cell="time">--:--</td>
 </tr>`
   );
 }
