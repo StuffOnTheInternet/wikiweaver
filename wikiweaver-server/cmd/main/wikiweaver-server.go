@@ -21,10 +21,12 @@ const (
 	LOBBY_CLEANING_INTERVAL         = 15 * time.Minute
 	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 60 * time.Minute
 	HISTORY_SEND_INTERVAL           = 200 * time.Millisecond
+	WORDS_FILEPATH                  = "words.json"
 )
 
 type GlobalState struct {
 	Lobbies map[string]*Lobby
+	Words   []string
 	mu      sync.Mutex
 }
 
@@ -121,7 +123,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func generateCode() string {
+func generateRandomCode() string {
 	LETTERS := "abcdefghijklmnopqrstuvxyz"
 
 	b := make([]byte, CODE_LENGTH)
@@ -133,16 +135,28 @@ func generateCode() string {
 	return string(b)
 }
 
+func generateCodeFromWords() string {
+	return globalState.Words[rand.Intn(len(globalState.Words))]
+}
+
 func generateUniqueCode() string {
 
-	code := generateCode()
+	// This is possibly a race condition if we are just on the edge of 1000 lobbies,
+	// but who cares. Fix later if necessary
+
+	codeGenerator := generateRandomCode
+	if len(globalState.Words) >= 0 && len(globalState.Words) > len(globalState.Lobbies) {
+		codeGenerator = generateCodeFromWords
+	}
+
+	code := codeGenerator()
 
 	for {
 		if _, ok := globalState.Lobbies[code]; !ok {
 			break
 		}
 
-		code = generateCode()
+		code = codeGenerator()
 	}
 
 	return code
@@ -646,6 +660,23 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func readWords(wordsFilepath string) []string {
+	contents, err := os.ReadFile(wordsFilepath)
+	if err != nil {
+		log.Printf("failed to read words, defaulting to random letters")
+		return []string{}
+	}
+
+	var wordlist []string
+	err = json.Unmarshal(contents, &wordlist)
+	if err != nil {
+		log.Printf("failed to unmarshal words, defaulting to random letters")
+		return []string{}
+	}
+
+	return wordlist
+}
+
 func main() {
 
 	dev := false
@@ -655,7 +686,10 @@ func main() {
 		}
 	}
 
-	globalState = GlobalState{Lobbies: make(map[string]*Lobby)}
+	globalState = GlobalState{
+		Lobbies: make(map[string]*Lobby),
+		Words:   readWords(WORDS_FILEPATH),
+	}
 
 	go lobbyCleaner()
 
