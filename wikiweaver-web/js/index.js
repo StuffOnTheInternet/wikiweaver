@@ -77,9 +77,9 @@ function AddLeaderboardEntry(username, clicks, pages) {
 }
 
 function UpdateLeaderboardEntry(username, clicks, pages) {
-  children = document.getElementById(`leaderboard-row-${username}`).children;
-  children[2].innerHTML = clicks;
-  children[3].innerHTML = pages;
+  row = document.getElementById(`leaderboard-row-${username}`).children;
+  row[2].innerHTML = clicks;
+  row[3].innerHTML = pages;
 }
 
 function ClearLeaderboard() {
