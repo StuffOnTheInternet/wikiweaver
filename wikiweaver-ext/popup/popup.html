@@ -8,12 +8,13 @@
 </head>
 
 <body>
-  <form id="connect_form">
-    <input id="input_username" type="text" name="username" placeholder="Username">
-    <input id="input_lobby" type="text" name="lobby" placeholder="Lobby Code">
-    <input id="input_domain" type="text" name="domain" placeholder="Domain">
-    <input id="connect" type="submit" value="Connect">
-  </form>
+  <div class="flex-vertical-container">
+    <div id="title" class="text">WikiWeaver</div>
+    <input id="code" class="box text" placeholder="code"></input>
+    <input id="username" class="box text" placeholder="username"></input>
+    <input id="domain" class="box text" placeholder="domain"></input>
+    <button id="join" class="button box text" onclick="HandleJoinClicked()">join</button>
+  </div>
 </body>
 
 </html>

@@ -1,31 +1,34 @@
 async function init() {
-  const form = document.querySelector("#connect_form");
-
-  form.addEventListener("submit", (event) => {
-    chrome.storage.local.set({
-      username: form.input_username.value,
-      lobby: form.input_lobby.value,
-      domain: form.input_domain.value,
-    });
-  });
-
   const options = await chrome.storage.local.get();
 
-  if (options.username != undefined) {
-    form.input_username.value = options.username;
+  if (options.code != undefined) {
+    const codeElem = document.getElementById("code");
+    codeElem.value = options.code;
   }
 
-  if (options.lobby != undefined) {
-    form.input_lobby.value = options.lobby;
+  if (options.username != undefined) {
+    const usernameElem = document.getElementById("username");
+    usernameElem.value = options.username;
   }
 
   if (options.domain != undefined) {
-    form.input_domain.value = options.domain;
+    const domainElem = document.getElementById("domain");
+    domainElem.value = options.domain;
   }
 }
 
 document.addEventListener("click", async (e) => {
-  if (e.target.id != "connect") return;
+  if (e.target.id != "join") return;
+
+  const codeElem = document.getElementById("code");
+  const usernameElem = document.getElementById("username");
+  const domainElem = document.getElementById("domain");
+
+  chrome.storage.local.set({
+    code: codeElem.value,
+    username: usernameElem.value,
+    domain: domainElem.value,
+  });
 
   await browser.runtime.sendMessage({ type: "connect" });
 });
