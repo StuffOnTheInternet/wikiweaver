@@ -264,7 +264,7 @@ function StartGame(StartNode, GoalNode) {
   });
   webgraph.add({
     data: { id: GoalNode, group: "Goal" },
-    position: { x: 500, y: 0 },
+    position: { x: 0, y: 0 },
   });
 
   for (let color in CMap) {
@@ -278,8 +278,7 @@ function StartGame(StartNode, GoalNode) {
   webgraph.nodes('[group = "Goal"]').style("shape", "star");
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
 
-  var layout = webgraph.layout({ name: "cola", ...options });
-  layout.run();
+  ForceNewLayout();
 }
 
 function createExampleGraph() {
