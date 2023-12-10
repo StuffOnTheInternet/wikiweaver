@@ -23,6 +23,7 @@ const (
 	HISTORY_SEND_INTERVAL           = 200 * time.Millisecond
 	WORDS_FILEPATH                  = "words.json"
 	MAX_USERNAME_LEN                = 10
+	MAX_USERS_PER_LOBBY             = 10
 )
 
 type GlobalState struct {
@@ -548,6 +549,13 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		if lobby.GetExtClientFromUsername(request.Username) != nil {
 			log.Printf("extension %s tried to join, but username %s is already in lobby %s", r.RemoteAddr, request.Username, request.Code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
+		if len(lobby.ExtClients) >= MAX_USERS_PER_LOBBY {
+			log.Printf("extension %s tried to join, but there are already %d users in lobby %s", r.RemoteAddr, len(lobby.ExtClients), request.Code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
