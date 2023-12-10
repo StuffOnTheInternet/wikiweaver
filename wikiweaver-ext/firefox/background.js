@@ -7,7 +7,7 @@ chrome.webNavigation.onCommitted.addListener(
     const page = pageNameFromWikipediaURL(event.url);
     const options = await chrome.storage.local.get();
 
-    const response = await fetch("http" + domain + "/api/ext/page", {
+    const response = await fetch(domain + "/api/ext/page", {
       method: "POST",
       mode: "no-cors",
       body: JSON.stringify({
@@ -25,7 +25,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
   const domain = await GetDomain();
   const options = await chrome.storage.local.get();
 
-  const response = await fetch("http" + domain + "/api/ext/join", {
+  const response = await fetch(domain + "/api/ext/join", {
     method: "POST",
     mode: "no-cors",
     body: JSON.stringify({
@@ -40,12 +40,13 @@ function pageNameFromWikipediaURL(url) {
 }
 
 async function GetDomain() {
-  const options = await chrome.storage.local.get();
+  const domain = (await chrome.storage.local.get("domain")).domain;
 
-  let domain = "s://lofen.tplinkdns.com";
-  if (options.domain == "dev") {
-    domain = "://localhost:4242";
+  if (domain == "") {
+    return "https://lofen.tplinkdns.com";
+  } else if (domain == "localhost") {
+    return "http://localhost:4242";
+  } else {
+    return domain;
   }
-
-  return domain;
 }
