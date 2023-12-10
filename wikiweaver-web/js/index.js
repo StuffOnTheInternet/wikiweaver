@@ -47,6 +47,7 @@ async function HandleStartGameClicked() {
     code: code,
     startpage: startPage,
     goalpage: goalPage,
+    countdown: ParseTime(time),
   });
 
   sendMessage(startMessage);
@@ -172,7 +173,12 @@ function IsValidTime(time) {
 
   if (time.indexOf(":") == -1) {
     // A maximum of three digits long, interpreted as seconds
-    return 0 <= time.length && time.length <= 3 && IsNumber(time);
+    return (
+      0 <= time.length &&
+      time.length <= 4 &&
+      IsNumber(time) &&
+      Number(time) < 6000
+    );
   } else {
     // Two numbers separated by a colon, e.g. 10:00
     const [minutes, seconds] = time.split(":");

@@ -77,6 +77,7 @@ function API_lobbyJoin(code) {
       case "start":
         document.getElementById("start-page-input").value = msg.StartPage;
         document.getElementById("goal-page-input").value = msg.GoalPage;
+        document.getElementById("time-input").value = FormatTime(msg.Countdown);
         StartGame(msg.StartPage, msg.GoalPage);
         ResetLeaderboardScores();
         StartCountdownTimer();

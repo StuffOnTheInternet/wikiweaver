@@ -52,6 +52,7 @@ type Lobby struct {
 	ExtClients          []*ExtClient
 	LastInteractionTime time.Time
 	StartTime           time.Time
+	Countdown           time.Duration
 	StartPage           string
 	GoalPage            string
 	History             []PageToWebMessage
@@ -214,6 +215,7 @@ type StartMessage struct {
 	Message
 	StartPage string
 	GoalPage  string
+	Countdown int
 }
 
 type StartResponseMessage struct {
@@ -276,6 +278,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			},
 			StartPage: lobby.StartPage,
 			GoalPage:  lobby.GoalPage,
+			Countdown: int(float64(lobby.Countdown.Seconds()) - time.Since(lobby.StartTime).Seconds()),
 		}
 
 		err := wc.send(startMsg)
@@ -422,6 +425,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			lobby.StartTime = time.Now()
 			lobby.StartPage = startMessageFromWeb.StartPage
 			lobby.GoalPage = startMessageFromWeb.GoalPage
+			lobby.Countdown = time.Duration(startMessageFromWeb.Countdown * int(time.Second))
 			lobby.LastInteractionTime = time.Now()
 			lobby.History = lobby.History[:0]
 
@@ -444,6 +448,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 					},
 					StartPage: lobby.StartPage,
 					GoalPage:  lobby.GoalPage,
+					Countdown: int(lobby.Countdown.Seconds()),
 				}
 
 				err := spectator.send(startMsg)
@@ -575,6 +580,7 @@ type StartMessageFromWeb struct {
 	Code      string
 	StartPage string
 	GoalPage  string
+	Countdown int
 }
 
 type PageFromExtMessage struct {
