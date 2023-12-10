@@ -65,6 +65,7 @@ function API_lobbyJoin(code) {
         if (!msg.IsHost) {
           document.getElementById("start-page-input").disabled = true;
           document.getElementById("goal-page-input").disabled = true;
+          document.getElementById("time-input").disabled = true;
           document.getElementById("start-button").disabled = true;
           document.getElementById("pause-button").disabled = true;
         }
@@ -78,6 +79,7 @@ function API_lobbyJoin(code) {
         document.getElementById("goal-page-input").value = msg.GoalPage;
         StartGame(msg.StartPage, msg.GoalPage);
         ResetLeaderboardScores();
+        StartCountdownTimer();
         break;
       case "startResponse":
         if (!msg.Success) {
@@ -88,6 +90,7 @@ function API_lobbyJoin(code) {
         goalPage = document.getElementById("goal-page-input").value;
         StartGame(startPage, goalPage);
         ResetLeaderboardScores();
+        StartCountdownTimer();
         break;
       default:
         console.log("Unrecognized message: ", msg);

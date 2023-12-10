@@ -16,6 +16,12 @@ async function HandleStartGameClicked() {
     return;
   }
 
+  const time = document.getElementById("time-input").value;
+  if (!IsValidTime(time)) {
+    console.log("failed to start lobby: invalid time");
+    return;
+  }
+
   let startPage = document.getElementById("start-page-input").value;
   let goalPage = document.getElementById("goal-page-input").value;
 
@@ -104,13 +110,78 @@ function ClearLeaderboard() {
 function ResetLeaderboardScores() {
   leaderboard = document.getElementById("leaderboard");
 
-  // Dont not remove the leaderboard header
   const [_, ...rows] = leaderboard.firstElementChild.children;
   for (let row of rows) {
     let [_, __, clicks, pages, time] = row.children;
     clicks.innerHTML = 0;
     pages.innerHTML = 0;
     time.innerHTML = "--:--";
+  }
+}
+
+var CountdownTimer;
+
+function StartCountdownTimer() {
+  CountdownTimer = setInterval(DoCountdown, 1000);
+  document.getElementById("time-input").disabled = true;
+}
+
+function DoCountdown() {
+  timeElem = document.getElementById("time-input");
+
+  let time = ParseTime(timeElem.value);
+  time -= 1;
+
+  if (time <= 0) {
+    time = 0;
+    clearInterval(CountdownTimer);
+    document.getElementById("time-input").disabled = false;
+    document.getElementById("time-input").value = "";
+  }
+
+  timeElem.value = FormatTime(time);
+}
+
+function ZeroPad(num, places) {
+  return String(num).padStart(places, "0");
+}
+
+function FormatTime(time) {
+  const minutes = ZeroPad(Math.floor(time / 60), 2);
+  const seconds = ZeroPad(time % 60, 2);
+  return `${minutes}:${seconds}`;
+}
+
+function ParseTime(time) {
+  if (time.indexOf(":") == -1) {
+    return Number(time);
+  } else {
+    const [minutes, seconds] = time.split(":");
+    return Number(minutes) * 60 + Number(seconds);
+  }
+}
+
+function IsNumber(time) {
+  return /^\d+$/.test(time);
+}
+
+function IsValidTime(time) {
+  time = time.trim();
+
+  if (!time) return false;
+
+  if (time.indexOf(":") == -1) {
+    // A maximum of three digits long, interpreted as seconds
+    return 0 <= time.length && time.length <= 3 && IsNumber(time);
+  } else {
+    // Two numbers separated by a colon, e.g. 10:00
+    const [minutes, seconds] = time.split(":");
+    return (
+      minutes.length <= 2 &&
+      IsNumber(minutes) &&
+      seconds.length <= 2 &&
+      IsNumber(seconds)
+    );
   }
 }
 
