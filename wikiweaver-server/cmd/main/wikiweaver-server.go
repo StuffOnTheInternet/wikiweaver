@@ -658,6 +658,13 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if time.Since(lobby.StartTime) > lobby.Countdown {
+			log.Printf("refusing to forward page from %s to lobby %s: round is over", r.RemoteAddr, code)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
 		extClient := lobby.GetExtClientFromUsername(pageFromExtMessage.Username)
 		if extClient == nil {
 			log.Printf("refusing to forward page from %s to lobby %s: user %s not in lobby", r.RemoteAddr, code, pageFromExtMessage.Username)
