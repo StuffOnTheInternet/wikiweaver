@@ -123,6 +123,7 @@ function ResetLeaderboardScores() {
 var CountdownTimer;
 
 function StartCountdownTimer() {
+  clearInterval(CountdownTimer);
   CountdownTimer = setInterval(DoCountdown, 1000);
   document.getElementById("time-input").disabled = true;
 }
