@@ -42,6 +42,7 @@ function API_lobbyJoin(code) {
   globalThis.socket.addEventListener("close", (event) => {
     clearInterval(interval);
     SetCode(connectionFailMessage);
+    document.getElementById("time-input").value = "";
   });
 
   globalThis.socket.addEventListener("message", (event) => {

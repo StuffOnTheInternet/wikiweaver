@@ -145,6 +145,13 @@ function StartCountdownTimer() {
 function DoCountdown() {
   timeElem = document.getElementById("time-input");
 
+  if (timeElem.value == "") {
+    clearInterval(CountdownTimer);
+    document.getElementById("time-input").disabled = false;
+    document.getElementById("time-input").value = "";
+    return;
+  }
+
   let time = ParseTime(timeElem.value);
   time -= 1;
 
