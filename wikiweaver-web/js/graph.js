@@ -431,4 +431,16 @@ function CreateNicerExample() {
   AddNewPage("Paul", "Goldfish", 10);
   AddNewPage("Paul", "Fish", 10);
   UpdateLeaderboardEntry("Paul", 6, 6, 323);
+
+  AddNewPlayer("Anna");
+  AddLeaderboardEntry("Anna", 8, 4);
+  AddNewPage("Anna", "East-West Schism", 10);
+  AddNewPage("Anna", "Lent", 10);
+  AddNewPage("Anna", "East-West Schism", 10, true);
+  AddNewPage("Anna", "Passover", 10);
+  AddNewPage("Anna", "Sheep", 10);
+  AddNewPage("Anna", "Mesopotamia", 10);
+  AddNewPage("Anna", "Sheep", 10, true);
+  AddNewPage("Anna", "Passover sacrifice", 10);
+  UpdateLeaderboardEntry("Anna", 8, 4, 0);
 }
