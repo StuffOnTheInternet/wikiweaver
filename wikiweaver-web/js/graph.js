@@ -375,6 +375,9 @@ function createExampleGraph() {
 function CreateNicerExample() {
   StartGame("Santa Claus", "Fish", 0);
 
+  document.getElementById("start-page-input").value = "Santa Claus";
+  document.getElementById("goal-page-input").value = "Fish";
+
   // A three player example of a race between Santa Claus and Fish
   AddNewPlayer("Bob");
   AddLeaderboardEntry("Bob", 3, 3);
