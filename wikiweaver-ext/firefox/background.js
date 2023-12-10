@@ -2,6 +2,7 @@ chrome.webNavigation.onCommitted.addListener(
   async (event) => {
     if (event.url.includes("#")) return;
     if (event.transitionType == "reload") return;
+    if (event.transitionQualifiers.includes("from_address_bar")) return;
 
     const domain = await GetDomain();
     const page = pageNameFromWikipediaURL(event.url);
