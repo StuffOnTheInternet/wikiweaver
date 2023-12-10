@@ -57,14 +57,7 @@ function API_lobbyJoin(code) {
           ClearLeaderboard();
           ResetOnNextPlayerJoin = false;
         }
-
-        AddNewPlayer(msg.Username);
-        AddLeaderboardEntry(
-          msg.Username,
-          msg.Clicks,
-          msg.Pages,
-          msg.FinishTime
-        );
+        HandleNewPlayer(msg);
         break;
       case "joinResponse":
         if (!msg.IsHost) {
@@ -76,13 +69,7 @@ function API_lobbyJoin(code) {
         }
         break;
       case "page":
-        AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
-        UpdateLeaderboardEntry(
-          msg.Username,
-          msg.Clicks,
-          msg.Pages,
-          msg.FinishTime
-        );
+        HandleNewPage(msg);
         break;
       case "start":
         document.getElementById("start-page-input").value = msg.StartPage;

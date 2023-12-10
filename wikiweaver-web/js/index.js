@@ -57,6 +57,16 @@ function HandleRedrawClicked() {
   ForceNewLayout();
 }
 
+function HandleNewPlayer(p) {
+  AddNewPlayer(p.Username);
+  AddLeaderboardEntry(p.Username, p.Clicks, p.Pages, p.FinishTime);
+}
+
+function HandleNewPage(p) {
+  AddNewPage(p.Username, p.Page, p.TimeAdded, p.Backmove);
+  UpdateLeaderboardEntry(p.Username, p.Clicks, p.Pages, p.FinishTime);
+}
+
 function SetCode(code) {
   let codeElement = document.getElementById("code");
   codeElement.innerHTML = code;
