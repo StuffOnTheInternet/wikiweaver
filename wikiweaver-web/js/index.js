@@ -11,6 +11,11 @@ async function HandleStartGameClicked() {
     return;
   }
 
+  if (ResetOnNextPlayerJoin) {
+    console.log("failed to start lobby: no players connected to lobby");
+    return;
+  }
+
   let startPage = document.getElementById("start-page-input").value;
   let goalPage = document.getElementById("goal-page-input").value;
 
