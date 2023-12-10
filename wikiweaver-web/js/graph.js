@@ -384,6 +384,7 @@ function CreateNicerExample() {
   AddNewPage("Bob", "East-West Schism", 10);
   AddNewPage("Bob", "Lent", 10);
   AddNewPage("Bob", "Fish", 10);
+  UpdateLeaderboardEntry("Bob", 3, 3, 97);
 
   AddNewPlayer("Mark");
   AddLeaderboardEntry("Mark", 5, 5);
@@ -392,6 +393,7 @@ function CreateNicerExample() {
   AddNewPage("Mark", "Catholicism", 10);
   AddNewPage("Mark", "Lent", 10);
   AddNewPage("Mark", "Fish", 10);
+  UpdateLeaderboardEntry("Mark", 5, 5, 165);
 
   AddNewPlayer("Emma");
   AddLeaderboardEntry("Emma", 7, 5);
@@ -402,6 +404,7 @@ function CreateNicerExample() {
   AddNewPage("Emma", "Carp", 10);
   AddNewPage("Emma", "Rough Fish", 10);
   AddNewPage("Emma", "Fish", 10);
+  UpdateLeaderboardEntry("Emma", 7, 5, 192);
 
   AddNewPlayer("Robert");
   AddLeaderboardEntry("Robert", 5, 5);
@@ -410,12 +413,14 @@ function CreateNicerExample() {
   AddNewPage("Robert", "Tuna", 10);
   AddNewPage("Robert", "Game Fish", 10);
   AddNewPage("Robert", "Fish", 10);
+  UpdateLeaderboardEntry("Robert", 5, 5, 239);
 
   AddNewPlayer("XXANTSLAYERXX");
   AddLeaderboardEntry("XXANTSLAYERXX", 3, 3);
   AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
   AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
+  UpdateLeaderboardEntry("XXANTSLAYERXX", 3, 3, 267);
 
   AddNewPlayer("Paul");
   AddLeaderboardEntry("Paul", 6, 6);
@@ -425,4 +430,5 @@ function CreateNicerExample() {
   AddNewPage("Paul", "Aquaculture", 10);
   AddNewPage("Paul", "Goldfish", 10);
   AddNewPage("Paul", "Fish", 10);
+  UpdateLeaderboardEntry("Paul", 6, 6, 323);
 }
