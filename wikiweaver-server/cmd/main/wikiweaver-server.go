@@ -40,10 +40,11 @@ type WebClient struct {
 }
 
 type ExtClient struct {
-	Username string
-	Clicks   int
-	Pages    int
-	mu       sync.Mutex
+	Username   string
+	Clicks     int
+	Pages      int
+	FinishTime time.Duration
+	mu         sync.Mutex
 }
 
 type Lobby struct {
@@ -297,9 +298,10 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			Message: Message{
 				Type: "join",
 			},
-			Username: extClient.Username,
-			Clicks:   extClient.Clicks,
-			Pages:    extClient.Pages,
+			Username:   extClient.Username,
+			Clicks:     extClient.Clicks,
+			Pages:      extClient.Pages,
+			FinishTime: int(extClient.FinishTime.Seconds()),
 		}
 
 		err := wc.send(joinMessageToWeb)
@@ -432,6 +434,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			for _, extClient := range lobby.ExtClients {
 				extClient.Clicks = 0
 				extClient.Pages = 0
+				extClient.FinishTime = 0
 			}
 			lobby.mu.Unlock()
 
@@ -494,9 +497,10 @@ type JoinMessageFromExt struct {
 
 type JoinMessageToWeb struct {
 	Message
-	Username string
-	Clicks   int
-	Pages    int
+	Username   string
+	Clicks     int
+	Pages      int
+	FinishTime int
 }
 
 func handleExtJoin(w http.ResponseWriter, r *http.Request) {
@@ -551,9 +555,10 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		lobby.mu.Lock()
 		extClient := ExtClient{
-			Username: request.Username,
-			Clicks:   0,
-			Pages:    0,
+			Username:   request.Username,
+			Clicks:     0,
+			Pages:      0,
+			FinishTime: 0,
 		}
 		lobby.ExtClients = append(lobby.ExtClients, &extClient)
 		lobby.mu.Unlock()
@@ -592,12 +597,13 @@ type PageFromExtMessage struct {
 
 type PageToWebMessage struct {
 	Message
-	Username  string
-	Page      string
-	TimeAdded int64
-	Backmove  bool
-	Clicks    int
-	Pages     int
+	Username   string
+	Page       string
+	TimeAdded  int64
+	Backmove   bool
+	Clicks     int
+	Pages      int
+	FinishTime int
 }
 
 func handleExtPage(w http.ResponseWriter, r *http.Request) {
@@ -664,18 +670,23 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			extClient.Pages += 1
 		}
+
+		if pageFromExtMessage.Page == lobby.GoalPage {
+			extClient.FinishTime = time.Since(lobby.StartTime)
+		}
 		extClient.mu.Unlock()
 
 		pageToWebMessage := PageToWebMessage{
 			Message: Message{
 				Type: "page",
 			},
-			Username:  pageFromExtMessage.Username,
-			Page:      pageFromExtMessage.Page,
-			TimeAdded: time.Since(lobby.StartTime).Milliseconds(),
-			Backmove:  pageFromExtMessage.Backmove,
-			Clicks:    extClient.Clicks,
-			Pages:     extClient.Pages,
+			Username:   pageFromExtMessage.Username,
+			Page:       pageFromExtMessage.Page,
+			TimeAdded:  time.Since(lobby.StartTime).Milliseconds(),
+			Backmove:   pageFromExtMessage.Backmove,
+			Clicks:     extClient.Clicks,
+			Pages:      extClient.Pages,
+			FinishTime: int(extClient.FinishTime.Seconds()),
 		}
 
 		lobby.mu.Lock()

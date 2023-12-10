@@ -92,10 +92,14 @@ function AddLeaderboardEntry(username, clicks, pages) {
   );
 }
 
-function UpdateLeaderboardEntry(username, clicks, pages) {
+function UpdateLeaderboardEntry(username, clicks, pages, time) {
   row = document.getElementById(`leaderboard-row-${username}`).children;
   row[2].innerHTML = clicks;
   row[3].innerHTML = pages;
+
+  if (time) {
+    row[4].innerHTML = FormatTime(time);
+  }
 }
 
 function ClearLeaderboard() {
