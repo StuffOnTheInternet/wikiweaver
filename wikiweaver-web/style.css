@@ -142,6 +142,15 @@ img {
   text-align: center;
 }
 
+.title-row {
+  text-align: center;
+}
+
+.title-row > * {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .box {
   background: var(--box-background);
   color: var(--sidepane-text);
