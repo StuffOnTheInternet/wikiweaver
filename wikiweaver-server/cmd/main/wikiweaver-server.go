@@ -26,6 +26,8 @@ const (
 	MAX_USERS_PER_LOBBY             = 10
 )
 
+var Version = "dev"
+
 type GlobalState struct {
 	Lobbies map[string]*Lobby
 	Words   []string
@@ -749,6 +751,8 @@ func readWords(wordsFilepath string) []string {
 }
 
 func main() {
+
+	log.Printf("WikiWeaver Server %s", Version)
 
 	dev := false
 	for _, arg := range os.Args[1:] {
