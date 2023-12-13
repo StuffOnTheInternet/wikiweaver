@@ -47,6 +47,7 @@ type ExtClient struct {
 	Clicks     int
 	Pages      int
 	FinishTime time.Duration
+	Page       string
 	mu         sync.Mutex
 }
 
@@ -438,6 +439,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				extClient.Clicks = 0
 				extClient.Pages = 0
 				extClient.FinishTime = 0
+				extClient.Page = lobby.StartPage
 			}
 			lobby.mu.Unlock()
 
@@ -603,6 +605,7 @@ type PageFromExtMessage struct {
 	Username string
 	Page     string
 	Backmove bool
+	Previous string
 }
 
 type PageToWebMessage struct {
@@ -630,7 +633,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		var pageFromExtMessage PageFromExtMessage
 		err = json.Unmarshal(body, &pageFromExtMessage)
 		if err != nil {
-			log.Printf("failed to parse message from extension: %s", err)
+			log.Printf("failed to parse message '%s' from extension: %s", body, err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
@@ -646,6 +649,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		lobby := globalState.Lobbies[code]
+
 		if lobby == nil {
 			log.Printf("refusing to forward page from %s to lobby %s: lobby not found", r.RemoteAddr, code)
 			w.WriteHeader(http.StatusBadRequest)
@@ -676,14 +680,24 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		extClient.mu.Lock()
+
 		if extClient.FinishTime != 0 {
 			log.Printf("refusing to forward page from %s to lobby %s: user %s has already finished", r.RemoteAddr, code, pageFromExtMessage.Username)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
+			extClient.mu.Unlock()
 			return
 		}
 
-		extClient.mu.Lock()
+		if extClient.Page != pageFromExtMessage.Previous {
+			log.Printf("refusing to forward page from %s to lobby %s: previous page mismatch: server thinks %s while extension thinks %s", r.RemoteAddr, code, extClient.Page, pageFromExtMessage.Previous)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			extClient.mu.Unlock()
+			return
+		}
+
 		extClient.Clicks += 1
 
 		if pageFromExtMessage.Backmove {
@@ -699,6 +713,9 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		if pageFromExtMessage.Page == lobby.GoalPage {
 			extClient.FinishTime = time.Since(lobby.StartTime)
 		}
+
+		extClient.Page = pageFromExtMessage.Page
+
 		extClient.mu.Unlock()
 
 		pageToWebMessage := PageToWebMessage{
