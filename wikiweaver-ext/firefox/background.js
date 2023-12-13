@@ -32,13 +32,19 @@ browser.runtime.onMessage.addListener(async (message) => {
   const domain = await GetDomain();
   const options = await chrome.storage.local.get();
 
-  const response = await fetch(domain + "/api/ext/join", {
+  const connected = await fetch(domain + "/api/ext/join", {
     method: "POST",
-    mode: "no-cors",
     body: JSON.stringify({
       code: options.code,
       username: options.username,
     }),
+  })
+    .then((response) => response.ok)
+    .catch((_) => false);
+
+  await browser.runtime.sendMessage({
+    type: "connectResponse",
+    connected: connected,
   });
 });
 

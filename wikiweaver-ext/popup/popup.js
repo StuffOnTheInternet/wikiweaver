@@ -33,4 +33,13 @@ document.addEventListener("click", async (e) => {
   await browser.runtime.sendMessage({ type: "connect" });
 });
 
+browser.runtime.onMessage.addListener(async (message) => {
+  if (message.type != "connectResponse") return;
+
+  color = message.connected ? "--green" : "--red";
+  document.getElementById("code").style.background = getComputedStyle(
+    document.documentElement
+  ).getPropertyValue(color);
+});
+
 document.addEventListener("DOMContentLoaded", () => init(), false);

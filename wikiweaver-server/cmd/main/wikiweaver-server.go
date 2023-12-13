@@ -509,6 +509,8 @@ type JoinMessageToWeb struct {
 }
 
 func handleExtJoin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	switch r.Method {
 	case http.MethodPost:
 		body, err := io.ReadAll(r.Body)
