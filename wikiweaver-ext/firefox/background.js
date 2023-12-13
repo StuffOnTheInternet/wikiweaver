@@ -26,7 +26,9 @@ chrome.webNavigation.onCommitted.addListener(
   { url: [{ hostSuffix: ".wikipedia.org" }] }
 );
 
-browser.runtime.onMessage.addListener(async (message, sender) => {
+browser.runtime.onMessage.addListener(async (message) => {
+  if (message.type != "connect") return;
+
   const domain = await GetDomain();
   const options = await chrome.storage.local.get();
 
