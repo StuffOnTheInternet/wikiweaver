@@ -769,7 +769,7 @@ func readWords(wordsFilepath string) []string {
 
 func main() {
 
-	log.Printf("WikiWeaver Server %s", Version)
+	log.Printf("WikiWeaver Server (%s)", Version)
 
 	dev := false
 	for _, arg := range os.Args[1:] {
