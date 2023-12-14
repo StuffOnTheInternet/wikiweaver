@@ -807,7 +807,7 @@ func main() {
 	if dev {
 		err = http.ListenAndServe(address, nil)
 	} else {
-		err = http.ListenAndServeTLS(address, "/secrets/ssl_certificate.txt", "/secrets/ssl_privatekey.txt", nil)
+		err = http.ListenAndServeTLS(address, "/fullchain.pem", "/privkey.pem", nil)
 	}
 
 	if err != nil {
