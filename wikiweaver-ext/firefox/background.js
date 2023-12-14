@@ -56,7 +56,7 @@ async function GetDomain() {
   const domain = (await chrome.storage.local.get("domain")).domain;
 
   if (domain == "") {
-    return "https://lofen.tplinkdns.com";
+    return "https://stuffontheinter.net";
   } else if (domain == "localhost") {
     return "http://localhost:4242";
   } else {
