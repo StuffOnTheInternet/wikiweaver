@@ -754,14 +754,14 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 func readWords(wordsFilepath string) []string {
 	contents, err := os.ReadFile(wordsFilepath)
 	if err != nil {
-		log.Printf("failed to read words, defaulting to random letters")
+		log.Printf("failed to read words: %s", err)
 		return []string{}
 	}
 
 	var wordlist []string
 	err = json.Unmarshal(contents, &wordlist)
 	if err != nil {
-		log.Printf("failed to unmarshal words, defaulting to random letters")
+		log.Printf("failed to unmarshal words: %s", err)
 		return []string{}
 	}
 
