@@ -16,7 +16,6 @@ import (
 
 const (
 	PORT                            = 4242
-	CONSOLE_SOCKET_PATH             = "/tmp/ww-console.sock"
 	CODE_LENGTH                     = 4
 	LOBBY_CLEANING_INTERVAL         = 15 * time.Minute
 	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 60 * time.Minute
