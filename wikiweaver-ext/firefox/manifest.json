@@ -4,8 +4,7 @@
   "version": "0.1",
   "description": "Send wikipedia urls to a WikiWeaver server",
   "icons": {
-    "48": "icons/48.png",
-    "96": "icons/96.png"
+    "48": "icons/48.png"
   },
   "action": {
     "default_icon": {
@@ -15,14 +14,13 @@
     "default_title": "WikiWeaver",
     "default_popup": "popup/popup.html"
   },
-  "permissions": [
-    "webNavigation",
-    "webRequest",
-    "storage"
-  ],
+  "permissions": ["webNavigation", "webRequest", "storage"],
   "background": {
-    "scripts": [
-      "background.js"
-    ]
+    "scripts": ["background.js"]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "wikiweaver@example.com"
+    }
   }
 }
