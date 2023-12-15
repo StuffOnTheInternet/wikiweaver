@@ -111,6 +111,11 @@ img {
   margin: 1rem 0 1rem 0;
 }
 
+#leaderboard-wrapper {
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
 #leaderboard-header-username img {
   margin: unset;
 }
