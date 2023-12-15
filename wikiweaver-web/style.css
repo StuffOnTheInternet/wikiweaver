@@ -76,6 +76,7 @@ img {
   flex-grow: 1;
   gap: 0.5rem;
   padding: 1rem;
+  overflow-y: scroll;
 }
 
 #maincanvas {
