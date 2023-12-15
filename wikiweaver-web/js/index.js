@@ -93,7 +93,7 @@ function AddLeaderboardEntry(username, clicks, pages) {
   leaderboard.firstElementChild.insertAdjacentHTML(
     "beforeend",
     `<tr id="leaderboard-row-${username}">
-  <td data-cell="color" style="color: ${color}">⬤</td>
+  <td data-cell="color" style="color: ${CMap[color].bgcolor}">⬤</td>
   <td data-cell="username">${username}</td>
   <td data-cell="clicks">${clicks}</td>
   <td data-cell="pages">${pages}</td>
