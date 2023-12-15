@@ -379,48 +379,46 @@ function CreateNicerExample() {
   document.getElementById("goal-page-input").value = "Fish";
 
   // A three player example of a race between Santa Claus and Fish
-  AddNewPlayer("Bob");
-  AddLeaderboardEntry("Bob", 3, 3);
-  AddNewPage("Bob", "East-West Schism", 10);
-  AddNewPage("Bob", "Lent", 10);
-  AddNewPage("Bob", "Fish", 10);
-  UpdateLeaderboardEntry("Bob", 3, 3, 97);
+  AddNewPlayer("l0fen");
+  AddLeaderboardEntry("l0fen", 3, 3);
+  AddNewPage("l0fen", "East-West Schism", 10);
+  AddNewPage("l0fen", "Lent", 10);
+  AddNewPage("l0fen", "Fish", 10);
+  UpdateLeaderboardEntry("l0fen", 3, 3, 97);
 
-  AddNewPlayer("Mark");
-  AddLeaderboardEntry("Mark", 5, 5);
-  AddNewPage("Mark", "Saint Nick", 10);
-  AddNewPage("Mark", "Christianity", 10);
-  AddNewPage("Mark", "Catholicism", 10);
-  AddNewPage("Mark", "Lent", 10);
-  AddNewPage("Mark", "Fish", 10);
-  UpdateLeaderboardEntry("Mark", 5, 5, 165);
+  AddNewPlayer("SomeRandomDude");
+  AddLeaderboardEntry("SomeRandomDude", 5, 5);
+  AddNewPage("SomeRandomDude", "Saint Nicholas", 10);
+  AddNewPage("SomeRandomDude", "Early Christianity", 10);
+  AddNewPage("SomeRandomDude", "Christianity", 10);
+  AddNewPage("SomeRandomDude", "Lent", 10);
+  AddNewPage("SomeRandomDude", "Fish", 10);
+  UpdateLeaderboardEntry("SomeRandomDude", 5, 5, 165);
 
-  AddNewPlayer("Emma");
-  AddLeaderboardEntry("Emma", 7, 5);
-  AddNewPage("Emma", "East-West Schism", 10);
-  AddNewPage("Emma", "Passover", 10);
-  AddNewPage("Emma", "Pike", 10);
-  AddNewPage("Emma", "Passover", 10, true);
-  AddNewPage("Emma", "Carp", 10);
-  AddNewPage("Emma", "Rough Fish", 10);
-  AddNewPage("Emma", "Fish", 10);
-  UpdateLeaderboardEntry("Emma", 7, 5, 192);
+  AddNewPlayer("BEE");
+  AddLeaderboardEntry("BEE", 7, 5);
+  AddNewPage("BEE", "East-West Schism", 10);
+  AddNewPage("BEE", "Passover", 10);
+  AddNewPage("BEE", "Pike", 10);
+  AddNewPage("BEE", "Passover", 10, true);
+  AddNewPage("BEE", "Carp", 10);
+  AddNewPage("BEE", "Rough Fish", 10);
+  AddNewPage("BEE", "Fish", 10);
+  UpdateLeaderboardEntry("BEE", 7, 5, 192);
 
-  AddNewPlayer("Robert");
-  AddLeaderboardEntry("Robert", 5, 5);
-  AddNewPage("Robert", "Pepsi", 10);
-  AddNewPage("Robert", "Fat", 10);
-  AddNewPage("Robert", "Tuna", 10);
-  AddNewPage("Robert", "Game Fish", 10);
-  AddNewPage("Robert", "Fish", 10);
-  UpdateLeaderboardEntry("Robert", 5, 5, 239);
+  AddNewPlayer("Retroducky");
+  AddLeaderboardEntry("Retroducky", 5, 5);
+  AddNewPage("Retroducky", "Pepsi", 10);
+  AddNewPage("Retroducky", "Fat", 10);
+  AddNewPage("Retroducky", "Tuna", 10);
+  AddNewPage("Retroducky", "Game Fish", 10);
+  AddNewPage("Retroducky", "Fish", 10);
+  UpdateLeaderboardEntry("Retroducky", 5, 5, 239);
 
-  AddNewPlayer("XXANTSLAYERXX");
-  AddLeaderboardEntry("XXANTSLAYERXX", 3, 3);
-  AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
-  AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
-  AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
-  UpdateLeaderboardEntry("XXANTSLAYERXX", 3, 3, 267);
+  AddNewPlayer("vi9ke");
+  AddLeaderboardEntry("vi9ke", 2, 2);
+  AddNewPage("vi9ke", "Pepsi", 10);
+  AddNewPage("vi9ke", "Pepsiman (video game)", 10);
 
   AddNewPlayer("Paul");
   AddLeaderboardEntry("Paul", 6, 6);
@@ -432,15 +430,15 @@ function CreateNicerExample() {
   AddNewPage("Paul", "Fish", 10);
   UpdateLeaderboardEntry("Paul", 6, 6, 323);
 
-  AddNewPlayer("Anna");
-  AddLeaderboardEntry("Anna", 8, 4);
-  AddNewPage("Anna", "East-West Schism", 10);
-  AddNewPage("Anna", "Lent", 10);
-  AddNewPage("Anna", "East-West Schism", 10, true);
-  AddNewPage("Anna", "Passover", 10);
-  AddNewPage("Anna", "Sheep", 10);
-  AddNewPage("Anna", "Mesopotamia", 10);
-  AddNewPage("Anna", "Sheep", 10, true);
-  AddNewPage("Anna", "Passover sacrifice", 10);
-  UpdateLeaderboardEntry("Anna", 8, 4, 0);
+  AddNewPlayer("username");
+  AddLeaderboardEntry("username", 8, 4);
+  AddNewPage("username", "East-West Schism", 10);
+  AddNewPage("username", "Lent", 10);
+  AddNewPage("username", "East-West Schism", 10, true);
+  AddNewPage("username", "Passover", 10);
+  AddNewPage("username", "Sheep", 10);
+  AddNewPage("username", "Mesopotamia", 10);
+  AddNewPage("username", "Sheep", 10, true);
+  AddNewPage("username", "Passover sacrifice", 10);
+  //UpdateLeaderboardEntry("username", 8, 4, 0);
 }
