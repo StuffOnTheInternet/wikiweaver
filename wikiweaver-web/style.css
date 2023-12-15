@@ -75,15 +75,12 @@ img {
   flex-grow: 1;
   gap: 0.5rem;
   padding: 1rem;
-  min-width: 20%;
-  max-width: 25%;
 }
 
 #maincanvas {
   background: var(--maincanvas-background);
   flex-grow: 4;
-  min-width: 75%;
-  max-width: 80%;
+  min-width: 0;
 }
 
 #title {
