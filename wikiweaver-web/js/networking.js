@@ -55,17 +55,12 @@ function API_lobbyJoin(code) {
       case "join":
         if (ResetOnNextPlayerJoin) {
           ResetLobbyClientSide();
-          ResetOnNextPlayerJoin = false;
         }
         HandleNewPlayer(msg);
         break;
       case "joinResponse":
         if (!msg.IsHost) {
-          document.getElementById("start-page-input").disabled = true;
-          document.getElementById("goal-page-input").disabled = true;
-          document.getElementById("time-input").disabled = true;
-          document.getElementById("start-button").disabled = true;
-          document.getElementById("reset-button").disabled = true;
+          SetInputEnabled(false);
         }
         break;
       case "page":
@@ -92,6 +87,12 @@ function API_lobbyJoin(code) {
         break;
       case "reset":
         ResetLobbyClientSide();
+        break;
+      case "gameover":
+        if (msg.IsHost) {
+          SetInputEnabled(true);
+        }
+        SetTime(msg.Countdown);
         break;
       default:
         console.log("Unrecognized message: ", msg);

@@ -264,6 +264,12 @@ type ResetResponseMessage struct {
 	Message
 }
 
+type GameoverResponseMessage struct {
+	Message
+	Countdown int
+	IsHost    bool
+}
+
 func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
@@ -528,6 +534,31 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				err := webClient.send(resetResponseMessage)
 				if err != nil {
 					log.Printf("failed to notify web client %s of lobby reset", webClient.conn.RemoteAddr())
+				}
+			}
+			lobby.mu.Unlock()
+
+		case "gameover":
+			lobby.mu.Lock()
+			if !wc.isHost {
+				lobby.mu.Unlock()
+				continue
+			}
+
+			lobby.StartTime = time.Time{}
+
+			gameoverResponseMessage := GameoverResponseMessage{
+				Message: Message{
+					"gameover",
+				},
+				Countdown: int(lobby.Countdown.Seconds()),
+			}
+
+			for _, webClient := range lobby.WebClients {
+				gameoverResponseMessage.IsHost = webClient.isHost
+				err := webClient.send(gameoverResponseMessage)
+				if err != nil {
+					log.Printf("failed to notify web client %s of lobby gameover", webClient.conn.RemoteAddr())
 				}
 			}
 			lobby.mu.Unlock()

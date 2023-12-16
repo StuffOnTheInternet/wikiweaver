@@ -49,8 +49,10 @@ async function HandleStartGameClicked() {
     goalpage: goalPage,
     countdown: ParseTime(time),
   });
-
   sendMessage(startMessage);
+
+  SetInputEnabled(false);
+  document.getElementById("reset-button").disabled = false;
 }
 
 async function HandleResetClicked() {
@@ -67,6 +69,7 @@ function ResetLobbyClientSide() {
   ResetLeaderboard();
   ResetCountdownTimer();
   ResetStartAndGoalPages();
+  ResetOnNextPlayerJoin = false;
 }
 
 function ResetStartAndGoalPages() {
@@ -76,6 +79,14 @@ function ResetStartAndGoalPages() {
 
 function HandleRedrawClicked() {
   ForceNewLayout();
+}
+
+function SetInputEnabled(enabled) {
+  document.getElementById("start-page-input").disabled = !enabled;
+  document.getElementById("goal-page-input").disabled = !enabled;
+  document.getElementById("time-input").disabled = !enabled;
+  document.getElementById("start-button").disabled = !enabled;
+  document.getElementById("reset-button").disabled = !enabled;
 }
 
 function HandleNewPlayer(p) {
@@ -165,7 +176,6 @@ function StartCountdownTimer() {
 
 function ResetCountdownTimer() {
   clearInterval(CountdownTimer);
-  document.getElementById("time-input").disabled = false;
   document.getElementById("time-input").value = "";
 }
 
@@ -183,9 +193,18 @@ function DoCountdown() {
   if (time <= 0) {
     time = 0;
     ResetCountdownTimer();
+
+    let resetMessage = JSON.stringify({
+      type: "gameover",
+    });
+    sendMessage(resetMessage);
   }
 
   timeElem.value = FormatTime(time);
+}
+
+function SetTime(time) {
+  document.getElementById("time-input").value = FormatTime(time);
 }
 
 function ZeroPad(num, places) {
