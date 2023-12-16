@@ -222,7 +222,10 @@ func handleWebCreate(w http.ResponseWriter, r *http.Request) {
 	code := generateUniqueCode()
 
 	globalState.mu.Lock()
-	globalState.Lobbies[code] = &Lobby{Code: code, LastInteractionTime: time.Now()}
+	globalState.Lobbies[code] = &Lobby{
+		Code:                code,
+		LastInteractionTime: time.Now(),
+	}
 	globalState.mu.Unlock()
 
 	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
@@ -255,6 +258,10 @@ type StartResponseMessage struct {
 type JoinResponseMessage struct {
 	Message
 	IsHost bool
+}
+
+type ResetResponseMessage struct {
+	Message
 }
 
 func handleWebJoin(w http.ResponseWriter, r *http.Request) {
@@ -490,6 +497,43 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 
 			wc.sendStartResponse(true, "")
+
+		case "reset":
+			if !wc.isHost {
+				log.Printf("web client %s failed to reset lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
+				return
+			}
+
+			log.Printf("web client %s reset lobby %s", wc.conn.RemoteAddr(), lobby.Code)
+
+			lobby.mu.Lock()
+			for _, extClient := range lobby.ExtClients {
+				delete(globalState.UserIDs, extClient.UserID)
+			}
+			lobby.ExtClients = lobby.ExtClients[:0]
+			lobby.LastInteractionTime = time.Now()
+			lobby.StartTime = time.Time{}
+			lobby.Countdown = time.Duration(0)
+			lobby.StartPage = ""
+			lobby.GoalPage = ""
+			lobby.History = lobby.History[:0]
+
+			resetResponseMessage := ResetResponseMessage{
+				Message: Message{
+					"reset",
+				},
+			}
+
+			for _, webClient := range lobby.WebClients {
+				err := webClient.send(resetResponseMessage)
+				if err != nil {
+					log.Printf("failed to notify web client %s of lobby reset", webClient.conn.RemoteAddr())
+				}
+			}
+			lobby.mu.Unlock()
+
+		default:
+			log.Printf("web client %s sent an unrecognized message: '%s'", wc.conn.RemoteAddr(), msg)
 		}
 	}
 }

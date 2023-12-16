@@ -53,6 +53,27 @@ async function HandleStartGameClicked() {
   sendMessage(startMessage);
 }
 
+async function HandleResetClicked() {
+  ResetLobbyClientSide();
+  let resetMessage = JSON.stringify({
+    type: "reset",
+  });
+  sendMessage(resetMessage);
+}
+
+function ResetLobbyClientSide() {
+  ResetGraph();
+  ResetPlayers();
+  ResetLeaderboard();
+  ResetCountdownTimer();
+  ResetStartAndGoalPages();
+}
+
+function ResetStartAndGoalPages() {
+  document.getElementById("start-page-input").value = "";
+  document.getElementById("goal-page-input").value = "";
+}
+
 function HandleRedrawClicked() {
   ForceNewLayout();
 }
@@ -112,10 +133,10 @@ function UpdateLeaderboardEntry(username, clicks, pages, time) {
   }
 }
 
-function ClearLeaderboard() {
+function ResetLeaderboard() {
   leaderboard = document.getElementById("leaderboard");
 
-  // Dont not remove the leaderboard header
+  // Do not remove the leaderboard header
   const [_, ...rows] = leaderboard.firstElementChild.children;
   for (let elem of rows) {
     elem.remove();
@@ -142,13 +163,17 @@ function StartCountdownTimer() {
   document.getElementById("time-input").disabled = true;
 }
 
+function ResetCountdownTimer() {
+  clearInterval(CountdownTimer);
+  document.getElementById("time-input").disabled = false;
+  document.getElementById("time-input").value = "";
+}
+
 function DoCountdown() {
   timeElem = document.getElementById("time-input");
 
   if (timeElem.value == "") {
-    clearInterval(CountdownTimer);
-    document.getElementById("time-input").disabled = false;
-    document.getElementById("time-input").value = "";
+    ResetCountdownTimer();
     return;
   }
 
@@ -157,9 +182,7 @@ function DoCountdown() {
 
   if (time <= 0) {
     time = 0;
-    clearInterval(CountdownTimer);
-    document.getElementById("time-input").disabled = false;
-    document.getElementById("time-input").value = "";
+    ResetCountdownTimer();
   }
 
   timeElem.value = FormatTime(time);

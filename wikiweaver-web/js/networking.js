@@ -42,7 +42,7 @@ function API_lobbyJoin(code) {
   globalThis.socket.addEventListener("close", (event) => {
     clearInterval(interval);
     SetCode(connectionFailMessage);
-    document.getElementById("time-input").value = "";
+    ResetCountdownTimer();
   });
 
   globalThis.socket.addEventListener("message", (event) => {
@@ -54,8 +54,7 @@ function API_lobbyJoin(code) {
         break;
       case "join":
         if (ResetOnNextPlayerJoin) {
-          ResetPlayers();
-          ClearLeaderboard();
+          ResetLobbyClientSide();
           ResetOnNextPlayerJoin = false;
         }
         HandleNewPlayer(msg);
@@ -66,7 +65,7 @@ function API_lobbyJoin(code) {
           document.getElementById("goal-page-input").disabled = true;
           document.getElementById("time-input").disabled = true;
           document.getElementById("start-button").disabled = true;
-          document.getElementById("pause-button").disabled = true;
+          document.getElementById("reset-button").disabled = true;
         }
         break;
       case "page":
@@ -90,6 +89,9 @@ function API_lobbyJoin(code) {
         StartGame(startPage, goalPage);
         ResetLeaderboardScores();
         StartCountdownTimer();
+        break;
+      case "reset":
+        ResetLobbyClientSide();
         break;
       default:
         console.log("Unrecognized message: ", msg);

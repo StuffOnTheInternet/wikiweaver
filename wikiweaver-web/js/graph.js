@@ -164,6 +164,43 @@ function ResetPlayers() {
   }
 }
 
+function ResetGraph() {
+  webgraph = cytoscape({
+    container: document.getElementById("maincanvas"), // container to render in
+    style: [
+      // the stylesheet for the graph
+      {
+        selector: "node",
+        style: {
+          "background-color": "#fff",
+          label: "data(id)",
+          "font-size": 18,
+          "text-outline-color": "#555",
+          "text-outline-width": 1.6,
+          color: "#fff",
+          "border-width": 3,
+          "border-color": "#bbb",
+        },
+      },
+      {
+        selector: "edge",
+        style: {
+          width: 4,
+          //label: "data(group)", //Implement this as colorblind mode as a toggle
+          "text-rotation": "autorotate",
+          color: "#fff",
+          "font-size": 10,
+          "text-outline-color": "#000",
+          "text-outline-width": 0.6,
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+          "control-point-step-size": 15,
+        },
+      },
+    ],
+  });
+}
+
 function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
   let color = UsernameToColor(Player);
   if (color === undefined) return;
@@ -245,40 +282,7 @@ function ForceNewLayout() {
 }
 
 function StartGame(StartNode, GoalNode) {
-  webgraph = cytoscape({
-    container: document.getElementById("maincanvas"), // container to render in
-    style: [
-      // the stylesheet for the graph
-      {
-        selector: "node",
-        style: {
-          "background-color": "#fff",
-          label: "data(id)",
-          "font-size": 18,
-          "text-outline-color": "#555",
-          "text-outline-width": 1.6,
-          color: "#fff",
-          "border-width": 3,
-          "border-color": "#bbb",
-        },
-      },
-      {
-        selector: "edge",
-        style: {
-          width: 4,
-          //label: "data(group)", //Implement this as colorblind mode as a toggle
-          "text-rotation": "autorotate",
-          color: "#fff",
-          "font-size": 10,
-          "text-outline-color": "#000",
-          "text-outline-width": 0.6,
-          "target-arrow-shape": "triangle",
-          "curve-style": "bezier",
-          "control-point-step-size": 15,
-        },
-      },
-    ],
-  });
+  ResetGraph();
 
   webgraph.add({
     data: { id: StartNode, group: "Start" },
@@ -319,8 +323,6 @@ function createColorTest() {
   AddLeaderboardEntry("TEST3", 2, 2);
   AddNewPage("TEST3", "e", 10);
   AddNewPage("TEST3", "f", 10);
-
-
 }
 
 function createExampleGraph() {
