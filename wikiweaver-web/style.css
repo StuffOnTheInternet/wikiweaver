@@ -12,6 +12,7 @@
   --sidepane-background: #cddcf2;
   --sidepane-text: #3f3d3d;
   --box-background: #f1f0ff;
+  --box-background-disabled: #c0c3d4;
 }
 
 body {
@@ -162,6 +163,12 @@ img {
   border-width: 0px;
   border-radius: 0.5rem;
   outline: none;
+}
+
+.box:disabled {
+  background: var(--box-background-disabled) !important;
+  filter: brightness(100%) !important;
+  cursor: default;
 }
 
 .button {
