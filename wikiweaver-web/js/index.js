@@ -112,10 +112,13 @@ function SetCode(code) {
 
   let color = "--red";
   let textTransform = "none";
+  SetInputEnabled(false);
+  document.getElementById("reset-button").disabled = false;
 
   if (code.length === 4) {
     color = "--green";
     textTransform = "uppercase";
+    SetInputEnabled(true);
   }
 
   codeElement.style.background = getComputedStyle(
