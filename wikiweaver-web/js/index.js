@@ -106,19 +106,29 @@ function HandleNewPage(p) {
   }
 }
 
-function SetCode(code) {
+function SetCode(code, status) {
   let codeElement = document.getElementById("code");
   codeElement.innerHTML = code;
 
-  let color = "--red";
-  let textTransform = "none";
-  SetInputEnabled(false);
-  document.getElementById("reset-button").disabled = false;
+  let color = "";
+  let textTransform = "";
 
-  if (code.length === 4) {
+  if (status == "connected") {
     color = "--green";
     textTransform = "uppercase";
     SetInputEnabled(true);
+  } else if (status == "disconnected") {
+    color = "--red";
+    textTransform = "none";
+    SetInputEnabled(false);
+    document.getElementById("reset-button").disabled = false;
+  } else if (status == "pending") {
+    color = "--yellow";
+    textTransform = "none";
+    SetInputEnabled(false);
+    document.getElementById("reset-button").disabled = false;
+  } else {
+    console.log("unrecognized connection status", status);
   }
 
   codeElement.style.background = getComputedStyle(

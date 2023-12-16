@@ -41,7 +41,7 @@ function API_lobbyJoin(code) {
 
   globalThis.socket.addEventListener("close", (event) => {
     clearInterval(interval);
-    SetCode(connectionFailMessage);
+    SetCode(connectionFailMessage, "disconnected");
     ResetCountdownTimer();
   });
 
@@ -118,27 +118,27 @@ async function connect() {
     await globalThis.socket.close();
   }
 
-  SetCode("connecting...");
+  SetCode("connecting...", "pending");
 
   code = localStorage.getItem("code");
 
   lobbyStatus = await API_lobbyStatus(code);
   if (lobbyStatus == null) {
-    SetCode(connectionFailMessage);
+    SetCode(connectionFailMessage, "disconnected");
     return;
   }
 
   if (!lobbyStatus.Active) {
     code = await API_lobbyCreate();
     if (code == null) {
-      SetCode(connectionFailMessage);
+      SetCode(connectionFailMessage, "disconnected");
       return;
     }
   }
 
   API_lobbyJoin(code);
 
-  SetCode(code);
+  SetCode(code, "connected");
 
   localStorage.setItem("code", code);
 }
