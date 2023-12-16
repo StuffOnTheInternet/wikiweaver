@@ -36,7 +36,20 @@ document.addEventListener("click", async (e) => {
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.type != "connectResponse") return;
 
-  color = message.connected ? "--green" : "--red";
+  response = message.response;
+
+  if (response.Success) {
+    var color = "--green";
+
+    const code = (await chrome.storage.local.get("code")).code;
+    let lobbies = (await chrome.storage.session.get("lobbies")).lobbies;
+    if (lobbies === undefined) lobbies = {};
+    lobbies[code] = response.UserID;
+    await chrome.storage.session.set({ lobbies: lobbies });
+  } else {
+    var color = "--red";
+  }
+
   document.getElementById("code").style.background = getComputedStyle(
     document.documentElement
   ).getPropertyValue(color);

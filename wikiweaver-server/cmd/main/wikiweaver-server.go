@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -30,6 +31,7 @@ var Version = "dev"
 type GlobalState struct {
 	Lobbies map[string]*Lobby
 	Words   []string
+	UserIDs map[string]bool
 	mu      sync.Mutex
 }
 
@@ -42,6 +44,7 @@ type WebClient struct {
 }
 
 type ExtClient struct {
+	UserID     string
 	Username   string
 	Clicks     int
 	Pages      int
@@ -129,6 +132,24 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+func generateUserID() string {
+	globalState.mu.Lock()
+	defer globalState.mu.Unlock()
+
+	userID := strconv.FormatInt(rand.Int63(), 16)
+	for {
+		if _, ok := globalState.UserIDs[userID]; !ok {
+			break
+		}
+
+		userID = strconv.FormatInt(rand.Int63(), 16)
+	}
+
+	globalState.UserIDs[userID] = true
+
+	return userID
+}
+
 func generateRandomCode() string {
 	LETTERS := "abcdefghijklmnopqrstuvxyz"
 
@@ -183,6 +204,9 @@ func lobbyCleaner() {
 				log.Printf("lobby %s idle for %s, closing", code, idleTime)
 
 				lobby.mu.Lock()
+				for _, extClient := range lobby.ExtClients {
+					delete(globalState.UserIDs, extClient.UserID)
+				}
 				lobby.close()
 				lobby.mu.Unlock()
 
@@ -494,7 +518,8 @@ func handleWebStatus(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
-type JoinMessageFromExt struct {
+type JoinRequestFromExt struct {
+	UserID   string
 	Username string
 	Code     string
 }
@@ -505,6 +530,11 @@ type JoinMessageToWeb struct {
 	Clicks     int
 	Pages      int
 	FinishTime int
+}
+
+type JoinResponseToExt struct {
+	Success bool
+	UserID  string
 }
 
 func handleExtJoin(w http.ResponseWriter, r *http.Request) {
@@ -520,7 +550,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var request JoinMessageFromExt
+		var request JoinRequestFromExt
 		err = json.Unmarshal(body, &request)
 		if err != nil {
 			log.Printf("failed to parse message from extension: %s", err)
@@ -552,11 +582,35 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if lobby.GetExtClientFromUsername(request.Username) != nil {
-			log.Printf("extension %s tried to join, but username %s is already in lobby %s", r.RemoteAddr, request.Username, request.Code)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
-			return
+		otherWithSameUsername := lobby.GetExtClientFromUsername(request.Username)
+
+		if otherWithSameUsername != nil {
+
+			if otherWithSameUsername.UserID == request.UserID {
+				joinResponseToExt := JoinResponseToExt{
+					Success: true,
+					UserID:  request.UserID,
+				}
+
+				response, err := json.Marshal(joinResponseToExt)
+				if err != nil {
+					log.Printf("failed to marshal ext join response: %s", err)
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte{})
+					return
+				}
+
+				w.WriteHeader(http.StatusOK)
+				w.Write(response)
+
+				return
+
+			} else {
+				log.Printf("extension %s tried to join, but another user with username %s is already in %s", r.RemoteAddr, request.Username, request.Code)
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte{})
+				return
+			}
 		}
 
 		if len(lobby.ExtClients) >= MAX_USERS_PER_LOBBY {
@@ -566,8 +620,11 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		userID := generateUserID()
+
 		lobby.mu.Lock()
 		extClient := ExtClient{
+			UserID:     userID,
 			Username:   request.Username,
 			Clicks:     0,
 			Pages:      0,
@@ -591,6 +648,22 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 				log.Printf("failed to forward message %v to web client %s: %s", joinMessageToWeb, wc.conn.RemoteAddr(), err)
 			}
 		}
+
+		joinResponseToExt := JoinResponseToExt{
+			Success: true,
+			UserID:  userID,
+		}
+
+		response, err := json.Marshal(joinResponseToExt)
+		if err != nil {
+			log.Printf("failed to marshal ext join response: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte{})
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(response)
 	}
 }
 
@@ -782,6 +855,7 @@ func main() {
 	globalState = GlobalState{
 		Lobbies: make(map[string]*Lobby),
 		Words:   readWords(WORDS_FILEPATH),
+		UserIDs: make(map[string]bool),
 	}
 
 	go lobbyCleaner()

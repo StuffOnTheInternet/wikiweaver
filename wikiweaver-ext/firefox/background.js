@@ -41,19 +41,29 @@ browser.runtime.onMessage.addListener(async (message) => {
   const domain = await GetDomain();
   const options = await chrome.storage.local.get();
 
-  const connected = await fetch(domain + "/api/ext/join", {
+  let sessionStorage = await chrome.storage.session.get("lobbies");
+  if (!("lobbies" in sessionStorage)) sessionStorage = { lobbies: {} };
+  lobbies = sessionStorage.lobbies;
+
+  const userid = options.code in lobbies ? lobbies[options.code] : "";
+
+  const response = await fetch(domain + "/api/ext/join", {
     method: "POST",
     body: JSON.stringify({
       code: options.code,
       username: options.username,
+      userid: userid,
     }),
   })
-    .then((response) => response.ok)
-    .catch((_) => false);
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch((_) => {
+      return { Success: false };
+    });
 
   await browser.runtime.sendMessage({
     type: "connectResponse",
-    connected: connected,
+    response: response,
   });
 });
 
