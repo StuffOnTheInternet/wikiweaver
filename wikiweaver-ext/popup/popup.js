@@ -21,7 +21,10 @@ async function init() {
   if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
   const lobbies = sessionStorage.lobbies;
 
-  IndicateConnectionStatus(options.code in lobbies);
+  if (options.code) {
+    IndicateConnectionStatus(options.code in lobbies);
+    await browser.runtime.sendMessage({ type: "connect" });
+  }
 }
 
 function IndicateConnectionStatus(connected) {
