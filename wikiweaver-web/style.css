@@ -8,7 +8,7 @@
 :root {
   --green: #dcfd97;
   --red: #fabdbd;
-  --maincanvas-background: #ffe;
+  --maincanvas-background: #fffff5;
   --sidepane-background: #cddcf2;
   --sidepane-text: #3f3d3d;
   --box-background: #f1f0ff;
@@ -134,7 +134,7 @@ img {
   gap: 0.5rem;
 }
 
-.flex-horizontal-container > * {
+.flex-horizontal-container>* {
   width: 0;
   min-width: 0;
   flex-grow: 1;
@@ -150,7 +150,7 @@ img {
   text-align: center;
 }
 
-.title-row > * {
+.title-row>* {
   display: inline-block;
   vertical-align: middle;
 }

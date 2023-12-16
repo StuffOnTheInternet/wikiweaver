@@ -7,17 +7,17 @@ const UNUSED = "UNUSED";
 var CMap = {
   Red: {
     group: UNUSED,
-    bgcolor: "#d22",
-    bordercolor: "#c11",
+    bgcolor: "#e44",
+    bordercolor: "#d33",
     linecolor: "#e22",
-    arrowcolor: "#c22",
+    arrowcolor: "#d33",
     arrowshape: "triangle",
     fromnode: "", // Assigned at startup
   },
   Orange: {
     group: UNUSED,
-    bgcolor: "#e90",
-    bordercolor: "#d80",
+    bgcolor: "#fa0",
+    bordercolor: "#e90",
     linecolor: "#fa0",
     arrowcolor: "#d80",
     arrowshape: "chevron",
@@ -26,63 +26,63 @@ var CMap = {
   Yellow: {
     group: UNUSED,
     bgcolor: "#fe0",
-    bordercolor: "#dc0",
+    bordercolor: "#ed1",
     linecolor: "#fe0",
-    arrowcolor: "#cb0",
+    arrowcolor: "#db1",
     arrowshape: "triangle",
     fromnode: "", // Assigned at startup
   },
   Lime: {
     group: UNUSED,
-    bgcolor: "#ac1",
-    bordercolor: "#9b0",
-    linecolor: "#ad1",
-    arrowcolor: "#ab1",
+    bgcolor: "#ce3",
+    bordercolor: "#bd2",
+    linecolor: "#be2",
+    arrowcolor: "#bd2",
     arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Green: {
     group: UNUSED,
-    bgcolor: "#4b4",
-    bordercolor: "#3a3",
-    linecolor: "#4c4",
-    arrowcolor: "#4a4",
+    bgcolor: "#6c5",
+    bordercolor: "#5b4",
+    linecolor: "#6d5",
+    arrowcolor: "#6b5",
     arrowshape: "triangle",
     fromnode: "", // Assigned at startup
   },
   Cyan: {
     group: UNUSED,
-    bgcolor: "#0cd",
-    bordercolor: "#0bc",
-    linecolor: "#0cc",
-    arrowcolor: "#0aa",
+    bgcolor: "#1de",
+    bordercolor: "#1cd",
+    linecolor: "#1dd",
+    arrowcolor: "#1bb",
     arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Blue: {
     group: UNUSED,
-    bgcolor: "#44e",
-    bordercolor: "#33d",
-    linecolor: "#44f",
-    arrowcolor: "#44d",
+    bgcolor: "#66f",
+    bordercolor: "#55f",
+    linecolor: "#55f",
+    arrowcolor: "#55e",
     arrowshape: "triangle",
     fromnode: "", // Assigned at startup
   },
   Violet: {
     group: UNUSED,
-    bgcolor: "#92c",
-    bordercolor: "#81b",
-    linecolor: "#92d",
-    arrowcolor: "#92b",
+    bgcolor: "#b4e",
+    bordercolor: "#a3d",
+    linecolor: "#a3e",
+    arrowcolor: "#a3c",
     arrowshape: "chevron",
     fromnode: "", // Assigned at startup
   },
   Magenta: {
     group: UNUSED,
-    bgcolor: "#c0c",
-    bordercolor: "#b0b",
-    linecolor: "#d0d",
-    arrowcolor: "#b0b",
+    bgcolor: "#e2d",
+    bordercolor: "#c2c",
+    linecolor: "#f2e",
+    arrowcolor: "#d2c",
     arrowshape: "triangle",
     fromnode: "", // Assigned at startup
   },
@@ -274,6 +274,7 @@ function StartGame(StartNode, GoalNode) {
           "text-outline-width": 0.6,
           "target-arrow-shape": "triangle",
           "curve-style": "bezier",
+          "control-point-step-size": 15,
         },
       },
     ],
@@ -300,6 +301,26 @@ function StartGame(StartNode, GoalNode) {
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
 
   ForceNewLayout();
+}
+
+function createColorTest() {
+  // Added at the end of NicerExample to provide the final extra colors needed
+  AddNewPlayer("TEST1");
+  AddLeaderboardEntry("TEST1", 2, 2);
+  AddNewPage("TEST1", "a", 10);
+  AddNewPage("TEST1", "b", 10);
+
+  AddNewPlayer("TEST2");
+  AddLeaderboardEntry("TEST2", 2, 2);
+  AddNewPage("TEST2", "c", 10);
+  AddNewPage("TEST2", "d", 10);
+
+  AddNewPlayer("TEST3");
+  AddLeaderboardEntry("TEST3", 2, 2);
+  AddNewPage("TEST3", "e", 10);
+  AddNewPage("TEST3", "f", 10);
+
+
 }
 
 function createExampleGraph() {
@@ -441,4 +462,6 @@ function CreateNicerExample() {
   AddNewPage("username", "Sheep", 10, true);
   AddNewPage("username", "Passover sacrifice", 10);
   //UpdateLeaderboardEntry("username", 8, 4, 0);
+
+  //createColorTest()
 }
