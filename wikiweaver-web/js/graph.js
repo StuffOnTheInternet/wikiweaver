@@ -452,6 +452,7 @@ function CreateNicerExample() {
   AddNewPage("Paul", "Goldfish", 10);
   AddNewPage("Paul", "Fish", 10);
   UpdateLeaderboardEntry("Paul", 6, 6, 323);
+  MoveLeaderboardEntry("Paul", 4);
 
   AddNewPlayer("username");
   AddLeaderboardEntry("username", 8, 4);
