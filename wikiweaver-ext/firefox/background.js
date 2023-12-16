@@ -7,7 +7,15 @@ chrome.webNavigation.onCommitted.addListener(
     const domain = await GetDomain();
     const page = pageNameFromWikipediaURL(event.url);
     const options = await chrome.storage.local.get();
-    const previous = (await chrome.storage.session.get("previous")).previous;
+
+    let lastPage = (await chrome.storage.session.get("lastPage")).lastPage;
+    if (lastPage === undefined) lastPage = {};
+
+    if (lastPage[event.tabId] === undefined) {
+      lastPage[event.tabId] = page;
+      await chrome.storage.session.set({ lastPage: lastPage });
+      return;
+    }
 
     const response = await fetch(domain + "/api/ext/page", {
       method: "POST",
@@ -17,11 +25,12 @@ chrome.webNavigation.onCommitted.addListener(
         username: options.username,
         page: page,
         backmove: event.transitionQualifiers.includes("forward_back"),
-        previous: previous,
+        previous: lastPage[event.tabId],
       }),
     });
 
-    await chrome.storage.session.set({ previous: page });
+    lastPage[event.tabId] = page;
+    await chrome.storage.session.set({ lastPage: lastPage });
   },
   { url: [{ hostSuffix: ".wikipedia.org" }] }
 );
