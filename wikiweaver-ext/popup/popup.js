@@ -22,13 +22,23 @@ async function init() {
   const lobbies = sessionStorage.lobbies;
 
   if (options.code) {
-    IndicateConnectionStatus(options.code in lobbies);
+    IndicateConnectionStatus({ status: "pending" });
     await browser.runtime.sendMessage({ type: "connect" });
   }
 }
 
 function IndicateConnectionStatus(connected) {
-  const color = connected ? "--green" : "--red";
+  let color = "";
+  if (connected.status == "connected") {
+    color = "--green";
+  } else if (connected.status == "disconnected") {
+    color = "--red";
+  } else if (connected.status == "pending") {
+    color = "--yellow";
+  } else {
+    console.log("invalid connected status:", connected);
+  }
+
   document.getElementById("code").style.background = getComputedStyle(
     document.documentElement
   ).getPropertyValue(color);
@@ -47,6 +57,7 @@ document.addEventListener("click", async (e) => {
     domain: domainElem.value,
   });
 
+  IndicateConnectionStatus({ status: "pending" });
   await browser.runtime.sendMessage({ type: "connect" });
 });
 
@@ -69,7 +80,9 @@ browser.runtime.onMessage.addListener(async (message) => {
 
   await chrome.storage.session.set({ lobbies: lobbies });
 
-  IndicateConnectionStatus(response.Success);
+  IndicateConnectionStatus({
+    status: response.Success ? "connected" : "disconnected",
+  });
 });
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
