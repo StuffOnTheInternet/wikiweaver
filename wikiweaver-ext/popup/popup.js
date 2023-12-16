@@ -15,6 +15,20 @@ async function init() {
     const domainElem = document.getElementById("domain");
     domainElem.value = options.domain;
   }
+
+  const sessionStorage = await chrome.storage.session.get("lobbies");
+  if (sessionStorage === undefined) sessionStorage = {};
+  if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
+  const lobbies = sessionStorage.lobbies;
+
+  IndicateConnectionStatus(options.code in lobbies);
+}
+
+function IndicateConnectionStatus(connected) {
+  const color = connected ? "--green" : "--red";
+  document.getElementById("code").style.background = getComputedStyle(
+    document.documentElement
+  ).getPropertyValue(color);
 }
 
 document.addEventListener("click", async (e) => {
@@ -38,21 +52,21 @@ browser.runtime.onMessage.addListener(async (message) => {
 
   response = message.response;
 
-  if (response.Success) {
-    var color = "--green";
+  const code = (await chrome.storage.local.get("code")).code;
+  let sessionStorage = await chrome.storage.session.get("lobbies");
+  if (sessionStorage === undefined) sessionStorage = {};
+  if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
+  const lobbies = sessionStorage.lobbies;
 
-    const code = (await chrome.storage.local.get("code")).code;
-    let lobbies = (await chrome.storage.session.get("lobbies")).lobbies;
-    if (lobbies === undefined) lobbies = {};
+  if (response.Success) {
     lobbies[code] = response.UserID;
-    await chrome.storage.session.set({ lobbies: lobbies });
   } else {
-    var color = "--red";
+    delete lobbies[code];
   }
 
-  document.getElementById("code").style.background = getComputedStyle(
-    document.documentElement
-  ).getPropertyValue(color);
+  await chrome.storage.session.set({ lobbies: lobbies });
+
+  IndicateConnectionStatus(response.Success);
 });
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
