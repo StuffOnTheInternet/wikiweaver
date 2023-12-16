@@ -1,3 +1,5 @@
+var numberOfPlayersFinished = 0;
+
 function init() {
   connect();
   CreateNicerExample();
@@ -97,6 +99,11 @@ function HandleNewPlayer(p) {
 function HandleNewPage(p) {
   AddNewPage(p.Username, p.Page, p.TimeAdded, p.Backmove);
   UpdateLeaderboardEntry(p.Username, p.Clicks, p.Pages, p.FinishTime);
+
+  if (p.FinishTime) {
+    MoveLeaderboardEntry(p.Username, numberOfPlayersFinished);
+    numberOfPlayersFinished += 1;
+  }
 }
 
 function SetCode(code) {
@@ -144,6 +151,18 @@ function UpdateLeaderboardEntry(username, clicks, pages, time) {
   }
 }
 
+function MoveLeaderboardEntry(username, position) {
+  const row = document.getElementById(`leaderboard-row-${username}`);
+  row.remove();
+
+  const leaderboard = document.getElementById("leaderboard");
+  const rows = leaderboard.firstElementChild.children;
+
+  if (position >= rows.length) position = rows.length - 1;
+
+  rows[position].after(row);
+}
+
 function ResetLeaderboard() {
   leaderboard = document.getElementById("leaderboard");
 
@@ -152,6 +171,8 @@ function ResetLeaderboard() {
   for (let elem of rows) {
     elem.remove();
   }
+
+  numberOfPlayersFinished = 0;
 }
 
 function ResetLeaderboardScores() {
