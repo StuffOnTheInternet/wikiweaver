@@ -87,6 +87,9 @@ function API_lobbyJoin(code) {
         break;
       case "reset":
         ResetLobbyClientSide();
+        if (msg.IsHost) {
+          SetInputEnabled(true);
+        }
         break;
       case "gameover":
         if (msg.IsHost) {

@@ -262,6 +262,7 @@ type JoinResponseMessage struct {
 
 type ResetResponseMessage struct {
 	Message
+	IsHost bool
 }
 
 type GameoverResponseMessage struct {
@@ -531,6 +532,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 
 			for _, webClient := range lobby.WebClients {
+				resetResponseMessage.IsHost = webClient.isHost
 				err := webClient.send(resetResponseMessage)
 				if err != nil {
 					log.Printf("failed to notify web client %s of lobby reset", webClient.conn.RemoteAddr())
