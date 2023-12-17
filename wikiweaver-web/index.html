@@ -26,10 +26,13 @@
             </div>
             <div class="flex-horizontal-container">
                 <div id="code" class="box text"></div>
-                <input id="time-input" class="box text" placeholder="00:00" value="10:00"></input>
+                <input id="time-input" class="box text" placeholder="00:00" value="10:00"
+                    onchange="HandleInputChanged()"></input>
             </div>
-            <input id="start-page-input" class="box text" placeholder="start page"></input>
-            <input id="goal-page-input" class="box text" placeholder="goal page"></input>
+            <input id="start-page-input" class="box text" placeholder="start page"
+                onchange="HandleInputChanged()"></input>
+            <input id="goal-page-input" class="box text" placeholder="goal page"
+                onchange="HandleInputChanged()"></input>
             <div class="flex-horizontal-container">
                 <button id="start-button" class="button box text" onclick="HandleStartGameClicked()">start</button>
                 <button id="reset-button" class="button box text" onclick="HandleResetClicked()">reset</button>

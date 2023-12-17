@@ -6,43 +6,12 @@ function init() {
 }
 
 async function HandleStartGameClicked() {
-  let code = localStorage.getItem("code");
+  if (!StartButtonShouldBeEnabled()) return;
 
-  if (code == undefined) {
-    console.log("failed to start lobby: code is undefined");
-    return;
-  }
-
-  if (ResetOnNextPlayerJoin) {
-    console.log("failed to start lobby: no players connected to lobby");
-    return;
-  }
-
+  const code = localStorage.getItem("code");
   const time = document.getElementById("time-input").value;
-  if (!IsValidTime(time)) {
-    console.log("failed to start lobby: invalid time");
-    return;
-  }
-
-  let startPage = document.getElementById("start-page-input").value;
-  let goalPage = document.getElementById("goal-page-input").value;
-
-  if (!startPage) {
-    console.log(`failed to start lobby: invalid start page '${startPage}'`);
-    return;
-  }
-
-  if (!goalPage) {
-    console.log(`failed to start lobby: invalid goal page '${goalPage}'`);
-    return;
-  }
-
-  if (startPage == goalPage) {
-    console.log(
-      "failed to start lobby: start and goal pages cannot have the same value"
-    );
-    return;
-  }
+  const startPage = document.getElementById("start-page-input").value;
+  const goalPage = document.getElementById("goal-page-input").value;
 
   let startMessage = JSON.stringify({
     type: "start",
@@ -87,8 +56,36 @@ function SetInputEnabled(enabled) {
   document.getElementById("start-page-input").disabled = !enabled;
   document.getElementById("goal-page-input").disabled = !enabled;
   document.getElementById("time-input").disabled = !enabled;
-  document.getElementById("start-button").disabled = !enabled;
+  MaybeEnableStartButton();
   document.getElementById("reset-button").disabled = !enabled;
+}
+
+function HandleInputChanged() {
+  MaybeEnableStartButton();
+}
+
+function StartButtonShouldBeEnabled() {
+  let code = localStorage.getItem("code");
+  if (code == undefined) return false;
+
+  if (ResetOnNextPlayerJoin) return false;
+  if (NumberOfPlayersInLobby() < 1) return false;
+
+  const time = document.getElementById("time-input").value;
+  if (!IsValidTime(time)) return false;
+
+  let startPage = document.getElementById("start-page-input").value;
+  let goalPage = document.getElementById("goal-page-input").value;
+  if (!startPage) return false;
+  if (!goalPage) return false;
+  if (startPage == goalPage) return false;
+
+  return true;
+}
+
+function MaybeEnableStartButton() {
+  document.getElementById("start-button").disabled =
+    !StartButtonShouldBeEnabled();
 }
 
 function HandleNewPlayer(p) {

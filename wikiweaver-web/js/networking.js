@@ -57,6 +57,7 @@ function API_lobbyJoin(code) {
           ResetLobbyClientSide();
         }
         HandleNewPlayer(msg);
+        MaybeEnableStartButton();
         break;
       case "joinResponse":
         if (!msg.IsHost) {

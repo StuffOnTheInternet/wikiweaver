@@ -164,6 +164,16 @@ function ResetPlayers() {
   }
 }
 
+function NumberOfPlayersInLobby() {
+  let i = 0;
+  for (let color in CMap) {
+    if (CMap[color].group === UNUSED) break;
+    i++;
+  }
+
+  return i;
+}
+
 function ResetGraph() {
   webgraph = cytoscape({
     container: document.getElementById("maincanvas"), // container to render in
