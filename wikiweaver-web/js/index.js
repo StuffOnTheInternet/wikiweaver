@@ -1,9 +1,9 @@
 var numberOfPlayersFinished = 0;
 
-function init() {
-  let code = window.location.hash.replace("#", "");
-  JoinLobby(code);
+async function init() {
   CreateNicerExample();
+  let code = window.location.hash.replace("#", "");
+  await JoinLobby(code);
 }
 
 async function HandleStartGameClicked() {
