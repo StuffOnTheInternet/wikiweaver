@@ -87,21 +87,6 @@ function MaybeEnableStartButton() {
     !StartButtonShouldBeEnabled();
 }
 
-function HandleNewPlayer(p) {
-  AddNewPlayer(p.Username);
-  AddLeaderboardEntry(p.Username, p.Clicks, p.Pages, p.FinishTime);
-}
-
-function HandleNewPage(p) {
-  AddNewPage(p.Username, p.Page, p.TimeAdded, p.Backmove);
-  UpdateLeaderboardEntry(p.Username, p.Clicks, p.Pages, p.FinishTime);
-
-  if (p.FinishTime) {
-    MoveLeaderboardEntry(p.Username, numberOfPlayersFinished);
-    numberOfPlayersFinished += 1;
-  }
-}
-
 function SetCode(code, status) {
   let codeElement = document.getElementById("code");
   codeElement.innerHTML = code;

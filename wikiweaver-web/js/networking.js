@@ -27,6 +27,62 @@ function sendMessage(message) {
   globalThis.socket.send(message);
 }
 
+function HandleMessageGameover(msg) {
+  if (msg.IsHost) {
+    SetInputEnabled(true);
+  }
+
+  SetTime(msg.Countdown);
+}
+
+function HandleMessageJoin(msg) {
+  if (ResetOnNextPlayerJoin) {
+    ResetLobbyClientSide();
+  }
+
+  AddNewPlayer(msg.Username);
+  AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+  MaybeEnableStartButton();
+}
+
+function HandleMessageJoinResponse(msg) {
+  if (!msg.IsHost) {
+    SetInputEnabled(false);
+  }
+}
+
+function HandleMessageStart(msg) {
+  if (!msg.Success) {
+    console.log("server failed to start lobby");
+    return;
+  }
+
+  document.getElementById("start-page-input").value = msg.StartPage;
+  document.getElementById("goal-page-input").value = msg.GoalPage;
+  document.getElementById("time-input").value = FormatTime(msg.Countdown);
+  StartGame(msg.StartPage, msg.GoalPage);
+  ResetLeaderboardScores();
+  StartCountdownTimer();
+}
+
+function HandleMessagePage(msg) {
+  AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
+  UmsgdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+
+  if (msg.FinishTime) {
+    MoveLeaderboardEntry(msg.Username, numberOfPlayersFinished);
+    numberOfPlayersFinished += 1;
+  }
+}
+
+function HandleMessageReset(msg) {
+  ResetLobbyClientSide();
+
+  if (msg.IsHost) {
+    SetInputEnabled(true);
+  }
+}
+
 function API_lobbyJoin(code) {
   globalThis.socket = new WebSocket(
     "ws" + backend + "/api/ws/web/join" + "?code=" + code
@@ -49,54 +105,32 @@ function API_lobbyJoin(code) {
     const msg = JSON.parse(event.data);
 
     switch (msg.Type) {
+      case "gameover":
+        HandleMessageGameover(msg);
+        break;
+
+      case "join":
+        HandleMessageJoin(msg);
+        break;
+
+      case "joinResponse":
+        HandleMessageJoinResponse(msg);
+        break;
+
+      case "page":
+        HandleMessagePage(msg);
+        break;
+
       case "pong":
         // Server is alive, good. Ignore.
         break;
 
-      case "join":
-        if (ResetOnNextPlayerJoin) {
-          ResetLobbyClientSide();
-        }
-        HandleNewPlayer(msg);
-        MaybeEnableStartButton();
-        break;
-
-      case "joinResponse":
-        if (!msg.IsHost) {
-          SetInputEnabled(false);
-        }
-        break;
-
-      case "page":
-        HandleNewPage(msg);
+      case "reset":
+        HandleMessageReset(msg);
         break;
 
       case "start":
-        if (!msg.Success) {
-          console.log("server failed to start lobby");
-          return;
-        }
-
-        document.getElementById("start-page-input").value = msg.StartPage;
-        document.getElementById("goal-page-input").value = msg.GoalPage;
-        document.getElementById("time-input").value = FormatTime(msg.Countdown);
-        StartGame(msg.StartPage, msg.GoalPage);
-        ResetLeaderboardScores();
-        StartCountdownTimer();
-        break;
-
-      case "reset":
-        ResetLobbyClientSide();
-        if (msg.IsHost) {
-          SetInputEnabled(true);
-        }
-        break;
-
-      case "gameover":
-        if (msg.IsHost) {
-          SetInputEnabled(true);
-        }
-        SetTime(msg.Countdown);
+        HandleMessageStart(msg);
         break;
 
       default:
