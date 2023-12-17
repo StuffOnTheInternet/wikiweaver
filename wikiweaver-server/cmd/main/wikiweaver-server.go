@@ -326,7 +326,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		time.Sleep(HISTORY_SEND_INTERVAL)
 
 		// Ugly to construct the message like this...
-		joinMessageToWeb := JoinMessageToWeb{
+		joinToWebMessage := JoinToWebMessage{
 			Message: Message{
 				Type: "join",
 			},
@@ -336,7 +336,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			FinishTime: int(extClient.FinishTime.Seconds()),
 		}
 
-		err := wc.send(joinMessageToWeb)
+		err := wc.send(joinToWebMessage)
 		if err != nil {
 			log.Printf("failed to send history: %s", err)
 			break
@@ -589,13 +589,18 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 	}
 }
 
-type JoinRequestFromExt struct {
+type JoinFromExtRequest struct {
 	UserID   string
 	Username string
 	Code     string
 }
 
-type JoinMessageToWeb struct {
+type JoinToExtResponse struct {
+	Success bool
+	UserID  string
+}
+
+type JoinToWebMessage struct {
 	Message
 	Username   string
 	Clicks     int
@@ -603,17 +608,12 @@ type JoinMessageToWeb struct {
 	FinishTime int
 }
 
-type JoinResponseToExt struct {
-	Success bool
-	UserID  string
-}
-
-func SendJoinResponseToExt(w http.ResponseWriter, joinResponseToExt JoinResponseToExt) {
+func SendJoinToExtResponse(w http.ResponseWriter, joinToExtResponse JoinToExtResponse) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	response, err := json.Marshal(joinResponseToExt)
+	response, err := json.Marshal(joinToExtResponse)
 	if err != nil {
-		log.Printf("failed to marshal ext join response (%+v): %s", joinResponseToExt, err)
+		log.Printf("failed to marshal ext join response (%+v): %s", joinToExtResponse, err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte{})
 		return
@@ -624,7 +624,7 @@ func SendJoinResponseToExt(w http.ResponseWriter, joinResponseToExt JoinResponse
 }
 
 func handleExtJoin(w http.ResponseWriter, r *http.Request) {
-	failResponse := JoinResponseToExt{
+	failResponse := JoinToExtResponse{
 		Success: false,
 	}
 
@@ -633,33 +633,33 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("error reading extension request: %s", err)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
-		var request JoinRequestFromExt
+		var request JoinFromExtRequest
 		err = json.Unmarshal(body, &request)
 		if err != nil {
 			log.Printf("failed to parse message from extension: %s", err)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
 		if len(request.Code) != CODE_LENGTH {
 			log.Printf("extension %s tried to join invalid lobby %s", r.RemoteAddr, request.Code)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
 		if len(request.Username) <= 0 {
 			log.Printf("extension %s tried to join with an empty username", r.RemoteAddr)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
 		if len(request.Username) > MAX_USERNAME_LEN {
 			log.Printf("extension %s tried to join with a too long username %s", r.RemoteAddr, request.Username)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
@@ -667,7 +667,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		if lobby == nil {
 			log.Printf("extension %s tried to join non-existing lobby %s", r.RemoteAddr, request.Code)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
@@ -675,21 +675,21 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		if otherWithSameUsername != nil {
 			if otherWithSameUsername.UserID == request.UserID {
-				successResponse := JoinResponseToExt{
+				successResponse := JoinToExtResponse{
 					Success: true,
 					UserID:  request.UserID,
 				}
-				SendJoinResponseToExt(w, successResponse)
+				SendJoinToExtResponse(w, successResponse)
 			} else {
 				log.Printf("extension %s tried to join, but another user with username %s is already in %s", r.RemoteAddr, request.Username, request.Code)
-				SendJoinResponseToExt(w, failResponse)
+				SendJoinToExtResponse(w, failResponse)
 			}
 			return
 		}
 
 		if len(lobby.ExtClients) >= MAX_USERS_PER_LOBBY {
 			log.Printf("extension %s tried to join, but there are already %d users in lobby %s", r.RemoteAddr, len(lobby.ExtClients), request.Code)
-			SendJoinResponseToExt(w, failResponse)
+			SendJoinToExtResponse(w, failResponse)
 			return
 		}
 
@@ -708,7 +708,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("extension %s joined lobby %s as %s", r.RemoteAddr, request.Code, request.Username)
 
-		joinMessageToWeb := JoinMessageToWeb{
+		joinToWebMessage := JoinToWebMessage{
 			Message: Message{
 				Type: "join",
 			},
@@ -716,21 +716,21 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, wc := range lobby.WebClients {
-			err = wc.send(joinMessageToWeb)
+			err = wc.send(joinToWebMessage)
 			if err != nil {
-				log.Printf("failed to forward message %v to web client %s: %s", joinMessageToWeb, wc.conn.RemoteAddr(), err)
+				log.Printf("failed to forward message %v to web client %s: %s", joinToWebMessage, wc.conn.RemoteAddr(), err)
 			}
 		}
 
-		successResponse := JoinResponseToExt{
+		successResponse := JoinToExtResponse{
 			Success: true,
 			UserID:  userID,
 		}
-		SendJoinResponseToExt(w, successResponse)
+		SendJoinToExtResponse(w, successResponse)
 	}
 }
 
-type PageFromExtMessage struct {
+type PageFromExtRequest struct {
 	Code     string
 	Username string
 	Page     string
@@ -760,7 +760,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var pageFromExtMessage PageFromExtMessage
+		var pageFromExtMessage PageFromExtRequest
 		err = json.Unmarshal(body, &pageFromExtMessage)
 		if err != nil {
 			log.Printf("failed to parse message '%s' from extension: %s", body, err)
