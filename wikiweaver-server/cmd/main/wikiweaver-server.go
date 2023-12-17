@@ -230,12 +230,6 @@ type LobbyToWebMessage struct {
 	IsHost bool
 }
 
-type GameoverResponseMessage struct {
-	Message
-	Countdown int
-	IsHost    bool
-}
-
 func CreateLobby(code string) {
 	globalState.mu.Lock()
 	defer globalState.mu.Unlock()
@@ -373,10 +367,95 @@ func (wc *WebClient) sendWithWarningOnFail(v interface{}) {
 	}
 }
 
+type GameoverToWebMessage struct {
+	Message
+	Countdown int
+	IsHost    bool
+}
+
+func HandleMessageGameover(lobby *Lobby, wc *WebClient, buf []byte) {
+	lobby.mu.Lock()
+	defer lobby.mu.Unlock()
+
+	if !wc.isHost {
+		log.Printf("web client %s failed to end lobby: is not host", wc.conn.RemoteAddr())
+		return
+	}
+
+	lobby.StartTime = time.Time{}
+
+	msgResponse := GameoverToWebMessage{
+		Message: Message{
+			"gameover",
+		},
+		Countdown: int(lobby.Countdown.Seconds()),
+	}
+
+	for _, webClient := range lobby.WebClients {
+		msgResponse.IsHost = webClient.isHost
+		wc.sendWithWarningOnFail(msgResponse)
+	}
+}
+
+func HandleMessagePing(lobby *Lobby, wc *WebClient, buf []byte) {
+	pongMessage := PongMessage{
+		Message: Message{
+			Type: "pong",
+		},
+	}
+
+	wc.sendWithWarningOnFail(pongMessage)
+}
+
 type ResetToWebMessage struct {
 	Message
 	Success bool
 	IsHost  bool
+}
+
+func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
+	lobby.mu.Lock()
+	defer lobby.mu.Unlock()
+
+	msgResponse := ResetToWebMessage{
+		Message: Message{
+			"reset",
+		},
+		Success: false,
+		IsHost:  wc.isHost,
+	}
+
+	if !wc.isHost {
+		log.Printf("web client %s failed to reset lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
+	log.Printf("web client %s reset lobby %s", wc.conn.RemoteAddr(), lobby.Code)
+
+	for _, extClient := range lobby.ExtClients {
+		delete(globalState.UserIDs, extClient.UserID)
+	}
+
+	lobby.ExtClients = lobby.ExtClients[:0]
+	lobby.LastInteractionTime = time.Now()
+	lobby.StartTime = time.Time{}
+	lobby.Countdown = time.Duration(0)
+	lobby.StartPage = ""
+	lobby.GoalPage = ""
+	lobby.History = lobby.History[:0]
+
+	msgResponse = ResetToWebMessage{
+		Message: Message{
+			Type: "reset",
+		},
+		Success: true,
+	}
+
+	for _, webClient := range lobby.WebClients {
+		msgResponse.IsHost = webClient.isHost
+		webClient.sendWithWarningOnFail(msgResponse)
+	}
 }
 
 type StartFromWebMessage struct {
@@ -392,6 +471,69 @@ type StartToWebMessage struct {
 	StartPage string
 	GoalPage  string
 	Countdown int
+}
+
+func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
+	lobby.mu.Lock()
+	defer lobby.mu.Unlock()
+
+	msgResponse := StartToWebMessage{
+		Message: Message{
+			"start",
+		},
+		Success: false,
+	}
+
+	var msgRequest StartFromWebMessage
+
+	err := json.Unmarshal(buf, &msgRequest)
+	if err != nil {
+		log.Printf("failed to parse start message from web: %s", err)
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
+	if msgRequest.Code != lobby.Code {
+		log.Printf("failed to start lobby %s: web client %s is in another lobby %s", msgRequest.Code, wc.conn.RemoteAddr(), lobby.Code)
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
+	if !wc.isHost {
+		log.Printf("failed to start lobby %s: web client %s is not host", lobby.Code, wc.conn.RemoteAddr())
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
+	lobby.StartTime = time.Now()
+	lobby.StartPage = msgRequest.StartPage
+	lobby.GoalPage = msgRequest.GoalPage
+	lobby.Countdown = time.Duration(msgRequest.Countdown * int(time.Second))
+	lobby.LastInteractionTime = time.Now()
+	lobby.History = lobby.History[:0]
+
+	for _, extClient := range lobby.ExtClients {
+		extClient.Clicks = 0
+		extClient.Pages = 0
+		extClient.FinishTime = 0
+		extClient.Page = lobby.StartPage
+	}
+
+	log.Printf("web client %s started lobby %s with countdown %.0f and pages '%s' -> '%s'", wc.conn.RemoteAddr(), lobby.Code, lobby.Countdown.Seconds(), lobby.StartPage, lobby.GoalPage)
+
+	msgResponse = StartToWebMessage{
+		Message: Message{
+			"start",
+		},
+		Success:   true,
+		StartPage: lobby.StartPage,
+		GoalPage:  lobby.GoalPage,
+		Countdown: int(lobby.Countdown.Seconds()),
+	}
+
+	for _, webClient := range lobby.WebClients {
+		webClient.sendWithWarningOnFail(msgResponse)
+	}
 }
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
@@ -428,140 +570,18 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 		}
 
 		switch msg.Type {
-		case "ping":
-			pongMessage := PongMessage{
-				Message: Message{
-					Type: "pong",
-				},
-			}
-
-			wc.sendWithWarningOnFail(pongMessage)
-
-		case "start":
-			msgResponse := StartToWebMessage{
-				Message: Message{
-					"start",
-				},
-				Success: false,
-			}
-
-			var msgRequest StartFromWebMessage
-
-			err = json.Unmarshal(buf, &msgRequest)
-			if err != nil {
-				log.Printf("failed to parse start message from web: %s", err)
-				wc.sendWithWarningOnFail(msgResponse)
-				continue
-			}
-
-			if msgRequest.Code != lobby.Code {
-				log.Printf("failed to start lobby %s: web client %s is in another lobby %s", msgRequest.Code, wc.conn.RemoteAddr(), lobby.Code)
-				wc.sendWithWarningOnFail(msgResponse)
-				continue
-			}
-
-			if !wc.isHost {
-				log.Printf("failed to start lobby %s: web client %s is not host", lobby.Code, wc.conn.RemoteAddr())
-				wc.sendWithWarningOnFail(msgResponse)
-				continue
-			}
-
-			lobby.mu.Lock()
-			lobby.StartTime = time.Now()
-			lobby.StartPage = msgRequest.StartPage
-			lobby.GoalPage = msgRequest.GoalPage
-			lobby.Countdown = time.Duration(msgRequest.Countdown * int(time.Second))
-			lobby.LastInteractionTime = time.Now()
-			lobby.History = lobby.History[:0]
-
-			for _, extClient := range lobby.ExtClients {
-				extClient.Clicks = 0
-				extClient.Pages = 0
-				extClient.FinishTime = 0
-				extClient.Page = lobby.StartPage
-			}
-			lobby.mu.Unlock()
-
-			log.Printf("web client %s started lobby %s with countdown %.0f and pages '%s' -> '%s'", wc.conn.RemoteAddr(), lobby.Code, lobby.Countdown.Seconds(), lobby.StartPage, lobby.GoalPage)
-
-			msgResponse = StartToWebMessage{
-				Message: Message{
-					"start",
-				},
-				Success:   true,
-				StartPage: lobby.StartPage,
-				GoalPage:  lobby.GoalPage,
-				Countdown: int(lobby.Countdown.Seconds()),
-			}
-
-			for _, webClient := range lobby.WebClients {
-				webClient.sendWithWarningOnFail(msgResponse)
-			}
-
-		case "reset":
-			msgResponse := ResetToWebMessage{
-				Message: Message{
-					"reset",
-				},
-				Success: false,
-				IsHost:  wc.isHost,
-			}
-
-			if !wc.isHost {
-				log.Printf("web client %s failed to reset lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
-				wc.sendWithWarningOnFail(msgResponse)
-				continue
-			}
-
-			log.Printf("web client %s reset lobby %s", wc.conn.RemoteAddr(), lobby.Code)
-
-			lobby.mu.Lock()
-			for _, extClient := range lobby.ExtClients {
-				delete(globalState.UserIDs, extClient.UserID)
-			}
-			lobby.ExtClients = lobby.ExtClients[:0]
-			lobby.LastInteractionTime = time.Now()
-			lobby.StartTime = time.Time{}
-			lobby.Countdown = time.Duration(0)
-			lobby.StartPage = ""
-			lobby.GoalPage = ""
-			lobby.History = lobby.History[:0]
-
-			msgResponse = ResetToWebMessage{
-				Message: Message{
-					Type: "reset",
-				},
-				Success: true,
-			}
-
-			for _, webClient := range lobby.WebClients {
-				msgResponse.IsHost = webClient.isHost
-				webClient.sendWithWarningOnFail(msgResponse)
-			}
-
-			lobby.mu.Unlock()
 
 		case "gameover":
-			lobby.mu.Lock()
-			if !wc.isHost {
-				lobby.mu.Unlock()
-				continue
-			}
+			HandleMessageGameover(lobby, wc, buf)
 
-			lobby.StartTime = time.Time{}
+		case "ping":
+			HandleMessagePing(lobby, wc, buf)
 
-			msgResponse := GameoverResponseMessage{
-				Message: Message{
-					"gameover",
-				},
-				Countdown: int(lobby.Countdown.Seconds()),
-			}
+		case "reset":
+			HandleMessageReset(lobby, wc, buf)
 
-			for _, webClient := range lobby.WebClients {
-				msgResponse.IsHost = webClient.isHost
-				wc.sendWithWarningOnFail(msgResponse)
-			}
-			lobby.mu.Unlock()
+		case "start":
+			HandleMessageStart(lobby, wc, buf)
 
 		default:
 			log.Printf("web client %s sent an unrecognized message: '%s'", wc.conn.RemoteAddr(), msg)
