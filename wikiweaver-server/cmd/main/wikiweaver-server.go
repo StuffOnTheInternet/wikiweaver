@@ -366,17 +366,10 @@ func (wc *WebClient) send(v interface{}) error {
 	return wc.conn.WriteJSON(v)
 }
 
-func (wc *WebClient) sendResetToWebMessage(msgResponse ResetToWebMessage) {
-	err := wc.send(msgResponse)
+func (wc *WebClient) sendWithWarningOnFail(v interface{}) {
+	err := wc.send(v)
 	if err != nil {
-		log.Printf("failed to send reset message to %s: %s", wc.conn.RemoteAddr(), err)
-	}
-}
-
-func (wc *WebClient) sendStartToWebMessage(message StartToWebMessage) {
-	err := wc.send(message)
-	if err != nil {
-		log.Printf("failed to send start message to %s: %s", wc.conn.RemoteAddr(), err)
+		log.Printf("failed to send message %+v to %s: %s", v, wc.conn.RemoteAddr(), err)
 	}
 }
 
@@ -442,11 +435,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 				},
 			}
 
-			err = wc.send(pongMessage)
-			if err != nil {
-				log.Printf("failed to respond with pong: %s", err)
-				continue
-			}
+			wc.sendWithWarningOnFail(pongMessage)
 
 		case "start":
 			msgResponse := StartToWebMessage{
@@ -461,19 +450,19 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			err = json.Unmarshal(buf, &msgRequest)
 			if err != nil {
 				log.Printf("failed to parse start message from web: %s", err)
-				wc.sendStartToWebMessage(msgResponse)
+				wc.sendWithWarningOnFail(msgResponse)
 				continue
 			}
 
 			if msgRequest.Code != lobby.Code {
 				log.Printf("failed to start lobby %s: web client %s is in another lobby %s", msgRequest.Code, wc.conn.RemoteAddr(), lobby.Code)
-				wc.sendStartToWebMessage(msgResponse)
+				wc.sendWithWarningOnFail(msgResponse)
 				continue
 			}
 
 			if !wc.isHost {
 				log.Printf("failed to start lobby %s: web client %s is not host", lobby.Code, wc.conn.RemoteAddr())
-				wc.sendStartToWebMessage(msgResponse)
+				wc.sendWithWarningOnFail(msgResponse)
 				continue
 			}
 
@@ -506,7 +495,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 
 			for _, webClient := range lobby.WebClients {
-				webClient.sendStartToWebMessage(msgResponse)
+				webClient.sendWithWarningOnFail(msgResponse)
 			}
 
 		case "reset":
@@ -520,7 +509,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 
 			if !wc.isHost {
 				log.Printf("web client %s failed to reset lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
-				wc.sendResetToWebMessage(msgResponse)
+				wc.sendWithWarningOnFail(msgResponse)
 				continue
 			}
 
@@ -547,7 +536,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 
 			for _, webClient := range lobby.WebClients {
 				msgResponse.IsHost = webClient.isHost
-				webClient.sendResetToWebMessage(msgResponse)
+				webClient.sendWithWarningOnFail(msgResponse)
 			}
 
 			lobby.mu.Unlock()
@@ -561,7 +550,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 
 			lobby.StartTime = time.Time{}
 
-			gameoverResponseMessage := GameoverResponseMessage{
+			msgResponse := GameoverResponseMessage{
 				Message: Message{
 					"gameover",
 				},
@@ -569,11 +558,8 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 
 			for _, webClient := range lobby.WebClients {
-				gameoverResponseMessage.IsHost = webClient.isHost
-				err := webClient.send(gameoverResponseMessage)
-				if err != nil {
-					log.Printf("failed to notify web client %s of lobby gameover", webClient.conn.RemoteAddr())
-				}
+				msgResponse.IsHost = webClient.isHost
+				wc.sendWithWarningOnFail(msgResponse)
 			}
 			lobby.mu.Unlock()
 
