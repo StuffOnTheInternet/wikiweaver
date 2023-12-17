@@ -630,8 +630,6 @@ func SendJoinResponseToExt(w http.ResponseWriter, joinResponseToExt JoinResponse
 }
 
 func handleExtJoin(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	failResponse := JoinResponseToExt{
 		Success: false,
 	}
