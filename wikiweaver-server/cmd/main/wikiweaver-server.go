@@ -167,9 +167,8 @@ func generateCodeFromWords() string {
 }
 
 func generateUniqueCode() string {
-
-	// This is possibly a race condition if we are just on the edge of 1000 lobbies,
-	// but who cares. Fix later if necessary
+	globalState.mu.Lock()
+	defer globalState.mu.Unlock()
 
 	codeGenerator := generateRandomCode
 	if len(globalState.Words) >= 0 && len(globalState.Words) > len(globalState.Lobbies) {
@@ -217,23 +216,6 @@ func lobbyCleaner() {
 	}
 }
 
-func handleWebCreate(w http.ResponseWriter, r *http.Request) {
-
-	code := generateUniqueCode()
-
-	globalState.mu.Lock()
-	globalState.Lobbies[code] = &Lobby{
-		Code:                code,
-		LastInteractionTime: time.Now(),
-	}
-	globalState.mu.Unlock()
-
-	log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write([]byte(code))
-}
-
 type Message struct {
 	Type string
 }
@@ -242,8 +224,9 @@ type PongMessage struct {
 	Message
 }
 
-type JoinResponseMessage struct {
+type LobbyToWebMessage struct {
 	Message
+	Code   string
 	IsHost bool
 }
 
@@ -258,9 +241,25 @@ type GameoverResponseMessage struct {
 	IsHost    bool
 }
 
+func CreateLobby(code string) {
+	globalState.mu.Lock()
+	defer globalState.mu.Unlock()
+
+	globalState.Lobbies[code] = &Lobby{
+		Code:                code,
+		LastInteractionTime: time.Now(),
+	}
+}
+
 func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
+
+	if code == "" {
+		code = generateUniqueCode()
+		CreateLobby(code)
+		log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
+	}
 
 	lobby := globalState.Lobbies[code]
 
@@ -290,7 +289,18 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 		log.Printf("web client %s joined lobby %s as spectator", conn.RemoteAddr(), lobby.Code)
 	}
 
-	wc.sendJoinResponse(wc.isHost)
+	msgResponse := LobbyToWebMessage{
+		Message: Message{
+			Type: "lobby",
+		},
+		Code:   lobby.Code,
+		IsHost: wc.isHost,
+	}
+
+	err = wc.send(msgResponse)
+	if err != nil {
+		log.Printf("failed to send lobby message to %s: %s", wc.conn.RemoteAddr(), err)
+	}
 
 	go sendHistory(lobby, wc)
 
@@ -353,20 +363,6 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		}
 	}
 	lobby.mu.Unlock()
-}
-
-func (wc *WebClient) sendJoinResponse(isHost bool) {
-	joinResponseMessage := JoinResponseMessage{
-		Message: Message{
-			Type: "joinResponse",
-		},
-		IsHost: isHost,
-	}
-
-	err := wc.send(joinResponseMessage)
-	if err != nil {
-		log.Printf("failed to send join response to %s: %s", wc.conn.RemoteAddr(), err)
-	}
 }
 
 func (wc *WebClient) send(v interface{}) error {
@@ -569,30 +565,6 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			log.Printf("web client %s sent an unrecognized message: '%s'", wc.conn.RemoteAddr(), msg)
 		}
 	}
-}
-
-type LobbyStatusResponse struct {
-	Active bool
-}
-
-func handleWebStatus(w http.ResponseWriter, r *http.Request) {
-
-	code := r.URL.Query().Get("code")
-
-	globalState.mu.Lock()
-	lobby := globalState.Lobbies[code]
-	globalState.mu.Unlock()
-
-	response := LobbyStatusResponse{Active: lobby != nil}
-
-	msg, err := json.Marshal(response)
-	if err != nil {
-		log.Printf("failed to marshal status response: %s", err)
-	}
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
-	w.Write(msg)
 }
 
 type JoinRequestFromExt struct {
@@ -916,9 +888,7 @@ func main() {
 
 	go lobbyCleaner()
 
-	http.HandleFunc("/api/web/create", handleWebCreate)
 	http.HandleFunc("/api/ws/web/join", handleWebJoin)
-	http.HandleFunc("/api/web/status", handleWebStatus)
 
 	http.HandleFunc("/api/ext/join", handleExtJoin)
 	http.HandleFunc("/api/ext/page", handleExtPage)

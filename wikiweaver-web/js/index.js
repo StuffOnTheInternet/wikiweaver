@@ -1,14 +1,14 @@
 var numberOfPlayersFinished = 0;
 
 function init() {
-  connect();
+  JoinLobby("");
   CreateNicerExample();
 }
 
 async function HandleStartGameClicked() {
   if (!StartButtonShouldBeEnabled()) return;
 
-  const code = localStorage.getItem("code");
+  const code = document.getElementById("code").innerText.toLowerCase();
   const time = document.getElementById("time-input").value;
   const startPage = document.getElementById("start-page-input").value;
   const goalPage = document.getElementById("goal-page-input").value;
@@ -65,9 +65,6 @@ function HandleInputChanged() {
 }
 
 function StartButtonShouldBeEnabled() {
-  let code = localStorage.getItem("code");
-  if (code == undefined) return false;
-
   if (NumberOfPlayersInLobby() < 1) return false;
 
   const time = document.getElementById("time-input").value;

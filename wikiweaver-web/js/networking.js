@@ -7,17 +7,6 @@ const pingInterval = 30000; // milliseconds
 
 var ResetOnNextPlayerJoin = true;
 
-async function API_lobbyCreate() {
-  return await fetch("http" + backend + "/api/web/create")
-    .then((response) => response.text())
-    .then((code) => {
-      return code;
-    })
-    .catch((_) => {
-      return null;
-    });
-}
-
 function sendMessage(message) {
   if (!globalThis.socket) {
     console.log("failed to send message, not connected to server: " + message);
@@ -45,10 +34,11 @@ function HandleMessageJoin(msg) {
   MaybeEnableStartButton();
 }
 
-function HandleMessageJoinResponse(msg) {
+function HandleMessageLobby(msg) {
   if (!msg.IsHost) {
     SetInputEnabled(false);
   }
+  SetCode(msg.Code, "connected");
 }
 
 function HandleMessageStart(msg) {
@@ -83,10 +73,18 @@ function HandleMessageReset(msg) {
   }
 }
 
-function API_lobbyJoin(code) {
+async function JoinLobby(code) {
+  if (globalThis.socket) {
+    await globalThis.socket.close();
+  }
+
+  SetCode("connecting...", "pending");
+
   globalThis.socket = new WebSocket(
     "ws" + backend + "/api/ws/web/join" + "?code=" + code
   );
+
+  let interval = undefined;
 
   globalThis.socket.addEventListener("open", (event) => {
     // Send ping every so often to keep the websocket connection alive
@@ -96,7 +94,7 @@ function API_lobbyJoin(code) {
   });
 
   globalThis.socket.addEventListener("close", (event) => {
-    clearInterval(interval);
+    if (interval) clearInterval(interval);
     SetCode(connectionFailMessage, "disconnected");
     ResetCountdownTimer();
   });
@@ -113,8 +111,8 @@ function API_lobbyJoin(code) {
         HandleMessageJoin(msg);
         break;
 
-      case "joinResponse":
-        HandleMessageJoinResponse(msg);
+      case "lobby":
+        HandleMessageLobby(msg);
         break;
 
       case "page":
@@ -138,43 +136,4 @@ function API_lobbyJoin(code) {
         break;
     }
   });
-}
-
-async function API_lobbyStatus(code) {
-  return await fetch("http" + backend + "/api/web/status?code=" + code)
-    .then((response) => response.json())
-    .then((json) => json)
-    .catch((_) => {
-      return null;
-    });
-}
-
-async function connect() {
-  if (globalThis.socket) {
-    await globalThis.socket.close();
-  }
-
-  SetCode("connecting...", "pending");
-
-  code = localStorage.getItem("code");
-
-  lobbyStatus = await API_lobbyStatus(code);
-  if (lobbyStatus == null) {
-    SetCode(connectionFailMessage, "disconnected");
-    return;
-  }
-
-  if (!lobbyStatus.Active) {
-    code = await API_lobbyCreate();
-    if (code == null) {
-      SetCode(connectionFailMessage, "disconnected");
-      return;
-    }
-  }
-
-  API_lobbyJoin(code);
-
-  SetCode(code, "connected");
-
-  localStorage.setItem("code", code);
 }
