@@ -87,21 +87,23 @@ function MaybeEnableStartButton() {
 
 function SetCode(code, status) {
   let codeElement = document.getElementById("code");
-  codeElement.innerHTML = code;
 
   let color = "";
   let textTransform = "";
 
   if (status == "connected") {
+    codeElement.innerHTML = `#${code}`;
     color = "--green";
     textTransform = "uppercase";
     SetInputEnabled(true);
   } else if (status == "disconnected") {
+    codeElement.innerHTML = `${code}`;
     color = "--red";
     textTransform = "none";
     SetInputEnabled(false);
     document.getElementById("reset-button").disabled = false;
   } else if (status == "pending") {
+    codeElement.innerHTML = `${code}`;
     color = "--yellow";
     textTransform = "none";
     SetInputEnabled(false);
