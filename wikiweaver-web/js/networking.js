@@ -17,9 +17,9 @@ function sendMessage(message) {
 }
 
 function HandleMessageGameover(msg) {
-  if (msg.IsHost) {
-    SetInputEnabled(true);
-  }
+  // if (msg.IsHost) {
+  //   SetInputEnabled(true);
+  // }
 
   SetTime(msg.Countdown);
 }
@@ -31,13 +31,13 @@ function HandleMessageJoin(msg) {
 
   AddNewPlayer(msg.Username);
   AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
-  MaybeEnableStartButton();
+  // MaybeEnableStartButton();
 }
 
 function HandleMessageLobby(msg) {
-  if (!msg.IsHost) {
-    SetInputEnabled(false);
-  }
+  // if (!msg.IsHost) {
+  //   SetInputEnabled(false);
+  // }
   SetCode(msg.Code, "connected");
   window.location.hash = `#${msg.Code}`;
 }
@@ -69,9 +69,9 @@ function HandleMessagePage(msg) {
 function HandleMessageReset(msg) {
   ResetLobbyClientSide();
 
-  if (msg.IsHost) {
-    SetInputEnabled(true);
-  }
+  // if (msg.IsHost) {
+  //   SetInputEnabled(true);
+  // }
 }
 
 async function JoinLobby(code) {

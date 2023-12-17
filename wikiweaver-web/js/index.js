@@ -22,8 +22,8 @@ async function HandleStartGameClicked() {
   });
   sendMessage(startMessage);
 
-  SetInputEnabled(false);
-  document.getElementById("reset-button").disabled = false;
+  // SetInputEnabled(false);
+  // document.getElementById("reset-button").disabled = false;
 }
 
 async function HandleResetClicked() {
@@ -52,16 +52,16 @@ function HandleRedrawClicked() {
   ForceNewLayout();
 }
 
-function SetInputEnabled(enabled) {
-  document.getElementById("start-page-input").disabled = !enabled;
-  document.getElementById("goal-page-input").disabled = !enabled;
-  document.getElementById("time-input").disabled = !enabled;
-  MaybeEnableStartButton();
-  document.getElementById("reset-button").disabled = !enabled;
-}
+// function SetInputEnabled(enabled) {
+//   document.getElementById("start-page-input").disabled = !enabled;
+//   document.getElementById("goal-page-input").disabled = !enabled;
+//   document.getElementById("time-input").disabled = !enabled;
+//   MaybeEnableStartButton();
+//   document.getElementById("reset-button").disabled = !enabled;
+// }
 
 function HandleInputChanged() {
-  MaybeEnableStartButton();
+  // MaybeEnableStartButton();
 }
 
 function StartButtonShouldBeEnabled() {
@@ -79,10 +79,10 @@ function StartButtonShouldBeEnabled() {
   return true;
 }
 
-function MaybeEnableStartButton() {
-  document.getElementById("start-button").disabled =
-    !StartButtonShouldBeEnabled();
-}
+// function MaybeEnableStartButton() {
+//   document.getElementById("start-button").disabled =
+//     !StartButtonShouldBeEnabled();
+// }
 
 function SetCode(code, status) {
   let codeElement = document.getElementById("code");
@@ -94,19 +94,19 @@ function SetCode(code, status) {
     codeElement.innerHTML = `#${code}`;
     color = "--green";
     textTransform = "uppercase";
-    SetInputEnabled(true);
+    // SetInputEnabled(true);
   } else if (status == "disconnected") {
     codeElement.innerHTML = `${code}`;
     color = "--red";
     textTransform = "none";
-    SetInputEnabled(false);
-    document.getElementById("reset-button").disabled = false;
+    // SetInputEnabled(false);
+    // document.getElementById("reset-button").disabled = false;
   } else if (status == "pending") {
     codeElement.innerHTML = `${code}`;
     color = "--yellow";
     textTransform = "none";
-    SetInputEnabled(false);
-    document.getElementById("reset-button").disabled = false;
+    // SetInputEnabled(false);
+    // document.getElementById("reset-button").disabled = false;
   } else {
     console.log("unrecognized connection status", status);
   }
@@ -192,7 +192,7 @@ var CountdownTimer;
 function StartCountdownTimer() {
   clearInterval(CountdownTimer);
   CountdownTimer = setInterval(DoCountdown, 1000);
-  document.getElementById("time-input").disabled = true;
+  // document.getElementById("time-input").disabled = true;
 }
 
 function ResetCountdownTimer() {

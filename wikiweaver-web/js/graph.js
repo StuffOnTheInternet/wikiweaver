@@ -210,7 +210,7 @@ function ResetGraph() {
     ],
   });
 
-  document.getElementById("redraw-button").disabled = true;
+  // document.getElementById("redraw-button").disabled = true;
 }
 
 function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
@@ -318,7 +318,7 @@ function StartGame(StartNode, GoalNode) {
 
   ForceNewLayout();
 
-  document.getElementById("redraw-button").disabled = false;
+  // document.getElementById("redraw-button").disabled = false;
 }
 
 function createColorTest() {
