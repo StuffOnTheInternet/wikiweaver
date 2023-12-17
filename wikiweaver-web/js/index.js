@@ -27,7 +27,6 @@ async function HandleStartGameClicked() {
 }
 
 async function HandleResetClicked() {
-  ResetLobbyClientSide();
   let resetMessage = JSON.stringify({
     type: "reset",
   });

@@ -230,11 +230,6 @@ type LobbyToWebMessage struct {
 	IsHost bool
 }
 
-type ResetResponseMessage struct {
-	Message
-	IsHost bool
-}
-
 type GameoverResponseMessage struct {
 	Message
 	Countdown int
@@ -371,11 +366,24 @@ func (wc *WebClient) send(v interface{}) error {
 	return wc.conn.WriteJSON(v)
 }
 
+func (wc *WebClient) sendResetToWebMessage(msgResponse ResetToWebMessage) {
+	err := wc.send(msgResponse)
+	if err != nil {
+		log.Printf("failed to send reset message to %s: %s", wc.conn.RemoteAddr(), err)
+	}
+}
+
 func (wc *WebClient) sendStartToWebMessage(message StartToWebMessage) {
 	err := wc.send(message)
 	if err != nil {
 		log.Printf("failed to send start message to %s: %s", wc.conn.RemoteAddr(), err)
 	}
+}
+
+type ResetToWebMessage struct {
+	Message
+	Success bool
+	IsHost  bool
 }
 
 type StartFromWebMessage struct {
@@ -502,9 +510,18 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 
 		case "reset":
+			msgResponse := ResetToWebMessage{
+				Message: Message{
+					"reset",
+				},
+				Success: false,
+				IsHost:  wc.isHost,
+			}
+
 			if !wc.isHost {
 				log.Printf("web client %s failed to reset lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
-				return
+				wc.sendResetToWebMessage(msgResponse)
+				continue
 			}
 
 			log.Printf("web client %s reset lobby %s", wc.conn.RemoteAddr(), lobby.Code)
@@ -521,19 +538,18 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			lobby.GoalPage = ""
 			lobby.History = lobby.History[:0]
 
-			resetResponseMessage := ResetResponseMessage{
+			msgResponse = ResetToWebMessage{
 				Message: Message{
-					"reset",
+					Type: "reset",
 				},
+				Success: true,
 			}
 
 			for _, webClient := range lobby.WebClients {
-				resetResponseMessage.IsHost = webClient.isHost
-				err := webClient.send(resetResponseMessage)
-				if err != nil {
-					log.Printf("failed to notify web client %s of lobby reset", webClient.conn.RemoteAddr())
-				}
+				msgResponse.IsHost = webClient.isHost
+				webClient.sendResetToWebMessage(msgResponse)
 			}
+
 			lobby.mu.Unlock()
 
 		case "gameover":

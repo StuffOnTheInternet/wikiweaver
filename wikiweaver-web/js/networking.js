@@ -67,6 +67,8 @@ function HandleMessagePage(msg) {
 }
 
 function HandleMessageReset(msg) {
+  if (!msg.Success) return;
+
   ResetLobbyClientSide();
 
   // if (msg.IsHost) {
