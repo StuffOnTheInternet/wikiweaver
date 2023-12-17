@@ -68,7 +68,6 @@ function StartButtonShouldBeEnabled() {
   let code = localStorage.getItem("code");
   if (code == undefined) return false;
 
-  if (ResetOnNextPlayerJoin) return false;
   if (NumberOfPlayersInLobby() < 1) return false;
 
   const time = document.getElementById("time-input").value;
