@@ -58,7 +58,7 @@ function HandleMessageStart(msg) {
 
 function HandleMessagePage(msg) {
   AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
-  UmsgdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+  UpdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 
   if (msg.FinishTime) {
     MoveLeaderboardEntry(msg.Username, numberOfPlayersFinished);
