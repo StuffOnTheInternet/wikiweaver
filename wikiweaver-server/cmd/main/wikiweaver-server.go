@@ -631,6 +631,12 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(request.Username) <= 0 {
+			log.Printf("extension %s tried to join with an empty username", r.RemoteAddr)
+			SendJoinResponseToExt(w, failResponse)
+			return
+		}
+
 		if len(request.Username) > MAX_USERNAME_LEN {
 			log.Printf("extension %s tried to join with a too long username %s", r.RemoteAddr, request.Username)
 			SendJoinResponseToExt(w, failResponse)
