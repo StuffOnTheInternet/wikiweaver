@@ -39,6 +39,7 @@ function HandleMessageLobby(msg) {
     SetInputEnabled(false);
   }
   SetCode(msg.Code, "connected");
+  window.location.hash = `#${msg.Code}`;
 }
 
 function HandleMessageStart(msg) {

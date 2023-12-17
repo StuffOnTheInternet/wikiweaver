@@ -1,7 +1,8 @@
 var numberOfPlayersFinished = 0;
 
 function init() {
-  JoinLobby("");
+  let code = window.location.hash.replace("#", "");
+  JoinLobby(code);
   CreateNicerExample();
 }
 
