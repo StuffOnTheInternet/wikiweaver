@@ -9,11 +9,13 @@ var ResetOnNextPlayerJoin = true;
 
 function SendMessage(msg) {
   if (!globalThis.socket) {
-    console.log("failed to send message, not connected to server: " + message);
+    console.log("not connected to server, wont send message: " + msg);
     return;
   }
 
   globalThis.socket.send(JSON.stringify(msg));
+
+  console.log("sent message:", msg);
 }
 
 function HandleMessageGameover(msg) {
@@ -104,6 +106,8 @@ async function JoinLobby(code) {
 
   globalThis.socket.addEventListener("message", (event) => {
     const msg = JSON.parse(event.data);
+
+    console.log("recv message:", msg);
 
     switch (msg.Type) {
       case "gameover":
