@@ -489,7 +489,7 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 			lobby.mu.Unlock()
 
-			log.Printf("web client %s started lobby %s with %s to %s", wc.conn.RemoteAddr(), lobby.Code, lobby.StartPage, lobby.GoalPage)
+			log.Printf("web client %s started lobby %s with countdown %.0f and pages '%s' -> '%s'", wc.conn.RemoteAddr(), lobby.Code, lobby.Countdown.Seconds(), lobby.StartPage, lobby.GoalPage)
 
 			msgResponse = StartToWebMessage{
 				Message: Message{
