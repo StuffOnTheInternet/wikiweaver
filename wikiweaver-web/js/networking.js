@@ -52,6 +52,7 @@ function API_lobbyJoin(code) {
       case "pong":
         // Server is alive, good. Ignore.
         break;
+
       case "join":
         if (ResetOnNextPlayerJoin) {
           ResetLobbyClientSide();
@@ -59,15 +60,23 @@ function API_lobbyJoin(code) {
         HandleNewPlayer(msg);
         MaybeEnableStartButton();
         break;
+
       case "joinResponse":
         if (!msg.IsHost) {
           SetInputEnabled(false);
         }
         break;
+
       case "page":
         HandleNewPage(msg);
         break;
+
       case "start":
+        if (!msg.Success) {
+          console.log("server failed to start lobby");
+          return;
+        }
+
         document.getElementById("start-page-input").value = msg.StartPage;
         document.getElementById("goal-page-input").value = msg.GoalPage;
         document.getElementById("time-input").value = FormatTime(msg.Countdown);
@@ -75,29 +84,21 @@ function API_lobbyJoin(code) {
         ResetLeaderboardScores();
         StartCountdownTimer();
         break;
-      case "startResponse":
-        if (!msg.Success) {
-          console.log("server failed to start lobby: " + msg.Reason);
-          break;
-        }
-        startPage = document.getElementById("start-page-input").value;
-        goalPage = document.getElementById("goal-page-input").value;
-        StartGame(startPage, goalPage);
-        ResetLeaderboardScores();
-        StartCountdownTimer();
-        break;
+
       case "reset":
         ResetLobbyClientSide();
         if (msg.IsHost) {
           SetInputEnabled(true);
         }
         break;
+
       case "gameover":
         if (msg.IsHost) {
           SetInputEnabled(true);
         }
         SetTime(msg.Countdown);
         break;
+
       default:
         console.log("Unrecognized message: ", msg);
         break;

@@ -242,19 +242,6 @@ type PongMessage struct {
 	Message
 }
 
-type StartMessage struct {
-	Message
-	StartPage string
-	GoalPage  string
-	Countdown int
-}
-
-type StartResponseMessage struct {
-	Message
-	Success bool
-	Reason  string
-}
-
 type JoinResponseMessage struct {
 	Message
 	IsHost bool
@@ -314,12 +301,17 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 	log.Printf("sending history from lobby %s to web client %s", lobby.Code, wc.conn.RemoteAddr())
 
 	if lobby.hasStarted() {
-		startMsg := StartMessage{
+
+		startMsg := StartToWebMessage{
 			Message: Message{
 				Type: "start",
 			},
+			Success:   true,
 			StartPage: lobby.StartPage,
 			GoalPage:  lobby.GoalPage,
+			// TODO: this becomes weird when the lobby is started but has then
+			// finished, should probably send state or something so that the web
+			// client knows whats up
 			Countdown: int(float64(lobby.Countdown.Seconds()) - time.Since(lobby.StartTime).Seconds()),
 		}
 
@@ -363,21 +355,6 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 	lobby.mu.Unlock()
 }
 
-func (wc *WebClient) sendStartResponse(success bool, reason string) {
-	startResponseMessage := StartResponseMessage{
-		Message: Message{
-			Type: "startResponse",
-		},
-		Success: success,
-		Reason:  reason,
-	}
-
-	err := wc.send(startResponseMessage)
-	if err != nil {
-		log.Printf("failed to send start response to %s: %s", wc.conn.RemoteAddr(), err)
-	}
-}
-
 func (wc *WebClient) sendJoinResponse(isHost bool) {
 	joinResponseMessage := JoinResponseMessage{
 		Message: Message{
@@ -396,6 +373,28 @@ func (wc *WebClient) send(v interface{}) error {
 	wc.mu.Lock()
 	defer wc.mu.Unlock()
 	return wc.conn.WriteJSON(v)
+}
+
+func (wc *WebClient) sendStartToWebMessage(message StartToWebMessage) {
+	err := wc.send(message)
+	if err != nil {
+		log.Printf("failed to send start message to %s: %s", wc.conn.RemoteAddr(), err)
+	}
+}
+
+type StartFromWebMessage struct {
+	Code      string
+	StartPage string
+	GoalPage  string
+	Countdown int
+}
+
+type StartToWebMessage struct {
+	Message
+	Success   bool
+	StartPage string
+	GoalPage  string
+	Countdown int
 }
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
@@ -421,6 +420,16 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			continue
 		}
 
+		if wc == nil {
+			log.Printf("internal server error: wc is nil")
+			return
+		}
+
+		if lobby == nil {
+			log.Printf("internal server error: lobby is nil")
+			return
+		}
+
 		switch msg.Type {
 		case "ping":
 			pongMessage := PongMessage{
@@ -436,39 +445,39 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 
 		case "start":
-			var startMessageFromWeb StartMessageFromWeb
-			err = json.Unmarshal(buf, &startMessageFromWeb)
+			msgResponse := StartToWebMessage{
+				Message: Message{
+					"start",
+				},
+				Success: false,
+			}
 
+			var msgRequest StartFromWebMessage
+
+			err = json.Unmarshal(buf, &msgRequest)
 			if err != nil {
-				errMsg := fmt.Sprintf("failed to parse start message from web: %s", err)
-				log.Print(errMsg)
-				wc.sendStartResponse(false, errMsg)
+				log.Printf("failed to parse start message from web: %s", err)
+				wc.sendStartToWebMessage(msgResponse)
 				continue
 			}
 
-			code := startMessageFromWeb.Code
-
-			lobby := globalState.Lobbies[code]
-
-			if lobby == nil {
-				errMsg := fmt.Sprintf("failed to start lobby %s: lobby does not exist", code)
-				log.Print(errMsg)
-				wc.sendStartResponse(false, errMsg)
+			if msgRequest.Code != lobby.Code {
+				log.Printf("failed to start lobby %s: web client %s is in another lobby %s", msgRequest.Code, wc.conn.RemoteAddr(), lobby.Code)
+				wc.sendStartToWebMessage(msgResponse)
 				continue
 			}
 
 			if !wc.isHost {
-				errMsg := fmt.Sprintf("failed to start lobby %s: web client %s is not host", code, wc.conn.RemoteAddr())
-				log.Print(errMsg)
-				wc.sendStartResponse(false, errMsg)
+				log.Printf("failed to start lobby %s: web client %s is not host", lobby.Code, wc.conn.RemoteAddr())
+				wc.sendStartToWebMessage(msgResponse)
 				continue
 			}
 
 			lobby.mu.Lock()
 			lobby.StartTime = time.Now()
-			lobby.StartPage = startMessageFromWeb.StartPage
-			lobby.GoalPage = startMessageFromWeb.GoalPage
-			lobby.Countdown = time.Duration(startMessageFromWeb.Countdown * int(time.Second))
+			lobby.StartPage = msgRequest.StartPage
+			lobby.GoalPage = msgRequest.GoalPage
+			lobby.Countdown = time.Duration(msgRequest.Countdown * int(time.Second))
 			lobby.LastInteractionTime = time.Now()
 			lobby.History = lobby.History[:0]
 
@@ -480,30 +489,21 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			}
 			lobby.mu.Unlock()
 
-			log.Printf("web client %s started lobby %s with %s to %s", wc.conn.RemoteAddr(), code, lobby.StartPage, lobby.GoalPage)
+			log.Printf("web client %s started lobby %s with %s to %s", wc.conn.RemoteAddr(), lobby.Code, lobby.StartPage, lobby.GoalPage)
 
-			for _, spectator := range lobby.WebClients {
-				if spectator == wc {
-					continue
-				}
-
-				startMsg := StartMessage{
-					Message: Message{
-						Type: "start",
-					},
-					StartPage: lobby.StartPage,
-					GoalPage:  lobby.GoalPage,
-					Countdown: int(lobby.Countdown.Seconds()),
-				}
-
-				err := spectator.send(startMsg)
-				if err != nil {
-					log.Printf("failed to notify web client %s of game start: %s", spectator.conn.RemoteAddr(), err)
-					return
-				}
+			msgResponse = StartToWebMessage{
+				Message: Message{
+					"start",
+				},
+				Success:   true,
+				StartPage: lobby.StartPage,
+				GoalPage:  lobby.GoalPage,
+				Countdown: int(lobby.Countdown.Seconds()),
 			}
 
-			wc.sendStartResponse(true, "")
+			for _, webClient := range lobby.WebClients {
+				webClient.sendStartToWebMessage(msgResponse)
+			}
 
 		case "reset":
 			if !wc.isHost {
@@ -728,13 +728,6 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		}
 		SendJoinResponseToExt(w, successResponse)
 	}
-}
-
-type StartMessageFromWeb struct {
-	Code      string
-	StartPage string
-	GoalPage  string
-	Countdown int
 }
 
 type PageFromExtMessage struct {
