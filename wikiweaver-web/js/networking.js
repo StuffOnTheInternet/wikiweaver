@@ -7,13 +7,13 @@ const pingInterval = 30000; // milliseconds
 
 var ResetOnNextPlayerJoin = true;
 
-function sendMessage(message) {
+function SendMessage(msg) {
   if (!globalThis.socket) {
     console.log("failed to send message, not connected to server: " + message);
     return;
   }
 
-  globalThis.socket.send(message);
+  globalThis.socket.send(JSON.stringify(msg));
 }
 
 function HandleMessageGameover(msg) {
@@ -92,7 +92,7 @@ async function JoinLobby(code) {
   globalThis.socket.addEventListener("open", (event) => {
     // Send ping every so often to keep the websocket connection alive
     interval = setInterval(() => {
-      sendMessage(JSON.stringify({ type: "ping" }));
+      SendMessage({ type: "ping" });
     }, pingInterval);
   });
 

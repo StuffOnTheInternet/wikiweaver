@@ -13,24 +13,24 @@ async function HandleStartGameClicked() {
   const startPage = document.getElementById("start-page-input").value;
   const goalPage = document.getElementById("goal-page-input").value;
 
-  let startMessage = JSON.stringify({
+  let startMessage = {
     type: "start",
     code: GetCode(),
     startpage: startPage,
     goalpage: goalPage,
     countdown: ParseTime(time),
-  });
-  sendMessage(startMessage);
+  };
+  SendMessage(startMessage);
 
   // SetInputEnabled(false);
   // document.getElementById("reset-button").disabled = false;
 }
 
 async function HandleResetClicked() {
-  let resetMessage = JSON.stringify({
+  let resetMessage = {
     type: "reset",
-  });
-  sendMessage(resetMessage);
+  };
+  SendMessage(resetMessage);
 }
 
 function ResetLobbyClientSide() {
@@ -214,10 +214,10 @@ function DoCountdown() {
     time = 0;
     ResetCountdownTimer();
 
-    let resetMessage = JSON.stringify({
+    let gameoverMessage = {
       type: "gameover",
-    });
-    sendMessage(resetMessage);
+    };
+    SendMessage(gameoverMessage);
   }
 
   timeElem.value = FormatTime(time);
