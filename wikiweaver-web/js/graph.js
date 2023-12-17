@@ -199,6 +199,8 @@ function ResetGraph() {
       },
     ],
   });
+
+  document.getElementById("redraw-button").disabled = true;
 }
 
 function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
@@ -305,6 +307,8 @@ function StartGame(StartNode, GoalNode) {
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
 
   ForceNewLayout();
+
+  document.getElementById("redraw-button").disabled = false;
 }
 
 function createColorTest() {
