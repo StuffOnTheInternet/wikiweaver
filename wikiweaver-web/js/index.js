@@ -9,14 +9,13 @@ async function init() {
 async function HandleStartGameClicked() {
   if (!StartButtonShouldBeEnabled()) return;
 
-  const code = document.getElementById("code").innerText.toLowerCase();
   const time = document.getElementById("time-input").value;
   const startPage = document.getElementById("start-page-input").value;
   const goalPage = document.getElementById("goal-page-input").value;
 
   let startMessage = JSON.stringify({
     type: "start",
-    code: code,
+    code: GetCode(),
     startpage: startPage,
     goalpage: goalPage,
     countdown: ParseTime(time),
@@ -116,6 +115,13 @@ function SetCode(code, status) {
     document.documentElement
   ).getPropertyValue(color);
   codeElement.style.textTransform = textTransform;
+}
+
+function GetCode() {
+  return document
+    .getElementById("code")
+    .innerText.replace("#", "")
+    .toLocaleLowerCase();
 }
 
 function AddLeaderboardEntry(username, clicks, pages) {
