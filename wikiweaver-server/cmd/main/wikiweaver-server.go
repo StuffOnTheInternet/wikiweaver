@@ -93,12 +93,6 @@ func (l *Lobby) hasHost() bool {
 	return false
 }
 
-func (l *Lobby) hasStarted() bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return !l.StartTime.IsZero()
-}
-
 func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -309,7 +303,7 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 func sendHistory(lobby *Lobby, wc *WebClient) {
 	log.Printf("sending history from lobby %s to web client %s", lobby.Code, wc.conn.RemoteAddr())
 
-	if lobby.hasStarted() {
+	if lobby.State == Started {
 
 		startMsg := StartToWebMessage{
 			Message: Message{
@@ -825,15 +819,15 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !lobby.hasStarted() {
-			log.Printf("refusing to forward page from %s to lobby %s: lobby is not started", r.RemoteAddr, code)
+		if lobby.State == Ended {
+			log.Printf("refusing to forward page from %s to lobby %s: lobby has ended", r.RemoteAddr, code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
 		}
 
-		if time.Since(lobby.StartTime) > lobby.Countdown {
-			log.Printf("refusing to forward page from %s to lobby %s: round is over", r.RemoteAddr, code)
+		if lobby.State != Started {
+			log.Printf("refusing to forward page from %s to lobby %s: lobby is not started", r.RemoteAddr, code)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte{})
 			return
