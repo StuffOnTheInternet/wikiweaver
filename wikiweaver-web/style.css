@@ -37,11 +37,11 @@ th {
 }
 
 th:first-of-type {
-  border-radius: 0.5rem 0 0 0;
+  border-radius: 0.25rem 0 0 0;
 }
 
 th:last-of-type {
-  border-radius: 0 0.5rem 0 0;
+  border-radius: 0 0.25rem 0 0;
 }
 
 td {
@@ -94,6 +94,7 @@ img {
 }
 
 #code {
+  border-width: 0px;
   cursor: default;
 }
 
@@ -166,8 +167,10 @@ img {
   background: var(--box-background);
   color: var(--sidepane-text);
   line-height: 2;
-  border-width: 0px;
-  border-radius: 0.5rem;
+  border-width: 1px;
+  border-color: var(--box-background-disabled);
+  border-style: solid;
+  border-radius: 0.25rem;
   outline: none;
 }
 
@@ -179,7 +182,6 @@ img {
 
 .button {
   cursor: pointer;
-  filter: drop-shadow(1px 1px 1px #444d);
 }
 
 .button:hover {
