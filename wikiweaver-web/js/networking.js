@@ -20,9 +20,15 @@ function SendMessage(msg) {
 
 function HandleMessageEnd(msg) {
   if (!msg.Success) return;
-  // if (msg.IsHost) {
-  //   SetInputEnabled(true);
-  // }
+
+  const elements = {
+    "time-input": true,
+    "start-page-input": true,
+    "goal-page-input": true,
+    "start-button": true,
+    "end-button": false,
+  };
+  EnableElements(elements);
 
   ResetCountdownTimer();
   SetTime(msg.Countdown);
@@ -35,19 +41,30 @@ function HandleMessageJoin(msg) {
 
   AddNewPlayer(msg.Username);
   AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
-  // MaybeEnableStartButton();
 }
 
 function HandleMessageLobby(msg) {
-  // if (!msg.IsHost) {
-  //   SetInputEnabled(false);
-  // }
+  const elements = {
+    "end-button": false,
+  };
+  EnableElements(elements);
+
   SetCode(msg.Code, "connected");
   window.location.hash = `#${msg.Code}`;
 }
 
 function HandleMessageStart(msg) {
   if (!msg.Success) return;
+
+  const elements = {
+    "time-input": false,
+    "start-page-input": false,
+    "goal-page-input": false,
+    "start-button": false,
+    "redraw-button": true,
+    "end-button": true,
+  };
+  EnableElements(elements);
 
   document.getElementById("start-page-input").value = msg.StartPage;
   document.getElementById("goal-page-input").value = msg.GoalPage;
@@ -70,11 +87,17 @@ function HandleMessagePage(msg) {
 function HandleMessageReset(msg) {
   if (!msg.Success) return;
 
-  ResetLobbyClientSide();
+  const elements = {
+    "time-input": true,
+    "start-page-input": true,
+    "goal-page-input": true,
+    "start-button": true,
+    "redraw-button": false,
+    "end-button": false,
+  };
+  EnableElements(elements);
 
-  // if (msg.IsHost) {
-  //   SetInputEnabled(true);
-  // }
+  ResetLobbyClientSide();
 }
 
 async function JoinLobby(code) {
