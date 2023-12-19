@@ -24,17 +24,17 @@
                 <img id="logo" src="assets/favicon.png" height="72" width="72" />
                 <div id="title" class="text">WikiWeaver</div>
             </div>
-            <div class="flex-horizontal-container">
+            <div class="flex-horizontal-container" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                 <div id="code" class="box text"></div>
                 <input id="time-input" class="box text" placeholder="10:00" value="10:00"></input>
             </div>
+            <div class="text">Start a WikiRace from</div>
             <input id="start-page-input" class="box text" placeholder="Gingerbread"></input>
+            <div class="text">to</div>
             <input id="goal-page-input" class="box text" placeholder="League of Legends"></input>
-            <div class="flex-horizontal-container">
+            <div class="flex-horizontal-container" style="margin-top: 0.5rem">
                 <button id="start-button" class="button box text" onclick="HandleStartGameClicked()">start</button>
                 <button id="end-button" class="button box text" onclick="HandleEndClicked()">end</button>
-            </div>
-            <div class="flex-horizontal-container">
                 <button id="redraw-button" class="button box text" onclick="HandleRedrawClicked()">redraw</button>
                 <button id="reset-button" class="button box text" onclick="HandleResetClicked()">reset</button>
             </div>
