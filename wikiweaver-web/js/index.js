@@ -178,6 +178,8 @@ function ResetLeaderboardScores() {
     pages.innerHTML = 0;
     time.innerHTML = "--:--";
   }
+
+  numberOfPlayersFinished = 0;
 }
 
 var CountdownTimer;
