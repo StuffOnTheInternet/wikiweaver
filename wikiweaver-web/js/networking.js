@@ -85,6 +85,10 @@ function HandleMessagePage(msg) {
   if (msg.FinishTime) {
     MoveLeaderboardEntry(msg.Username, numberOfPlayersFinished);
     numberOfPlayersFinished += 1;
+
+    if (numberOfPlayersFinished == NumberOfPlayersInLobby()) {
+      HandleEndClicked();
+    }
   }
 }
 
