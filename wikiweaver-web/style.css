@@ -107,12 +107,13 @@ img {
   flex-grow: 1;
 }
 
-#reset-button {
-  background: var(--red);
-}
-
 #redraw-button {
   background: #a8c4ee;
+  flex-grow: 2;
+}
+
+#reset-button {
+  background: var(--red);
 }
 
 #leaderboard-wrapper {
