@@ -17,14 +17,9 @@ async function init() {
 }
 
 async function HandleStartGameClicked() {
-  timeElem = document.getElementById("time-input");
-  if (timeElem.value === "") timeElem.value = timeElem.placeholder;
-
-  if (!StartButtonShouldBeEnabled()) return;
-
-  const time = document.getElementById("time-input").value;
-  const startPage = document.getElementById("start-page-input").value;
-  const goalPage = document.getElementById("goal-page-input").value;
+  const time = SetValueToPlaceholderIfEmpty("time-input");
+  const startPage = SetValueToPlaceholderIfEmpty("start-page-input");
+  const goalPage = SetValueToPlaceholderIfEmpty("goal-page-input");
 
   let startMessage = {
     type: "start",
@@ -54,6 +49,12 @@ async function HandleResetClicked() {
   SendMessage(resetMessage);
 }
 
+function SetValueToPlaceholderIfEmpty(elementID) {
+  elem = document.getElementById(elementID);
+  if (elem.value === "") elem.value = elem.placeholder;
+  return elem.value;
+}
+
 function EnableElements(elements) {
   for (const elemID in elements) {
     const elem = document.getElementById(elemID);
@@ -79,21 +80,6 @@ function ResetLobbyClientSide() {
 function ResetStartAndGoalPages() {
   document.getElementById("start-page-input").value = "";
   document.getElementById("goal-page-input").value = "";
-}
-
-function StartButtonShouldBeEnabled() {
-  if (NumberOfPlayersInLobby() < 1) return false;
-
-  const time = document.getElementById("time-input").value;
-  if (!IsValidTime(time)) return false;
-
-  let startPage = document.getElementById("start-page-input").value;
-  let goalPage = document.getElementById("goal-page-input").value;
-  if (!startPage) return false;
-  if (!goalPage) return false;
-  if (startPage == goalPage) return false;
-
-  return true;
 }
 
 function SetCode(code, status) {
