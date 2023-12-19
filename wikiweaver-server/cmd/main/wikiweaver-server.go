@@ -301,8 +301,6 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendHistory(lobby *Lobby, wc *WebClient) {
-	log.Printf("sending history from lobby %s to web client %s", lobby.Code, wc.conn.RemoteAddr())
-
 	if lobby.State == Started {
 
 		startMsg := StartToWebMessage{
