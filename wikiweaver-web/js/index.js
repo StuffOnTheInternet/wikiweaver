@@ -29,6 +29,13 @@ async function HandleStartGameClicked() {
   // document.getElementById("reset-button").disabled = false;
 }
 
+async function HandleEndClicked() {
+  let startMessage = {
+    type: "end",
+  };
+  SendMessage(startMessage);
+}
+
 async function HandleResetClicked() {
   let resetMessage = {
     type: "reset",
@@ -214,13 +221,8 @@ function DoCountdown() {
   time -= 1;
 
   if (time <= 0) {
-    time = 0;
-    ResetCountdownTimer();
-
-    let gameoverMessage = {
-      type: "gameover",
-    };
-    SendMessage(gameoverMessage);
+    HandleEndClicked();
+    return;
   }
 
   timeElem.value = FormatTime(time);

@@ -18,11 +18,13 @@ function SendMessage(msg) {
   console.log("sent message:", msg);
 }
 
-function HandleMessageGameover(msg) {
+function HandleMessageEnd(msg) {
+  if (!msg.Success) return;
   // if (msg.IsHost) {
   //   SetInputEnabled(true);
   // }
 
+  ResetCountdownTimer();
   SetTime(msg.Countdown);
 }
 
@@ -45,10 +47,7 @@ function HandleMessageLobby(msg) {
 }
 
 function HandleMessageStart(msg) {
-  if (!msg.Success) {
-    console.log("server failed to start lobby");
-    return;
-  }
+  if (!msg.Success) return;
 
   document.getElementById("start-page-input").value = msg.StartPage;
   document.getElementById("goal-page-input").value = msg.GoalPage;
@@ -110,8 +109,8 @@ async function JoinLobby(code) {
     console.log("recv message:", msg);
 
     switch (msg.Type) {
-      case "gameover":
-        HandleMessageGameover(msg);
+      case "end":
+        HandleMessageEnd(msg);
         break;
 
       case "join":

@@ -377,28 +377,47 @@ func (wc *WebClient) sendWithWarningOnFail(v interface{}) {
 	}
 }
 
-type GameoverToWebMessage struct {
+type EndToWebMessage struct {
 	Message
-	Countdown int
+	Success   bool
 	IsHost    bool
+	Countdown int
 }
 
-func HandleMessageGameover(lobby *Lobby, wc *WebClient, buf []byte) {
+func HandleMessageEnd(lobby *Lobby, wc *WebClient, buf []byte) {
 	lobby.mu.Lock()
 	defer lobby.mu.Unlock()
 
+	msgResponse := EndToWebMessage{
+		Message: Message{
+			"end",
+		},
+		Success: false,
+		IsHost:  wc.isHost,
+	}
+
 	if !wc.isHost {
 		log.Printf("web client %s failed to end lobby: is not host", wc.conn.RemoteAddr())
+		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
+
+	if lobby.State != Started {
+		log.Printf("web client %s failed to end lobby %s: lobby is not started", wc.conn.LocalAddr(), lobby.Code)
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
+	log.Printf("web client %s ended lobby %s", wc.conn.RemoteAddr(), lobby.Code)
 
 	lobby.State = Ended
 	lobby.StartTime = time.Time{}
 
-	msgResponse := GameoverToWebMessage{
+	msgResponse = EndToWebMessage{
 		Message: Message{
-			"gameover",
+			"end",
 		},
+		Success:   true,
 		Countdown: int(lobby.Countdown.Seconds()),
 	}
 
@@ -590,8 +609,8 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 
 		switch msg.Type {
 
-		case "gameover":
-			HandleMessageGameover(lobby, wc, buf)
+		case "end":
+			HandleMessageEnd(lobby, wc, buf)
 
 		case "ping":
 			HandleMessagePing(lobby, wc, buf)

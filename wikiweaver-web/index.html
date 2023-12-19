@@ -35,9 +35,12 @@
                 onchange="HandleInputChanged()"></input>
             <div class="flex-horizontal-container">
                 <button id="start-button" class="button box text" onclick="HandleStartGameClicked()">start</button>
+                <button id="end-button" class="button box text" onclick="HandleEndClicked()">end</button>
+            </div>
+            <div class="flex-horizontal-container">
+                <button id="redraw-button" class="button box text" onclick="HandleRedrawClicked()">redraw</button>
                 <button id="reset-button" class="button box text" onclick="HandleResetClicked()">reset</button>
             </div>
-            <button id="redraw-button" class="button box text" onclick="HandleRedrawClicked()">redraw</button>
             <div id="leaderboard-wrapper">
                 <table id="leaderboard" class="text">
                     <tr>
