@@ -738,6 +738,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			Clicks:     0,
 			Pages:      0,
 			FinishTime: 0,
+			Page:       lobby.StartPage,
 		}
 		lobby.ExtClients = append(lobby.ExtClients, &extClient)
 		lobby.mu.Unlock()
