@@ -34,10 +34,10 @@ async function HandleStartGameClicked() {
 }
 
 async function HandleEndClicked() {
-  let startMessage = {
+  let endMessage = {
     type: "end",
   };
-  SendMessage(startMessage);
+  SendMessage(endMessage);
 }
 
 function HandleRedrawClicked() {
