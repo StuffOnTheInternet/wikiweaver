@@ -524,6 +524,12 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		return
 	}
 
+	if msgRequest.Countdown <= 0 {
+		log.Printf("failed to start lobby %s: invalid countdown %d", msgRequest.Code, msgRequest.Countdown)
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
 	if !wc.isHost {
 		log.Printf("failed to start lobby %s: web client %s is not host", lobby.Code, wc.conn.RemoteAddr())
 		wc.sendWithWarningOnFail(msgResponse)
