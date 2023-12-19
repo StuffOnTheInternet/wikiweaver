@@ -94,8 +94,8 @@ img {
 }
 
 #code {
-  border-width: 0px;
   cursor: default;
+  filter: brightness(100%);
 }
 
 #start-button {
@@ -176,6 +176,10 @@ img {
   background: var(--box-background-disabled) !important;
   filter: brightness(100%) !important;
   cursor: default;
+}
+
+.box:not([disabled]) {
+  filter: drop-shadow(1px 1px 1px #444d);
 }
 
 .button {
