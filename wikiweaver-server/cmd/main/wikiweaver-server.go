@@ -53,8 +53,17 @@ type ExtClient struct {
 	mu         sync.Mutex
 }
 
+type LobbyState int
+
+const (
+	Reset   LobbyState = iota
+	Started LobbyState = iota
+	Ended   LobbyState = iota
+)
+
 type Lobby struct {
 	Code                string
+	State               LobbyState
 	WebClients          []*WebClient
 	ExtClients          []*ExtClient
 	LastInteractionTime time.Time
@@ -236,6 +245,7 @@ func CreateLobby(code string) {
 
 	globalState.Lobbies[code] = &Lobby{
 		Code:                code,
+		State:               Reset,
 		LastInteractionTime: time.Now(),
 	}
 }
@@ -382,6 +392,7 @@ func HandleMessageGameover(lobby *Lobby, wc *WebClient, buf []byte) {
 		return
 	}
 
+	lobby.State = Ended
 	lobby.StartTime = time.Time{}
 
 	msgResponse := GameoverToWebMessage{
@@ -437,6 +448,7 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 		delete(globalState.UserIDs, extClient.UserID)
 	}
 
+	lobby.State = Reset
 	lobby.ExtClients = lobby.ExtClients[:0]
 	lobby.LastInteractionTime = time.Now()
 	lobby.StartTime = time.Time{}
@@ -505,6 +517,13 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		return
 	}
 
+	if lobby.State == Started {
+		log.Printf("failed to start lobby %s: lobby already started", lobby.Code)
+		wc.sendWithWarningOnFail(msgResponse)
+		return
+	}
+
+	lobby.State = Started
 	lobby.StartTime = time.Now()
 	lobby.StartPage = msgRequest.StartPage
 	lobby.GoalPage = msgRequest.GoalPage
