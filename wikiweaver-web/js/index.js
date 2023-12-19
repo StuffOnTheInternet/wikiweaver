@@ -12,6 +12,8 @@ async function init() {
   EnableElements(elements);
 
   CreateNicerExample();
+
+  document.getElementById("code").innerText = window.location.hash;
   let code = window.location.hash.replace("#", "");
   await JoinLobby(code);
 }
@@ -82,24 +84,17 @@ function ResetStartAndGoalPages() {
   document.getElementById("goal-page-input").value = "";
 }
 
-function SetCode(code, status) {
+function UpdateConnectionStatusIndication(status) {
   let codeElement = document.getElementById("code");
 
   let color = "";
-  let textTransform = "";
 
   if (status == "connected") {
-    codeElement.innerHTML = `#${code}`;
     color = "--green";
-    textTransform = "uppercase";
   } else if (status == "disconnected") {
-    codeElement.innerHTML = `${code}`;
     color = "--red";
-    textTransform = "none";
   } else if (status == "pending") {
-    codeElement.innerHTML = `${code}`;
     color = "--yellow";
-    textTransform = "none";
   } else {
     console.log("unrecognized connection status", status);
   }
@@ -107,7 +102,6 @@ function SetCode(code, status) {
   codeElement.style.background = getComputedStyle(
     document.documentElement
   ).getPropertyValue(color);
-  codeElement.style.textTransform = textTransform;
 }
 
 function GetCode() {

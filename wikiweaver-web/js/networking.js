@@ -1,5 +1,3 @@
-const connectionFailMessage = "disconnected";
-
 const backend = "s://stuffontheinter.net"; // Use this for production
 // const backend = "://localhost:4242"; // Use this for local development
 
@@ -54,8 +52,9 @@ function HandleMessageLobby(msg) {
   };
   EnableElements(elements);
 
-  SetCode(msg.Code, "connected");
+  UpdateConnectionStatusIndication("connected");
   window.location.hash = `#${msg.Code}`;
+  document.getElementById("code").innerText = window.location.hash;
 }
 
 function HandleMessageStart(msg) {
@@ -110,7 +109,7 @@ async function JoinLobby(code) {
     await globalThis.socket.close();
   }
 
-  SetCode("connecting...", "pending");
+  UpdateConnectionStatusIndication("pending");
 
   globalThis.socket = new WebSocket(
     "ws" + backend + "/api/ws/web/join" + "?code=" + code
@@ -127,8 +126,8 @@ async function JoinLobby(code) {
 
   globalThis.socket.addEventListener("close", (event) => {
     if (interval) clearInterval(interval);
-    SetCode(connectionFailMessage, "disconnected");
-    ResetCountdownTimer();
+
+    UpdateConnectionStatusIndication("disconnected");
 
     const elements = {
       "time-input": false,

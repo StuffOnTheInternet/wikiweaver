@@ -96,6 +96,7 @@ img {
 #code {
   cursor: default;
   filter: brightness(100%);
+  text-transform: uppercase;
 }
 
 #start-button {
