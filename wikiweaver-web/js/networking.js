@@ -129,6 +129,16 @@ async function JoinLobby(code) {
     if (interval) clearInterval(interval);
     SetCode(connectionFailMessage, "disconnected");
     ResetCountdownTimer();
+
+    const elements = {
+      "time-input": false,
+      "start-page-input": false,
+      "goal-page-input": false,
+      "start-button": false,
+      "end-button": false,
+      "reset-button": false,
+    };
+    EnableElements(elements);
   });
 
   globalThis.socket.addEventListener("message", (event) => {
