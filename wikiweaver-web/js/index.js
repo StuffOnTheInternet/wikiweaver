@@ -1,6 +1,16 @@
 var numberOfPlayersFinished = 0;
 
 async function init() {
+  const elements = {
+    "time-input": false,
+    "start-page-input": false,
+    "goal-page-input": false,
+    "start-button": false,
+    "end-button": false,
+    "reset-button": false,
+  };
+  EnableElements(elements);
+
   CreateNicerExample();
   let code = window.location.hash.replace("#", "");
   await JoinLobby(code);

@@ -45,7 +45,12 @@ function HandleMessageJoin(msg) {
 
 function HandleMessageLobby(msg) {
   const elements = {
+    "time-input": true,
+    "start-page-input": true,
+    "goal-page-input": true,
+    "start-button": true,
     "end-button": false,
+    "reset-button": true,
   };
   EnableElements(elements);
 
