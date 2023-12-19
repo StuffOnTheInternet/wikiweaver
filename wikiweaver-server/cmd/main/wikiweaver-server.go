@@ -557,7 +557,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		extClient.Page = lobby.StartPage
 	}
 
-	log.Printf("web client %s started lobby %s with countdown %.0f and pages '%s' -> '%s'", wc.conn.RemoteAddr(), lobby.Code, lobby.Countdown.Seconds(), lobby.StartPage, lobby.GoalPage)
+	log.Printf("web client %s started lobby %s with pages '%s' to '%s' (%.0f seconds)", wc.conn.RemoteAddr(), lobby.Code, lobby.StartPage, lobby.GoalPage, lobby.Countdown.Seconds())
 
 	msgResponse = StartToWebMessage{
 		Message: Message{
