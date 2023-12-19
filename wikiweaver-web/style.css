@@ -115,6 +115,7 @@ img {
 
 #reset-button {
   background: var(--red);
+  flex-grow: 2;
 }
 
 #leaderboard-wrapper {
