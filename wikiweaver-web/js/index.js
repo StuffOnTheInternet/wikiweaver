@@ -36,6 +36,10 @@ async function HandleEndClicked() {
   SendMessage(startMessage);
 }
 
+function HandleRedrawClicked() {
+  ForceNewLayout();
+}
+
 async function HandleResetClicked() {
   let resetMessage = {
     type: "reset",
@@ -55,10 +59,6 @@ function ResetLobbyClientSide() {
 function ResetStartAndGoalPages() {
   document.getElementById("start-page-input").value = "";
   document.getElementById("goal-page-input").value = "";
-}
-
-function HandleRedrawClicked() {
-  ForceNewLayout();
 }
 
 // function SetInputEnabled(enabled) {
