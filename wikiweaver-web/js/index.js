@@ -7,6 +7,9 @@ async function init() {
 }
 
 async function HandleStartGameClicked() {
+  timeElem = document.getElementById("time-input");
+  if (timeElem.value === "") timeElem.value = timeElem.placeholder;
+
   if (!StartButtonShouldBeEnabled()) return;
 
   const time = document.getElementById("time-input").value;
