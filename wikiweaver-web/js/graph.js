@@ -3,6 +3,19 @@ var webgraph;
 
 const UNUSED = "UNUSED";
 
+var ColorArray = [
+  "Red",
+  "Blue",
+  "Green",
+  "Yellow",
+  "Cyan",
+  "Orange",
+  "Violet",
+  "Magenta",
+  "Lime",
+  "Brown",
+];
+
 // Color settings
 var CMap = {
   Red: {
@@ -137,19 +150,6 @@ var options = {
 };
 
 function AddNewPlayer(Player) {
-  var ColorArray = [
-    "Red",
-    "Blue",
-    "Green",
-    "Yellow",
-    "Cyan",
-    "Orange",
-    "Violet",
-    "Magenta",
-    "Lime",
-    "Brown",
-  ];
-
   for (let color of ColorArray) {
     if (CMap[color].group == UNUSED) {
       CMap[color].group = Player;

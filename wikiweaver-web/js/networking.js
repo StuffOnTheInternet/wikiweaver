@@ -70,6 +70,7 @@ function HandleMessageStart(msg) {
     "goal-page-input": false,
     "start-button": false,
     "redraw-button": true,
+    "export-button": true,
     "end-button": true,
   };
   EnableElements(elements);
@@ -105,6 +106,7 @@ function HandleMessageReset(msg) {
     "goal-page-input": true,
     "start-button": true,
     "redraw-button": false,
+    "export-button": false,
     "end-button": false,
   };
   EnableElements(elements);

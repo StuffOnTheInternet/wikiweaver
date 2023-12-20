@@ -9,6 +9,7 @@
   --green: #dcfd97;
   --red: #fabdbd;
   --yellow: #f0ee92;
+  --blue: #a8c4ee;
   --maincanvas-background: #fffff5;
   --sidepane-background: #cddcf2;
   --sidepane-text: #3f3d3d;
@@ -101,7 +102,7 @@ img {
 
 #start-button {
   background: var(--green);
-  flex-grow: 2;
+  flex-grow: 3;
 }
 
 #end-button {
@@ -110,13 +111,17 @@ img {
 }
 
 #redraw-button {
-  background: #a8c4ee;
+  background: var(--blue);
   flex-grow: 2;
 }
 
 #reset-button {
   background: var(--red);
-  flex-grow: 2;
+  flex-grow: 1;
+}
+
+#export-button {
+  background: var(--blue);
 }
 
 #leaderboard-wrapper {
