@@ -415,7 +415,7 @@ func HandleMessageEnd(lobby *Lobby, wc *WebClient, buf []byte) {
 
 	for _, webClient := range lobby.WebClients {
 		msgResponse.IsHost = webClient.isHost
-		wc.sendWithWarningOnFail(msgResponse)
+		webClient.sendWithWarningOnFail(msgResponse)
 	}
 }
 
