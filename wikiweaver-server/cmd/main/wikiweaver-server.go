@@ -301,28 +301,6 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendHistory(lobby *Lobby, wc *WebClient) {
-	if lobby.State == Started {
-
-		startMsg := StartToWebMessage{
-			Message: Message{
-				Type: "start",
-			},
-			Success:   true,
-			StartPage: lobby.StartPage,
-			GoalPage:  lobby.GoalPage,
-			// TODO: this becomes weird when the lobby is started but has then
-			// finished, should probably send state or something so that the web
-			// client knows whats up
-			Countdown: int(float64(lobby.Countdown.Seconds()) - time.Since(lobby.StartTime).Seconds()),
-		}
-
-		err := wc.send(startMsg)
-		if err != nil {
-			log.Printf("failed to send history: %s", err)
-			return
-		}
-	}
-
 	lobby.mu.Lock()
 	for _, extClient := range lobby.ExtClients {
 		time.Sleep(HISTORY_SEND_INTERVAL)
@@ -342,6 +320,28 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		if err != nil {
 			log.Printf("failed to send history: %s", err)
 			break
+		}
+	}
+
+	if lobby.State == Started {
+
+		startMsg := StartToWebMessage{
+			Message: Message{
+				Type: "start",
+			},
+			Success:   true,
+			StartPage: lobby.StartPage,
+			GoalPage:  lobby.GoalPage,
+			// TODO: this becomes weird when the lobby is started but has then
+			// finished, should probably send state or something so that the web
+			// client knows whats up
+			Countdown: int(float64(lobby.Countdown.Seconds()) - time.Since(lobby.StartTime).Seconds()),
+		}
+
+		err := wc.send(startMsg)
+		if err != nil {
+			log.Printf("failed to send history: %s", err)
+			return
 		}
 	}
 
