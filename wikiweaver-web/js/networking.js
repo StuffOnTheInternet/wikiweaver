@@ -3,7 +3,7 @@ const backend = "s://stuffontheinter.net"; // Use this for production
 
 const pingInterval = 30000; // milliseconds
 
-var ResetOnNextPlayerJoin = true;
+var ResetPlayersOnNextPlayerJoin = true;
 
 function SendMessage(msg) {
   if (!globalThis.socket) {
@@ -33,8 +33,10 @@ function HandleMessageEnd(msg) {
 }
 
 function HandleMessageJoin(msg) {
-  if (ResetOnNextPlayerJoin) {
-    ResetLobbyClientSide();
+  if (ResetPlayersOnNextPlayerJoin) {
+    ResetPlayersOnNextPlayerJoin = false;
+    ResetPlayers();
+    ResetLeaderboard();
   }
 
   AddNewPlayer(msg.Username);

@@ -76,7 +76,7 @@ function ResetLobbyClientSide() {
   ResetLeaderboard();
   ResetCountdownTimer();
   ResetStartAndGoalPages();
-  ResetOnNextPlayerJoin = false;
+  ResetPlayersOnNextPlayerJoin = false;
 }
 
 function ResetStartAndGoalPages() {
