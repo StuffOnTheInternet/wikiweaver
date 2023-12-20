@@ -32,6 +32,7 @@ type GlobalState struct {
 	Lobbies map[string]*Lobby
 	Words   []string
 	UserIDs map[string]bool
+	Rand    *rand.Rand
 	mu      sync.Mutex
 }
 
@@ -154,13 +155,13 @@ func generateUserID() string {
 	globalState.mu.Lock()
 	defer globalState.mu.Unlock()
 
-	userID := strconv.FormatInt(rand.Int63(), 16)
+	userID := strconv.FormatInt(globalState.Rand.Int63(), 16)
 	for {
 		if _, ok := globalState.UserIDs[userID]; !ok {
 			break
 		}
 
-		userID = strconv.FormatInt(rand.Int63(), 16)
+		userID = strconv.FormatInt(globalState.Rand.Int63(), 16)
 	}
 
 	globalState.UserIDs[userID] = true
@@ -174,14 +175,14 @@ func generateRandomCode() string {
 	b := make([]byte, CODE_LENGTH)
 
 	for i := range b {
-		b[i] = LETTERS[rand.Intn(len(LETTERS))]
+		b[i] = LETTERS[globalState.Rand.Intn(len(LETTERS))]
 	}
 
 	return string(b)
 }
 
 func generateCodeFromWords() string {
-	return globalState.Words[rand.Intn(len(globalState.Words))]
+	return globalState.Words[globalState.Rand.Intn(len(globalState.Words))]
 }
 
 func generateUniqueCode() string {
@@ -952,10 +953,16 @@ func main() {
 		}
 	}
 
+	seed := time.Now().UnixNano()
+	if dev {
+		seed = 1
+	}
+
 	globalState = GlobalState{
 		Lobbies: make(map[string]*Lobby),
 		Words:   readWords(WORDS_FILEPATH),
 		UserIDs: make(map[string]bool),
+		Rand:    rand.New(rand.NewSource(seed)),
 	}
 
 	go lobbyCleaner()
