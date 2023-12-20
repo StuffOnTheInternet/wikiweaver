@@ -129,6 +129,10 @@ img {
   margin: unset;
 }
 
+#no-players-text {
+  width: 24rem;
+}
+
 #footer {
   height: 100%;
   display: flex;

@@ -39,6 +39,8 @@ function HandleMessageJoin(msg) {
     ResetLeaderboard();
   }
 
+  document.getElementById("no-players-text").hidden = true;
+
   AddNewPlayer(msg.Username);
   AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 }
@@ -106,6 +108,8 @@ function HandleMessageReset(msg) {
     "end-button": false,
   };
   EnableElements(elements);
+
+  document.getElementById("no-players-text").hidden = false;
 
   ResetLobbyClientSide();
 }
