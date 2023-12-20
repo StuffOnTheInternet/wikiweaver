@@ -517,25 +517,25 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 	}
 
 	if msgRequest.Code != lobby.Code {
-		log.Printf("failed to start lobby %s: web client %s is in another lobby %s", msgRequest.Code, wc.conn.RemoteAddr(), lobby.Code)
+		log.Printf("web client %s failed to start lobby %s: web client is in another lobby %s", wc.conn.RemoteAddr(), msgRequest.Code, lobby.Code)
 		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
 
 	if msgRequest.Countdown <= 0 {
-		log.Printf("failed to start lobby %s: invalid countdown %d", msgRequest.Code, msgRequest.Countdown)
+		log.Printf("web client %s failed to start lobby %s: invalid countdown %d", wc.conn.RemoteAddr(), lobby.Code, msgRequest.Countdown)
 		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
 
 	if !wc.isHost {
-		log.Printf("failed to start lobby %s: web client %s is not host", lobby.Code, wc.conn.RemoteAddr())
+		log.Printf("web client %s failed to start lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
 		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
 
 	if lobby.State == Started {
-		log.Printf("failed to start lobby %s: lobby already started", lobby.Code)
+		log.Printf("web client %s failed to start lobby %s: lobby already started", wc.conn.RemoteAddr(), lobby.Code)
 		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
