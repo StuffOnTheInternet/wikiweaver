@@ -372,7 +372,6 @@ func (wc *WebClient) sendWithWarningOnFail(v interface{}) {
 type EndToWebMessage struct {
 	Message
 	Success   bool
-	IsHost    bool
 	Countdown int
 }
 
@@ -385,7 +384,6 @@ func HandleMessageEnd(lobby *Lobby, wc *WebClient, buf []byte) {
 			"end",
 		},
 		Success: false,
-		IsHost:  wc.isHost,
 	}
 
 	if !wc.isHost {
@@ -414,7 +412,6 @@ func HandleMessageEnd(lobby *Lobby, wc *WebClient, buf []byte) {
 	}
 
 	for _, webClient := range lobby.WebClients {
-		msgResponse.IsHost = webClient.isHost
 		webClient.sendWithWarningOnFail(msgResponse)
 	}
 }
@@ -432,7 +429,6 @@ func HandleMessagePing(lobby *Lobby, wc *WebClient, buf []byte) {
 type ResetToWebMessage struct {
 	Message
 	Success bool
-	IsHost  bool
 }
 
 func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
@@ -444,7 +440,6 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 			"reset",
 		},
 		Success: false,
-		IsHost:  wc.isHost,
 	}
 
 	if !wc.isHost {
@@ -476,7 +471,6 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 	}
 
 	for _, webClient := range lobby.WebClients {
-		msgResponse.IsHost = webClient.isHost
 		webClient.sendWithWarningOnFail(msgResponse)
 	}
 }
