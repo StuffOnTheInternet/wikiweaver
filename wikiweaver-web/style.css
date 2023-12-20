@@ -145,6 +145,7 @@ img {
   justify-content: flex-end;
   font-size: 0.75rem;
   text-align: right;
+  margin-top: 2rem;
 }
 
 .flex-horizontal-container {
