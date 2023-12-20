@@ -93,6 +93,12 @@ func (l *Lobby) hasHost() bool {
 	return false
 }
 
+func (l *Lobby) Broadcast(v interface{}) {
+	for _, wc := range l.WebClients {
+		wc.sendWithWarningOnFail(v)
+	}
+}
+
 func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -411,9 +417,7 @@ func HandleMessageEnd(lobby *Lobby, wc *WebClient, buf []byte) {
 		Countdown: int(lobby.Countdown.Seconds()),
 	}
 
-	for _, webClient := range lobby.WebClients {
-		webClient.sendWithWarningOnFail(msgResponse)
-	}
+	lobby.Broadcast(msgResponse)
 }
 
 func HandleMessagePing(lobby *Lobby, wc *WebClient, buf []byte) {
@@ -470,9 +474,7 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 		Success: true,
 	}
 
-	for _, webClient := range lobby.WebClients {
-		webClient.sendWithWarningOnFail(msgResponse)
-	}
+	lobby.Broadcast(msgResponse)
 }
 
 type StartFromWebMessage struct {
@@ -561,9 +563,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		Countdown: int(lobby.Countdown.Seconds()),
 	}
 
-	for _, webClient := range lobby.WebClients {
-		webClient.sendWithWarningOnFail(msgResponse)
-	}
+	lobby.Broadcast(msgResponse)
 }
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
