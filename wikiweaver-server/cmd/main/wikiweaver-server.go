@@ -320,6 +320,17 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 	lobby.mu.Lock()
 	defer lobby.mu.Unlock()
 
+	if lobby.State == Reset {
+		resetMessage := ResetToWebMessage{
+			Message: Message{
+				Type: "reset",
+			},
+			Success: true,
+		}
+
+		wc.sendWithWarningOnFail(resetMessage)
+	}
+
 	for _, extClient := range lobby.ExtClients {
 		// Ugly to construct the message like this...
 		joinToWebMessage := JoinToWebMessage{
@@ -360,15 +371,6 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		}
 
 		wc.sendWithWarningOnFail(endMessage)
-	} else if lobby.State == Reset {
-		resetMessage := ResetToWebMessage{
-			Message: Message{
-				Type: "reset",
-			},
-			Success: true,
-		}
-
-		wc.sendWithWarningOnFail(resetMessage)
 	}
 
 	for _, pageToWebMessage := range lobby.History {
