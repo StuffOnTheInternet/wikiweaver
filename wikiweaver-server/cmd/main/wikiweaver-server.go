@@ -56,6 +56,7 @@ type ExtClient struct {
 type LobbyState int
 
 const (
+	Initial LobbyState = iota
 	Reset   LobbyState = iota
 	Started LobbyState = iota
 	Ended   LobbyState = iota
@@ -91,6 +92,14 @@ func (l *Lobby) hasHost() bool {
 	}
 
 	return false
+}
+
+func (l *Lobby) TimeLeft() int {
+	if l.State == Started {
+		return int((l.Countdown - time.Since(l.StartTime)).Seconds())
+	} else {
+		return int(l.Countdown.Seconds())
+	}
 }
 
 func (l *Lobby) Broadcast(v interface{}) {
@@ -245,7 +254,7 @@ func CreateLobby(code string) {
 
 	globalState.Lobbies[code] = &Lobby{
 		Code:                code,
-		State:               Reset,
+		State:               Initial,
 		LastInteractionTime: time.Now(),
 	}
 }
@@ -325,7 +334,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		wc.sendWithWarningOnFail(joinToWebMessage)
 	}
 
-	if lobby.State == Started {
+	if countdown := lobby.TimeLeft(); countdown > 0 {
 
 		startMsg := StartToWebMessage{
 			Message: Message{
@@ -334,10 +343,31 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			Success:   true,
 			StartPage: lobby.StartPage,
 			GoalPage:  lobby.GoalPage,
-			Countdown: int(float64(lobby.Countdown.Seconds()) - time.Since(lobby.StartTime).Seconds()),
+			Countdown: lobby.TimeLeft(),
 		}
 
 		wc.sendWithWarningOnFail(startMsg)
+	}
+
+	if lobby.State == Ended {
+		endMessage := EndToWebMessage{
+			Message: Message{
+				"end",
+			},
+			Success:   true,
+			Countdown: int(lobby.Countdown.Seconds()),
+		}
+
+		wc.sendWithWarningOnFail(endMessage)
+	} else if lobby.State == Reset {
+		resetMessage := ResetToWebMessage{
+			Message: Message{
+				Type: "reset",
+			},
+			Success: true,
+		}
+
+		wc.sendWithWarningOnFail(resetMessage)
 	}
 
 	for _, pageToWebMessage := range lobby.History {
