@@ -68,7 +68,10 @@ browser.runtime.onMessage.addListener(async (message) => {
 });
 
 function pageNameFromWikipediaURL(url) {
-  return decodeURI(url).split("wiki/")[1].split("#")[0].replace(/_/g, " ");
+  return decodeURIComponent(url)
+    .split("wiki/")[1]
+    .split("#")[0]
+    .replace(/_/g, " ");
 }
 
 async function GetDomain() {
