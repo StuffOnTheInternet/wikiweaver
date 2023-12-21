@@ -15,6 +15,7 @@
     "default_popup": "popup/popup.html"
   },
   "permissions": ["webNavigation", "webRequest", "storage"],
+  "host_permissions": ["https://wikipedia.com/*"],
   "background": {
     "scripts": ["background.js"]
   },
