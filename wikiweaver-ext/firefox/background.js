@@ -17,7 +17,6 @@ chrome.webNavigation.onCommitted.addListener(
 
     const response = await fetch(domain + "/api/ext/page", {
       method: "POST",
-      mode: "no-cors",
       body: JSON.stringify({
         code: options.code,
         username: options.username,
@@ -25,7 +24,14 @@ chrome.webNavigation.onCommitted.addListener(
         backmove: event.transitionQualifiers.includes("forward_back"),
         previous: lastPage[event.tabId],
       }),
-    });
+    })
+      .then((response) => response.json())
+      .then((json) => json)
+      .catch((e) => {
+        return { Success: false };
+      });
+
+    UpdateBadge(response.Success);
 
     lastPage[event.tabId] = page;
     await chrome.storage.session.set({ lastPage: lastPage });
@@ -59,6 +65,8 @@ browser.runtime.onMessage.addListener(async (message) => {
       return { Success: false };
     });
 
+  UpdateBadge(response.Success);
+
   await browser.runtime.sendMessage({
     type: "connectResponse",
     response: response,
@@ -82,4 +90,16 @@ async function GetDomain() {
   } else {
     return domain;
   }
+}
+
+function UpdateBadge(success) {
+  let color;
+  if (success) {
+    color = [220, 253, 151, 255];
+  } else {
+    color = [250, 189, 189, 255];
+  }
+
+  chrome.action.setBadgeBackgroundColor({ color: color });
+  chrome.action.setBadgeText({ text: "0" });
 }
