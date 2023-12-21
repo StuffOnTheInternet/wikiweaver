@@ -31,7 +31,8 @@ chrome.webNavigation.onCommitted.addListener(
         return { Success: false };
       });
 
-    UpdateBadge(response.Success);
+    await SetPageCount((await GetPageCount()) + Number(response.Success));
+    await UpdateBadge(response.Success);
 
     lastPage[event.tabId] = page;
     await chrome.storage.session.set({ lastPage: lastPage });
@@ -65,7 +66,8 @@ browser.runtime.onMessage.addListener(async (message) => {
       return { Success: false };
     });
 
-  UpdateBadge(response.Success);
+  await SetPageCount(0);
+  await UpdateBadge(response.Success);
 
   await browser.runtime.sendMessage({
     type: "connectResponse",
@@ -92,7 +94,15 @@ async function GetDomain() {
   }
 }
 
-function UpdateBadge(success) {
+async function GetPageCount() {
+  return (await chrome.storage.session.get("pageCount")).pageCount;
+}
+
+async function SetPageCount(pageCount) {
+  await chrome.storage.session.set({ pageCount });
+}
+
+async function UpdateBadge(success) {
   let color;
   if (success) {
     color = [220, 253, 151, 255];
@@ -101,5 +111,5 @@ function UpdateBadge(success) {
   }
 
   chrome.action.setBadgeBackgroundColor({ color: color });
-  chrome.action.setBadgeText({ text: "0" });
+  chrome.action.setBadgeText({ text: String(await GetPageCount()) });
 }
