@@ -785,6 +785,10 @@ type PageFromExtRequest struct {
 	Previous string
 }
 
+type PageToExtResponse struct {
+	Success bool
+}
+
 type PageToWebMessage struct {
 	Message
 	Username   string
@@ -797,13 +801,16 @@ type PageToWebMessage struct {
 }
 
 func handleExtPage(w http.ResponseWriter, r *http.Request) {
+	failResponse := PageToExtResponse{
+		Success: false,
+	}
+
 	switch r.Method {
 	case http.MethodPost:
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("error reading extension request: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
@@ -811,8 +818,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &pageFromExtMessage)
 		if err != nil {
 			log.Printf("failed to parse message '%s' from extension: %s", body, err)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
@@ -820,8 +826,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		if len(code) != CODE_LENGTH {
 			log.Printf("refusing to forward page from %s to lobby %s: invalid lobby code", r.RemoteAddr, code)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
@@ -829,22 +834,19 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		if lobby == nil {
 			log.Printf("refusing to forward page from %s to lobby %s: lobby not found", r.RemoteAddr, code)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
 		if lobby.State == Ended {
 			log.Printf("refusing to forward page from %s to lobby %s: lobby has ended", r.RemoteAddr, code)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
 		if lobby.State != Started {
 			log.Printf("refusing to forward page from %s to lobby %s: lobby is not started", r.RemoteAddr, code)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
@@ -852,8 +854,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		if extClient == nil {
 			log.Printf("refusing to forward page from %s to lobby %s: user %s not in lobby", r.RemoteAddr, code, pageFromExtMessage.Username)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			return
 		}
 
@@ -861,16 +862,14 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		if extClient.FinishTime != 0 {
 			log.Printf("refusing to forward page from %s to lobby %s: user %s has already finished", r.RemoteAddr, code, pageFromExtMessage.Username)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			extClient.mu.Unlock()
 			return
 		}
 
 		if extClient.Page != pageFromExtMessage.Previous {
 			log.Printf("refusing to forward page from %s to lobby %s: previous page mismatch: server thinks %s while extension thinks %s", r.RemoteAddr, code, extClient.Page, pageFromExtMessage.Previous)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte{})
+			SendResponseToExt(w, failResponse)
 			extClient.mu.Unlock()
 			return
 		}
@@ -913,17 +912,12 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		lobby.History = append(lobby.History, pageToWebMessage)
 		lobby.mu.Unlock()
 
-		log.Printf("forwarding page from extension %s to %d web clients in lobby %s: %v", r.RemoteAddr, len(lobby.WebClients), code, pageToWebMessage)
+		lobby.Broadcast(pageToWebMessage)
 
-		for _, wc := range lobby.WebClients {
-			err = wc.send(pageToWebMessage)
-			if err != nil {
-				log.Printf("failed to forward message to web client %s: %s", wc.conn.RemoteAddr(), err)
-			}
+		successResponse := PageToExtResponse{
+			Success: true,
 		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte{})
+		SendResponseToExt(w, successResponse)
 	}
 }
 
