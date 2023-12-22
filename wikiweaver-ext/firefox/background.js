@@ -72,6 +72,12 @@ browser.runtime.onMessage.addListener(async (message) => {
 
   console.log("join response: ", response);
 
+  if ((await GetPageCount()) === undefined) SetPageCount(0);
+
+  if (response.Success && !response.AlreadyInLobby) {
+    await SetPageCount(0);
+  }
+
   await UpdateBadge(response.Success);
 
   await browser.runtime.sendMessage({

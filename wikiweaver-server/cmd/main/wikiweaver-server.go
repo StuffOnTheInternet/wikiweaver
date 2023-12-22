@@ -642,8 +642,9 @@ type JoinFromExtRequest struct {
 }
 
 type JoinToExtResponse struct {
-	Success bool
-	UserID  string
+	Success        bool
+	UserID         string
+	AlreadyInLobby bool
 }
 
 type JoinToWebMessage struct {
@@ -722,8 +723,9 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		if otherWithSameUsername != nil {
 			if otherWithSameUsername.UserID == request.UserID {
 				successResponse := JoinToExtResponse{
-					Success: true,
-					UserID:  request.UserID,
+					Success:        true,
+					UserID:         request.UserID,
+					AlreadyInLobby: true,
 				}
 				SendResponseToExt(w, successResponse)
 			} else {
@@ -770,8 +772,9 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		successResponse := JoinToExtResponse{
-			Success: true,
-			UserID:  userID,
+			Success:        true,
+			UserID:         userID,
+			AlreadyInLobby: false,
 		}
 		SendResponseToExt(w, successResponse)
 	}
