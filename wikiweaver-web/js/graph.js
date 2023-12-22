@@ -166,7 +166,7 @@ function ResetPlayers() {
 
 function NumberOfPlayersInLobby() {
   let i = 0;
-  for (let color in CMap) {
+  for (let color of ColorArray) {
     if (CMap[color].group === UNUSED) break;
     i++;
   }
