@@ -33,6 +33,8 @@ chrome.webNavigation.onCommitted.addListener(
         return { Success: false };
       });
 
+    console.log("page response: ", response);
+
     await SetPageCount((await GetPageCount()) + Number(response.Success));
     await UpdateBadge(response.Success);
 
@@ -68,7 +70,8 @@ browser.runtime.onMessage.addListener(async (message) => {
       return { Success: false };
     });
 
-  await SetPageCount(0);
+  console.log("join response: ", response);
+
   await UpdateBadge(response.Success);
 
   await browser.runtime.sendMessage({
