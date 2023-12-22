@@ -752,8 +752,11 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 					Message: Message{
 						Type: "join",
 					},
-					Username: other.Username,
-					NewName:  request.Username,
+					Username:   other.Username,
+					Clicks:     other.Clicks,
+					Pages:      other.Pages,
+					FinishTime: int(other.FinishTime.Seconds()),
+					NewName:    request.Username,
 				}
 				lobby.Broadcast(joinToWebMessage)
 
