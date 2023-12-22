@@ -150,12 +150,18 @@ var options = {
 };
 
 function AddNewPlayer(Player) {
+  UpdatePlayer(UNUSED, Player);
+}
+
+function UpdatePlayer(OldName, NewName) {
   for (let color of ColorArray) {
-    if (CMap[color].group == UNUSED) {
-      CMap[color].group = Player;
-      break;
+    if (CMap[color].group == OldName) {
+      CMap[color].group = NewName;
+      return;
     }
   }
+
+  console.log(`failed to update player from ${OldName} to ${NewName}`);
 }
 
 function ResetPlayers() {

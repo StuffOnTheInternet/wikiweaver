@@ -41,8 +41,19 @@ function HandleMessageJoin(msg) {
 
   document.getElementById("no-players-text").hidden = true;
 
-  AddNewPlayer(msg.Username);
-  AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+  if (msg.NewName) {
+    UpdatePlayer(msg.Username, msg.NewName);
+    UpdateLeaderboardEntry(
+      msg.Username,
+      msg.Clicks,
+      msg.Pages,
+      msg.FinishTime,
+      msg.NewName
+    );
+  } else {
+    AddNewPlayer(msg.Username);
+    AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+  }
 }
 
 function HandleMessageLobby(msg) {
