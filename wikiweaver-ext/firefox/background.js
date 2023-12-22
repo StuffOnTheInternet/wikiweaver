@@ -10,9 +10,11 @@ chrome.webNavigation.onCommitted.addListener(
     if (lastPage === undefined) lastPage = {};
 
     if (lastPage[event.tabId] === undefined) {
+      // The first page we send in each new tab will have the same previous
+      // page and current page. This is so that we can show the badge as
+      // green already on the first page.
       lastPage[event.tabId] = page;
       await chrome.storage.session.set({ lastPage: lastPage });
-      return;
     }
 
     const response = await fetch(domain + "/api/ext/page", {
