@@ -94,6 +94,11 @@ img {
   margin: 1rem;
 }
 
+#spectator-text {
+  width: 24rem;
+  align-self: center;
+}
+
 #code {
   cursor: default;
   filter: brightness(100%);
@@ -136,6 +141,7 @@ img {
 
 #no-players-text {
   width: 24rem;
+  align-self: center;
 }
 
 #footer {

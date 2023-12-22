@@ -59,6 +59,10 @@ function HandleMessageJoin(msg) {
 function HandleMessageLobby(msg) {
   isHost = msg.IsHost;
 
+  if (!isHost) {
+    document.getElementById("spectator-text").hidden = false;
+  }
+
   const elements = {
     "time-input": isHost,
     "start-page-input": isHost,
