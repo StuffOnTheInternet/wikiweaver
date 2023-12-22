@@ -20,10 +20,10 @@ function HandleMessageEnd(msg) {
   if (!msg.Success) return;
 
   const elements = {
-    "time-input": true,
-    "start-page-input": true,
-    "goal-page-input": true,
-    "start-button": true,
+    "time-input": isHost,
+    "start-page-input": isHost,
+    "goal-page-input": isHost,
+    "start-button": isHost,
     "end-button": false,
   };
   EnableElements(elements);
@@ -57,13 +57,15 @@ function HandleMessageJoin(msg) {
 }
 
 function HandleMessageLobby(msg) {
+  isHost = msg.IsHost;
+
   const elements = {
-    "time-input": true,
-    "start-page-input": true,
-    "goal-page-input": true,
-    "start-button": true,
+    "time-input": isHost,
+    "start-page-input": isHost,
+    "goal-page-input": isHost,
+    "start-button": isHost,
     "end-button": false,
-    "reset-button": true,
+    "reset-button": isHost,
   };
   EnableElements(elements);
 
@@ -82,7 +84,7 @@ function HandleMessageStart(msg) {
     "start-button": false,
     "redraw-button": true,
     "export-button": true,
-    "end-button": true,
+    "end-button": isHost,
   };
   EnableElements(elements);
 
@@ -112,10 +114,10 @@ function HandleMessageReset(msg) {
   if (!msg.Success) return;
 
   const elements = {
-    "time-input": true,
-    "start-page-input": true,
-    "goal-page-input": true,
-    "start-button": true,
+    "time-input": isHost,
+    "start-page-input": isHost,
+    "goal-page-input": isHost,
+    "start-button": isHost,
     "redraw-button": false,
     "export-button": false,
     "end-button": false,

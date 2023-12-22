@@ -1,4 +1,5 @@
 var numberOfPlayersFinished = 0;
+var isHost = false;
 
 async function init() {
   const elements = {
