@@ -735,6 +735,14 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		for _, other := range lobby.ExtClients {
+			if request.UserID == other.UserID {
+				log.Printf("extension %s tried to join, using username '%s' but has already joined with username '%s'", r.RemoteAddr, request.Username, other.Username)
+				SendResponseToExt(w, failResponse)
+				return
+			}
+		}
+
 		if len(lobby.ExtClients) >= MAX_USERS_PER_LOBBY {
 			log.Printf("extension %s tried to join, but there are already %d users in lobby %s", r.RemoteAddr, len(lobby.ExtClients), request.Code)
 			SendResponseToExt(w, failResponse)
