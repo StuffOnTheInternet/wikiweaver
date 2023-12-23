@@ -147,6 +147,11 @@ async function JoinLobby(code) {
     if (CountdownTimer) clearInterval(CountdownTimer);
     if (PagePlaceholderTimer) clearInterval(PagePlaceholderTimer);
 
+    document.getElementById("disconnect-text").hidden = false;
+    document.getElementById("spectator-text").hidden = true;
+    document.getElementById("example-text").hidden = true;
+    document.getElementById("no-players-text").hidden = true;
+
     UpdateConnectionStatusIndication("disconnected");
 
     const elements = {
