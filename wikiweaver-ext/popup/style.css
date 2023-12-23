@@ -26,6 +26,7 @@ body {
 
 #code {
   text-transform: uppercase;
+  filter: brightness(100%);
   border-width: 1px;
   border: #3f3d3d;
   border-style: solid;
