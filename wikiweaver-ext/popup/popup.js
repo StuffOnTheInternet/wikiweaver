@@ -61,19 +61,15 @@ document.addEventListener("click", async (e) => {
   await browser.runtime.sendMessage({ type: "connect" });
 });
 
-browser.runtime.onMessage.addListener(async (message) => {
-  if (message.type != "connectResponse") return;
-
-  response = message.response;
-
+async function HandleMessageConnect(msg) {
   const code = (await chrome.storage.local.get("code")).code;
   let sessionStorage = await chrome.storage.session.get("lobbies");
   if (sessionStorage === undefined) sessionStorage = {};
   if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
   const lobbies = sessionStorage.lobbies;
 
-  if (response.Success) {
-    lobbies[code] = response.UserID;
+  if (msg.Success) {
+    lobbies[code] = msg.UserID;
   } else {
     delete lobbies[code];
   }
@@ -81,8 +77,20 @@ browser.runtime.onMessage.addListener(async (message) => {
   await chrome.storage.session.set({ lobbies: lobbies });
 
   IndicateConnectionStatus({
-    status: response.Success ? "connected" : "disconnected",
+    status: msg.Success ? "connected" : "disconnected",
   });
+}
+
+browser.runtime.onMessage.addListener(async (msg) => {
+  switch (msg.type) {
+    case "connect":
+      HandleMessageConnect(msg);
+      break;
+
+    default:
+      console.log("Unrecognized message: ", msg);
+      break;
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => init(), false);

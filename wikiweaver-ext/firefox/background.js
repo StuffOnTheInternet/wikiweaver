@@ -81,8 +81,8 @@ browser.runtime.onMessage.addListener(async (message) => {
   await UpdateBadge(response.Success);
 
   await browser.runtime.sendMessage({
-    type: "connectResponse",
-    response: response,
+    type: "connect",
+    ...response,
   });
 });
 
