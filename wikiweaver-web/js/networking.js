@@ -33,6 +33,7 @@ function HandleMessageEnd(msg) {
 function HandleMessageJoin(msg) {
   let elements = {
     "no-players-text": false,
+    "extension-text": false,
   };
   ShowElements(elements);
 
@@ -54,6 +55,7 @@ function HandleMessageLobby(msg) {
   EnableElements(elements);
 
   elements = {
+    "extension-text": false,
     "disconnect-text": false,
     "spectator-text": !isHost,
     "example-text": isHost,
@@ -116,6 +118,7 @@ function HandleMessageReset(msg) {
   EnableElements(elements);
 
   elements = {
+    "extension-text": isHost,
     "disconnect-text": false,
     "spectator-text": !isHost,
     "example-text": false,
@@ -164,6 +167,7 @@ async function JoinLobby(code) {
     EnableElements(elements);
 
     elements = {
+      "extension-text": false,
       "disconnect-text": true,
       "spectator-text": false,
       "example-text": false,
