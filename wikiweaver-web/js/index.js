@@ -122,6 +122,19 @@ function EnableElements(elements) {
   }
 }
 
+function ShowElements(elements) {
+  for (const elemID in elements) {
+    const elem = document.getElementById(elemID);
+
+    if (elem === undefined) {
+      console.log("EnableElements: no element with ID: ", elemID);
+      continue;
+    }
+
+    elem.hidden = !elements[elemID];
+  }
+}
+
 function ResetLobbyClientSide() {
   ResetGraph();
   ResetPlayers();

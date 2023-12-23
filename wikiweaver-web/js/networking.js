@@ -39,7 +39,10 @@ function HandleMessageJoin(msg) {
     ResetLeaderboard();
   }
 
-  document.getElementById("no-players-text").hidden = true;
+  let elements = {
+    "no-players-text": false,
+  };
+  ShowElements(elements);
 
   AddNewPlayer(msg.Username);
   AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
@@ -48,10 +51,7 @@ function HandleMessageJoin(msg) {
 function HandleMessageLobby(msg) {
   isHost = msg.IsHost;
 
-  document.getElementById("spectator-text").hidden = isHost;
-  document.getElementById("example-text").hidden = !isHost;
-
-  const elements = {
+  let elements = {
     "time-input": isHost,
     "start-page-input": isHost,
     "goal-page-input": isHost,
@@ -60,6 +60,13 @@ function HandleMessageLobby(msg) {
     "reset-button": isHost,
   };
   EnableElements(elements);
+
+  elements = {
+    "disconnect-text": false,
+    "spectator-text": !isHost,
+    "example-text": isHost,
+  };
+  ShowElements(elements);
 
   UpdateConnectionStatusIndication("connected");
 
@@ -105,7 +112,7 @@ function HandleMessagePage(msg) {
 function HandleMessageReset(msg) {
   if (!msg.Success) return;
 
-  const elements = {
+  let elements = {
     "time-input": isHost,
     "start-page-input": isHost,
     "goal-page-input": isHost,
@@ -116,8 +123,13 @@ function HandleMessageReset(msg) {
   };
   EnableElements(elements);
 
-  document.getElementById("example-text").hidden = true;
-  document.getElementById("no-players-text").hidden = false;
+  elements = {
+    "disconnect-text": false,
+    "spectator-text": !isHost,
+    "example-text": false,
+    "no-players-text": true,
+  };
+  ShowElements(elements);
 
   ResetLobbyClientSide();
 }
@@ -147,14 +159,9 @@ async function JoinLobby(code) {
     if (CountdownTimer) clearInterval(CountdownTimer);
     if (PagePlaceholderTimer) clearInterval(PagePlaceholderTimer);
 
-    document.getElementById("disconnect-text").hidden = false;
-    document.getElementById("spectator-text").hidden = true;
-    document.getElementById("example-text").hidden = true;
-    document.getElementById("no-players-text").hidden = true;
-
     UpdateConnectionStatusIndication("disconnected");
 
-    const elements = {
+    let elements = {
       "time-input": false,
       "start-page-input": false,
       "goal-page-input": false,
@@ -163,6 +170,14 @@ async function JoinLobby(code) {
       "reset-button": false,
     };
     EnableElements(elements);
+
+    elements = {
+      "disconnect-text": true,
+      "spectator-text": false,
+      "example-text": false,
+      "no-players-text": false,
+    };
+    ShowElements(elements);
   });
 
   globalThis.socket.addEventListener("message", (event) => {
