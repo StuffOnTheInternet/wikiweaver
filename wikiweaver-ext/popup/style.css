@@ -24,7 +24,12 @@ body {
   margin: 1rem;
 }
 
-#explanation {
+#explanation-text {
+  width: 20rem;
+  align-self: center;
+}
+
+#connected-text {
   width: 20rem;
   align-self: center;
 }
