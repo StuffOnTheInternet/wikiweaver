@@ -144,6 +144,8 @@ async function JoinLobby(code) {
 
   globalThis.socket.addEventListener("close", (event) => {
     if (interval) clearInterval(interval);
+    if (CountdownTimer) clearInterval(CountdownTimer);
+    if (PagePlaceholderTimer) clearInterval(PagePlaceholderTimer);
 
     UpdateConnectionStatusIndication("disconnected");
 
