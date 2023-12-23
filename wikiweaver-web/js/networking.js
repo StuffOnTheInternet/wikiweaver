@@ -198,3 +198,30 @@ async function JoinLobby(code) {
     }
   });
 }
+
+async function GetRandomWikipediaArticles(n) {
+  let url = "https://en.wikipedia.org/w/api.php";
+
+  let params = {
+    action: "query",
+    format: "json",
+    list: "random",
+    rnlimit: n,
+    rnnamespace: "0",
+  };
+
+  url = url + "?origin=*";
+  Object.keys(params).forEach(function (key) {
+    url += "&" + key + "=" + params[key];
+  });
+
+  articles = await fetch(url)
+    .then((response) => response.json())
+    .then((json) => json.query.random)
+    .catch(function (error) {
+      console.log(error);
+      return [{ title: "Gingerbread", title: "League of Legends" }];
+    });
+
+  return articles.map((article) => article.title);
+}

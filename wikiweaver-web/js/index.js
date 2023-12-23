@@ -12,6 +12,8 @@ async function init() {
   };
   EnableElements(elements);
 
+  UpdatePagePlaceholderEveryFewSeconds(5);
+
   CreateNicerExample();
 
   let code = GetCodeFromHash();
@@ -309,6 +311,24 @@ function IsValidTime(time) {
       IsNumber(seconds)
     );
   }
+}
+
+var PagePlaceholderTimer;
+
+function UpdatePagePlaceholderEveryFewSeconds(n) {
+  SetPagePlaceholderToRandomArticles();
+
+  clearInterval(PagePlaceholderTimer);
+  PagePlaceholderTimer = setInterval(
+    SetPagePlaceholderToRandomArticles,
+    n * 1_000
+  );
+}
+
+async function SetPagePlaceholderToRandomArticles() {
+  let [startPage, goalPage] = await GetRandomWikipediaArticles(2);
+  document.getElementById("start-page-input").placeholder = startPage;
+  document.getElementById("goal-page-input").placeholder = goalPage;
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
