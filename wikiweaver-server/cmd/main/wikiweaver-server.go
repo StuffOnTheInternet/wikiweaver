@@ -749,6 +749,12 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if lobby.State == Initial {
+			log.Printf("extension %s tried to join, but lobby %s is still showing example lobby", r.RemoteAddr, lobby.Code)
+			SendResponseToExt(w, failResponse)
+			return
+		}
+
 		userID := generateUserID()
 
 		lobby.mu.Lock()

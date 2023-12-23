@@ -3,8 +3,6 @@ const backend = "s://stuffontheinter.net"; // Use this for production
 
 const pingInterval = 30000; // milliseconds
 
-var ResetPlayersOnNextPlayerJoin = true;
-
 function SendMessage(msg) {
   if (!globalThis.socket) {
     console.log("not connected to server, wont send message: " + msg);
@@ -33,12 +31,6 @@ function HandleMessageEnd(msg) {
 }
 
 function HandleMessageJoin(msg) {
-  if (ResetPlayersOnNextPlayerJoin) {
-    ResetPlayersOnNextPlayerJoin = false;
-    ResetPlayers();
-    ResetLeaderboard();
-  }
-
   let elements = {
     "no-players-text": false,
   };
