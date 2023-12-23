@@ -76,8 +76,6 @@ async function HandleMessageConnect(msg) {
 
   if (msg.Success) {
     lobbies[code] = msg.UserID;
-  } else {
-    delete lobbies[code];
   }
 
   await chrome.storage.session.set({ lobbies: lobbies });
