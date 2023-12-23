@@ -30,10 +30,13 @@ async function init() {
 function IndicateConnectionStatus(connected) {
   let color = "";
   if (connected.status == "connected") {
+    document.getElementById("explanation").hidden = true;
     color = "--green";
   } else if (connected.status == "disconnected") {
+    document.getElementById("explanation").hidden = false;
     color = "--red";
   } else if (connected.status == "pending") {
+    document.getElementById("explanation").hidden = false;
     color = "--yellow";
   } else {
     console.log("invalid connected status:", connected);
