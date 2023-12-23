@@ -52,10 +52,10 @@ function HandleMessageLobby(msg) {
   isHost = msg.IsHost;
 
   let elements = {
-    "time-input": isHost,
-    "start-page-input": isHost,
-    "goal-page-input": isHost,
-    "start-button": isHost,
+    "time-input": false,
+    "start-page-input": false,
+    "goal-page-input": false,
+    "start-button": false,
     "end-button": false,
     "reset-button": isHost,
   };
