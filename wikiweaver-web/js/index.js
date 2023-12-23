@@ -178,15 +178,8 @@ function AddLeaderboardEntry(username, clicks, pages) {
   );
 }
 
-function UpdateLeaderboardEntry(username, clicks, pages, time, newName) {
-  parent = document.getElementById(`leaderboard-row-${username}`);
-  row = parent.children;
-
-  if (newName) {
-    parent.id = `leaderboard-row-${newName}`;
-    row[1].innerHTML = newName;
-  }
-
+function UpdateLeaderboardEntry(username, clicks, pages, time) {
+  row = document.getElementById(`leaderboard-row-${username}`).children;
   row[2].innerHTML = clicks;
   row[3].innerHTML = pages;
 

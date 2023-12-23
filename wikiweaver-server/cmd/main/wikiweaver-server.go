@@ -653,7 +653,6 @@ type JoinToWebMessage struct {
 	Clicks     int
 	Pages      int
 	FinishTime int
-	NewName    string
 }
 
 func SendResponseToExt(w http.ResponseWriter, response interface{}) {
@@ -736,41 +735,18 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		for _, other := range lobby.ExtClients {
+			if request.UserID == other.UserID {
+				log.Printf("extension %s tried to join, using username '%s' but has already joined with username '%s'", r.RemoteAddr, request.Username, other.Username)
+				SendResponseToExt(w, failResponse)
+				return
+			}
+		}
+
 		if len(lobby.ExtClients) >= MAX_USERS_PER_LOBBY {
 			log.Printf("extension %s tried to join, but there are already %d users in lobby %s", r.RemoteAddr, len(lobby.ExtClients), request.Code)
 			SendResponseToExt(w, failResponse)
 			return
-		}
-
-		// ===== Handle client that wants to change username
-
-		for _, other := range lobby.ExtClients {
-			if request.UserID == other.UserID {
-				log.Printf("extension %s changed username from '%s' to '%s'", r.RemoteAddr, other.Username, request.Username)
-
-				joinToWebMessage := JoinToWebMessage{
-					Message: Message{
-						Type: "join",
-					},
-					Username:   other.Username,
-					Clicks:     other.Clicks,
-					Pages:      other.Pages,
-					FinishTime: int(other.FinishTime.Seconds()),
-					NewName:    request.Username,
-				}
-				lobby.Broadcast(joinToWebMessage)
-
-				successResponse := JoinToExtResponse{
-					Success:        true,
-					UserID:         request.UserID,
-					AlreadyInLobby: true,
-				}
-				SendResponseToExt(w, successResponse)
-
-				other.Username = request.Username
-
-				return
-			}
 		}
 
 		userID := generateUserID()
@@ -795,7 +771,13 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			},
 			Username: request.Username,
 		}
-		lobby.Broadcast(joinToWebMessage)
+
+		for _, wc := range lobby.WebClients {
+			err = wc.send(joinToWebMessage)
+			if err != nil {
+				log.Printf("failed to forward message %v to web client %s: %s", joinToWebMessage, wc.conn.RemoteAddr(), err)
+			}
+		}
 
 		successResponse := JoinToExtResponse{
 			Success:        true,
