@@ -63,8 +63,8 @@ function HandleMessageLobby(msg) {
   EnableElements(elements);
 
   UpdateConnectionStatusIndication("connected");
-  window.location.hash = `#${msg.Code}`;
-  document.getElementById("code").innerText = window.location.hash;
+
+  SetCode(msg.Code);
 }
 
 function HandleMessageStart(msg) {

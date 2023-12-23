@@ -14,8 +14,8 @@ async function init() {
 
   CreateNicerExample();
 
-  document.getElementById("code").innerText = window.location.hash;
-  let code = window.location.hash.replace("#", "");
+  let code = GetCodeFromHash();
+  SetCode(code);
   await JoinLobby(code);
 }
 
@@ -26,7 +26,7 @@ async function HandleStartGameClicked() {
 
   let startMessage = {
     type: "start",
-    code: GetCode(),
+    code: GetCodeFromHash(),
     startpage: startPage,
     goalpage: goalPage,
     countdown: ParseTime(time),
@@ -154,11 +154,13 @@ function UpdateConnectionStatusIndication(status) {
   ).getPropertyValue(color);
 }
 
-function GetCode() {
-  return document
-    .getElementById("code")
-    .innerText.replace("#", "")
-    .toLocaleLowerCase();
+function GetCodeFromHash() {
+  return window.location.hash.replace("#", "").toLocaleLowerCase();
+}
+
+function SetCode(code) {
+  window.location.hash = `#${code}`;
+  document.getElementById("code").innerText = code;
 }
 
 function AddLeaderboardEntry(username, clicks, pages) {
