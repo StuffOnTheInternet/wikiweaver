@@ -133,17 +133,17 @@ async function JoinLobby(code) {
     "ws" + backend + "/api/ws/web/join" + "?code=" + code
   );
 
-  let interval = undefined;
+  let PingTimer;
 
   globalThis.socket.addEventListener("open", (event) => {
     // Send ping every so often to keep the websocket connection alive
-    interval = setInterval(() => {
+    PingTimer = setInterval(() => {
       SendMessage({ type: "ping" });
     }, pingInterval);
   });
 
   globalThis.socket.addEventListener("close", (event) => {
-    if (interval) clearInterval(interval);
+    if (PingTimer) clearInterval(PingTimer);
     if (CountdownTimer) clearInterval(CountdownTimer);
     if (PagePlaceholderTimer) clearInterval(PagePlaceholderTimer);
 
