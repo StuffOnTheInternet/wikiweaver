@@ -48,9 +48,8 @@ function HandleMessageJoin(msg) {
 function HandleMessageLobby(msg) {
   isHost = msg.IsHost;
 
-  if (!isHost) {
-    document.getElementById("spectator-text").hidden = false;
-  }
+  document.getElementById("spectator-text").hidden = isHost;
+  document.getElementById("example-text").hidden = !isHost;
 
   const elements = {
     "time-input": isHost,
@@ -117,6 +116,7 @@ function HandleMessageReset(msg) {
   };
   EnableElements(elements);
 
+  document.getElementById("example-text").hidden = true;
   document.getElementById("no-players-text").hidden = false;
 
   ResetLobbyClientSide();

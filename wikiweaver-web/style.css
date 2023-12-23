@@ -99,6 +99,11 @@ img {
   align-self: center;
 }
 
+#example-text {
+  width: 28rem;
+  align-self: center;
+}
+
 #code {
   cursor: default;
   filter: brightness(100%);
