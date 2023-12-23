@@ -24,6 +24,11 @@ body {
   margin: 1rem;
 }
 
+#explanation {
+  width: 20rem;
+  align-self: center;
+}
+
 #code {
   text-transform: uppercase;
   filter: brightness(100%);
