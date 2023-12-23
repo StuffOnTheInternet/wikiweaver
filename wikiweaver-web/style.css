@@ -103,6 +103,9 @@ img {
   cursor: default;
   filter: brightness(100%);
   text-transform: uppercase;
+  border-width: 1px;
+  border: #3f3d3d;
+  border-style: solid;
 }
 
 #start-button {
