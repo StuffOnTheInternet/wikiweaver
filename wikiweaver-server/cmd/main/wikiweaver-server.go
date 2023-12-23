@@ -772,12 +772,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			Username: request.Username,
 		}
 
-		for _, wc := range lobby.WebClients {
-			err = wc.send(joinToWebMessage)
-			if err != nil {
-				log.Printf("failed to forward message %v to web client %s: %s", joinToWebMessage, wc.conn.RemoteAddr(), err)
-			}
-		}
+		lobby.Broadcast(joinToWebMessage)
 
 		successResponse := JoinToExtResponse{
 			Success:        true,
