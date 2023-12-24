@@ -1,8 +1,10 @@
+const domain = "https://stuffontheinter.net"; // Use this for production
+// const domain = "http://localhost:4242"; // Use this for local development
+
 chrome.webNavigation.onCommitted.addListener(
   async (event) => {
     if (event.transitionType != "link") return;
 
-    const domain = await GetDomain();
     const page = pageNameFromWikipediaURL(event.url);
     const options = await chrome.storage.local.get();
 
@@ -17,7 +19,7 @@ chrome.webNavigation.onCommitted.addListener(
       await chrome.storage.session.set({ lastPage: lastPage });
     }
 
-    const response = await fetch(domain + "/api/ext/page", {
+    const response = await fetch(`${domain}/api/ext/page`, {
       method: "POST",
       body: JSON.stringify({
         code: options.code,
@@ -47,7 +49,6 @@ chrome.webNavigation.onCommitted.addListener(
 browser.runtime.onMessage.addListener(async (message) => {
   if (message.type != "connect") return;
 
-  const domain = await GetDomain();
   const options = await chrome.storage.local.get();
 
   let sessionStorage = await chrome.storage.session.get("lobbies");
@@ -56,7 +57,7 @@ browser.runtime.onMessage.addListener(async (message) => {
 
   const userid = options.code in lobbies ? lobbies[options.code] : "";
 
-  const response = await fetch(domain + "/api/ext/join", {
+  const response = await fetch(`${domain}/api/ext/join`, {
     method: "POST",
     body: JSON.stringify({
       code: options.code,
@@ -91,11 +92,6 @@ function pageNameFromWikipediaURL(url) {
     .split("wiki/")[1]
     .split("#")[0]
     .replace(/_/g, " ");
-}
-
-async function GetDomain() {
-  return "https://stuffontheinter.net";
-  // return "http://localhost:4242";
 }
 
 async function GetPageCount() {
