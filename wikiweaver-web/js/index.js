@@ -28,7 +28,6 @@ async function HandleStartGameClicked() {
 
   let startMessage = {
     type: "start",
-    code: GetCodeFromHash(),
     startpage: startPage,
     goalpage: goalPage,
     countdown: ParseTime(time),

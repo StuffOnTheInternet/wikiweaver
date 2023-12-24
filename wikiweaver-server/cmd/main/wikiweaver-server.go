@@ -488,7 +488,6 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 }
 
 type StartFromWebMessage struct {
-	Code      string
 	StartPage string
 	GoalPage  string
 	Countdown int
@@ -518,12 +517,6 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 	err := json.Unmarshal(buf, &msgRequest)
 	if err != nil {
 		log.Printf("failed to parse start message from web: %s", err)
-		wc.sendWithWarningOnFail(msgResponse)
-		return
-	}
-
-	if msgRequest.Code != lobby.Code {
-		log.Printf("web client %s failed to start lobby %s: web client is in another lobby %s", wc.conn.RemoteAddr(), msgRequest.Code, lobby.Code)
 		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
