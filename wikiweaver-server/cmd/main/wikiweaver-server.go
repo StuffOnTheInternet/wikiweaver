@@ -320,7 +320,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 	lobby.mu.Lock()
 	defer lobby.mu.Unlock()
 
-	if lobby.State == Reset {
+	if lobby.State != Initial {
 		resetMessage := ResetToWebMessage{
 			Message: Message{
 				Type: "reset",
