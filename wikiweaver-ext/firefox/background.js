@@ -5,7 +5,7 @@ chrome.webNavigation.onCommitted.addListener(
   async (event) => {
     if (event.transitionType != "link") return;
 
-    const page = pageNameFromWikipediaURL(event.url);
+    const page = await GetWikipediaArticleTitle(event.url);
     const options = await chrome.storage.local.get();
 
     let lastPage = (await chrome.storage.session.get("lastPage")).lastPage;
@@ -87,11 +87,40 @@ browser.runtime.onMessage.addListener(async (message) => {
   });
 });
 
-function pageNameFromWikipediaURL(url) {
-  return decodeURIComponent(url)
+async function GetWikipediaArticleTitle(url) {
+  title = decodeURIComponent(url)
     .split("wiki/")[1]
     .split("#")[0]
     .replace(/_/g, " ");
+
+  return await SearchForWikipediaArticle(title);
+}
+
+async function SearchForWikipediaArticle(title) {
+  var url = "https://en.wikipedia.org/w/api.php";
+
+  var params = {
+    action: "query",
+    list: "search",
+    srsearch: title,
+    format: "json",
+    srlimit: 1,
+  };
+
+  url = url + "?origin=*";
+  Object.keys(params).forEach(function (key) {
+    url += "&" + key + "=" + params[key];
+  });
+
+  response = await fetch(url)
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch(function (error) {
+      console.log(error);
+      return {};
+    });
+
+  return response.query.search[0].title;
 }
 
 async function GetPageCount() {
