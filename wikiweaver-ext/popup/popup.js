@@ -11,11 +11,6 @@ async function init() {
     usernameElem.value = options.username;
   }
 
-  if (options.domain != undefined) {
-    const domainElem = document.getElementById("domain");
-    domainElem.value = options.domain;
-  }
-
   const sessionStorage = await chrome.storage.session.get("lobbies");
   if (sessionStorage === undefined) sessionStorage = {};
   if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
@@ -55,12 +50,10 @@ document.addEventListener("click", async (e) => {
 
   const codeElem = document.getElementById("code");
   const usernameElem = document.getElementById("username");
-  const domainElem = document.getElementById("domain");
 
   chrome.storage.local.set({
     code: codeElem.value.toLowerCase(),
     username: usernameElem.value,
-    domain: domainElem.value,
   });
 
   IndicateConnectionStatus({ status: "pending" });

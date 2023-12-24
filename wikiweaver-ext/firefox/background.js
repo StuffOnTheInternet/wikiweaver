@@ -94,15 +94,8 @@ function pageNameFromWikipediaURL(url) {
 }
 
 async function GetDomain() {
-  const domain = (await chrome.storage.local.get("domain")).domain;
-
-  if (domain == "") {
-    return "https://stuffontheinter.net";
-  } else if (domain == "localhost") {
-    return "http://localhost:4242";
-  } else {
-    return domain;
-  }
+  return "https://stuffontheinter.net";
+  // return "http://localhost:4242";
 }
 
 async function GetPageCount() {
