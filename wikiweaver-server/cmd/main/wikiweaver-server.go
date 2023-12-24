@@ -84,8 +84,6 @@ func (l *Lobby) close() {
 }
 
 func (l *Lobby) hasHost() bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
 	for _, wc := range l.WebClients {
 		if wc.isHost {
 			return true
@@ -135,8 +133,6 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
 }
 
 func (l *Lobby) GetExtClientFromUsername(usernameToCheck string) *ExtClient {
-	l.mu.Lock()
-	defer l.mu.Unlock()
 	for _, extClient := range l.ExtClients {
 		if usernameToCheck == extClient.Username {
 			return extClient
@@ -186,9 +182,6 @@ func generateCodeFromWords() string {
 }
 
 func generateUniqueCode() string {
-	globalState.mu.Lock()
-	defer globalState.mu.Unlock()
-
 	codeGenerator := generateRandomCode
 	if len(globalState.Words) >= 0 && len(globalState.Words) > len(globalState.Lobbies) {
 		codeGenerator = generateCodeFromWords
@@ -249,15 +242,19 @@ type LobbyToWebMessage struct {
 	IsHost bool
 }
 
-func CreateLobby(code string) {
+func CreateLobby() string {
 	globalState.mu.Lock()
 	defer globalState.mu.Unlock()
+
+	code := generateUniqueCode()
 
 	globalState.Lobbies[code] = &Lobby{
 		Code:                code,
 		State:               Initial,
 		LastInteractionTime: time.Now(),
 	}
+
+	return code
 }
 
 func handleWebJoin(w http.ResponseWriter, r *http.Request) {
@@ -265,8 +262,7 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 
 	if code == "" {
-		code = generateUniqueCode()
-		CreateLobby(code)
+		code = CreateLobby()
 		log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
 	}
 
@@ -276,6 +272,9 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s tried to join non existent lobby: %s", r.RemoteAddr, code)
 		return
 	}
+
+	lobby.mu.Lock()
+	defer lobby.mu.Unlock()
 
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -287,10 +286,8 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 	shouldBeHost := !lobby.hasHost()
 	wc := &WebClient{conn: conn, isHost: shouldBeHost}
 
-	lobby.mu.Lock()
 	lobby.LastInteractionTime = time.Now()
 	lobby.WebClients = append(lobby.WebClients, wc)
-	lobby.mu.Unlock()
 
 	if shouldBeHost {
 		log.Printf("web client %s joined lobby %s as host", conn.RemoteAddr(), lobby.Code)
@@ -305,11 +302,7 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 		Code:   lobby.Code,
 		IsHost: wc.isHost,
 	}
-
-	err = wc.send(msgResponse)
-	if err != nil {
-		log.Printf("failed to send lobby message to %s: %s", wc.conn.RemoteAddr(), err)
-	}
+	wc.sendWithWarningOnFail(msgResponse)
 
 	go sendHistory(lobby, wc)
 
@@ -381,6 +374,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 func (wc *WebClient) send(v interface{}) error {
 	wc.mu.Lock()
 	defer wc.mu.Unlock()
+
 	return wc.conn.WriteJSON(v)
 }
 
@@ -718,6 +712,9 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		lobby.mu.Lock()
+		defer lobby.mu.Unlock()
+
 		otherWithSameUsername := lobby.GetExtClientFromUsername(request.Username)
 
 		if otherWithSameUsername != nil {
@@ -757,7 +754,6 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		userID := generateUserID()
 
-		lobby.mu.Lock()
 		extClient := ExtClient{
 			UserID:     userID,
 			Username:   request.Username,
@@ -767,7 +763,6 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			Page:       lobby.StartPage,
 		}
 		lobby.ExtClients = append(lobby.ExtClients, &extClient)
-		lobby.mu.Unlock()
 
 		log.Printf("extension %s joined lobby %s as %s", r.RemoteAddr, request.Code, request.Username)
 
@@ -850,6 +845,9 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		lobby.mu.Lock()
+		defer lobby.mu.Unlock()
+
 		if lobby.State == Ended {
 			log.Printf("refusing to forward page from %s to lobby %s: lobby has ended", r.RemoteAddr, code)
 			SendResponseToExt(w, failResponse)
@@ -871,11 +869,11 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		extClient.mu.Lock()
+		defer extClient.mu.Unlock()
 
 		if extClient.FinishTime != 0 {
 			log.Printf("refusing to forward page from %s to lobby %s: user %s has already finished", r.RemoteAddr, code, pageFromExtMessage.Username)
 			SendResponseToExt(w, failResponse)
-			extClient.mu.Unlock()
 			return
 		}
 
@@ -885,7 +883,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 				Success: true,
 			}
 			SendResponseToExt(w, successResponse)
-			extClient.mu.Unlock()
 			return
 		}
 
@@ -914,8 +911,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		extClient.Page = pageFromExtMessage.Page
 
-		extClient.mu.Unlock()
-
 		pageToWebMessage := PageToWebMessage{
 			Message: Message{
 				Type: "page",
@@ -929,10 +924,8 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			FinishTime: int(extClient.FinishTime.Seconds()),
 		}
 
-		lobby.mu.Lock()
 		lobby.LastInteractionTime = time.Now()
 		lobby.History = append(lobby.History, pageToWebMessage)
-		lobby.mu.Unlock()
 
 		log.Printf("extension %s sent page: %+v", r.RemoteAddr, pageFromExtMessage)
 
