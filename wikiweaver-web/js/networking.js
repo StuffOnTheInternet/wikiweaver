@@ -1,5 +1,5 @@
-const backend = "s://stuffontheinter.net"; // Use this for production
-// const backend = "://localhost:4242"; // Use this for local development
+const domain = "wss://stuffontheinter.net"; // Use this for production
+// const domain = "ws://localhost:4242"; // Use this for local development
 
 const pingInterval = 30000; // milliseconds
 
@@ -136,9 +136,7 @@ async function JoinLobby(code) {
 
   UpdateConnectionStatusIndication("pending");
 
-  globalThis.socket = new WebSocket(
-    "ws" + backend + "/api/ws/web/join" + "?code=" + code
-  );
+  globalThis.socket = new WebSocket(`${domain}/api/ws/web/join?code=${code}`);
 
   let PingTimer;
 
