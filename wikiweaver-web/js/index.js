@@ -12,7 +12,7 @@ async function init() {
   };
   EnableElements(elements);
 
-  UpdatePagePlaceholderEveryFewSeconds(5);
+  UpdatePagePlaceholderEveryFewSeconds(10);
 
   CreateNicerExample();
 
