@@ -882,7 +882,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		if extClient.Page != pageFromExtMessage.Previous {
 			log.Printf("refusing to forward page from %s to lobby %s: previous page mismatch: server thinks %s while extension thinks %s", r.RemoteAddr, code, extClient.Page, pageFromExtMessage.Previous)
 			SendResponseToExt(w, failResponse)
-			extClient.mu.Unlock()
 			return
 		}
 
