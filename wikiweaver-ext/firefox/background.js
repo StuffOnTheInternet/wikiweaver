@@ -120,6 +120,10 @@ async function SearchForWikipediaArticle(title) {
       return {};
     });
 
+  if (response.query.search.length < 1) {
+    return title;
+  }
+
   return response.query.search[0].title;
 }
 
