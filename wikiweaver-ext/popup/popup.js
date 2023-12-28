@@ -45,9 +45,7 @@ function IndicateConnectionStatus(connected) {
   ).getPropertyValue(color);
 }
 
-document.addEventListener("click", async (e) => {
-  if (e.target.id != "join") return;
-
+async function HandleJoinClicked(e) {
   const codeElem = document.getElementById("code");
   const usernameElem = document.getElementById("username");
 
@@ -58,6 +56,18 @@ document.addEventListener("click", async (e) => {
 
   IndicateConnectionStatus({ status: "pending" });
   await browser.runtime.sendMessage({ type: "connect" });
+}
+
+document.addEventListener("click", async (e) => {
+  switch (e.target.id) {
+    case "join":
+      HandleJoinClicked(e);
+      break;
+
+    default:
+      console.log("Unhandled click event: ", e);
+      break;
+  }
 });
 
 async function HandleMessageConnect(msg) {
