@@ -88,7 +88,7 @@ async function HandleMessageConnect(msg) {
 browser.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
-      HandleMessageConnect(msg);
+      await HandleMessageConnect(msg);
       break;
 
     default:

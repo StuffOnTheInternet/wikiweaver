@@ -61,7 +61,7 @@ async function HandleJoinClicked(e) {
 document.addEventListener("click", async (e) => {
   switch (e.target.id) {
     case "join":
-      HandleJoinClicked(e);
+      await HandleJoinClicked(e);
       break;
 
     default:
@@ -91,7 +91,7 @@ async function HandleMessageConnect(msg) {
 browser.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
-      HandleMessageConnect(msg);
+      await HandleMessageConnect(msg);
       break;
 
     default:
