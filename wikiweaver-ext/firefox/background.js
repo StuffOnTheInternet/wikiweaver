@@ -46,9 +46,7 @@ chrome.webNavigation.onCommitted.addListener(
   { url: [{ hostSuffix: ".wikipedia.org" }] }
 );
 
-browser.runtime.onMessage.addListener(async (message) => {
-  if (message.type != "connect") return;
-
+async function HandleMessageConnect(msg) {
   const options = await chrome.storage.local.get();
 
   let sessionStorage = await chrome.storage.session.get("lobbies");
@@ -85,6 +83,18 @@ browser.runtime.onMessage.addListener(async (message) => {
     type: "connect",
     ...response,
   });
+}
+
+browser.runtime.onMessage.addListener(async (msg) => {
+  switch (msg.type) {
+    case "connect":
+      HandleMessageConnect(msg);
+      break;
+
+    default:
+      console.log("Unrecognized message: ", msg);
+      break;
+  }
 });
 
 async function GetWikipediaArticleTitle(url) {
