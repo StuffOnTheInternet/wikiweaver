@@ -16,7 +16,7 @@ async function init() {
 
   CreateNicerExample();
 
-  let code = GetCodeFromHash();
+  let code = GetCodeFromUrl();
   SetCode(code);
   await JoinLobby(code);
 }
@@ -177,8 +177,20 @@ function UpdateConnectionStatusIndication(status) {
   ).getPropertyValue(color);
 }
 
-function GetCodeFromHash() {
-  return window.location.hash.replace("#", "").toLocaleLowerCase();
+function GetCodeFromUrl() {
+  let code = window.location.hash.replace("#", "").toLocaleLowerCase().trim();
+
+  if (code.length != 4) {
+    code = "";
+  }
+
+  // Make sure that the code only contains letters
+  const re = /^[a-zA-Z]+$/;
+  if (!re.test(code)) {
+    code = "";
+  }
+
+  return code;
 }
 
 function SetCode(code) {
