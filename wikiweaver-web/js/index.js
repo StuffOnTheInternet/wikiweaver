@@ -97,6 +97,16 @@ function GetExportFilename() {
   }
   filename = filename.slice(0, -1);
 
+  filename = filename.concat("_");
+
+  startPage = document.getElementById("start-page-input").value;
+  filename = filename.concat(startPage);
+
+  filename = filename.concat("-");
+
+  goalPage = document.getElementById("goal-page-input").value;
+  filename = filename.concat(goalPage);
+
   filename = filename.concat(".png");
 
   return filename;
