@@ -180,14 +180,10 @@ function UpdateConnectionStatusIndication(status) {
 function GetCodeFromUrl() {
   let code = window.location.hash.replace("#", "").toLocaleLowerCase().trim();
 
-  if (code.length != 4) {
-    code = "";
-  }
-
-  // Make sure that the code only contains letters
+  // Make sure that the code is correctly formatted. i.e. exactly 4 letters
   const re = /^[a-zA-Z]+$/;
-  if (!re.test(code)) {
-    code = "";
+  if (code.length != 4 || !re.test(code)) {
+    return "";
   }
 
   return code;
