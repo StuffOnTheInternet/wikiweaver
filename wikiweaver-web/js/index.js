@@ -28,8 +28,8 @@ async function HandleStartGameClicked() {
 
   let startMessage = {
     type: "start",
-    startpage: startPage,
-    goalpage: goalPage,
+    startpage: GetArticleTitleFromPotentialUrl(startPage),
+    goalpage: GetArticleTitleFromPotentialUrl(goalPage),
     countdown: ParseTime(time),
   };
   SendMessage(startMessage);
@@ -110,6 +110,23 @@ function GetExportFilename() {
   filename = filename.concat(".png");
 
   return filename;
+}
+
+function GetArticleTitleFromPotentialUrl(maybeURL) {
+  if (!maybeURL.startsWith("http")) {
+    return maybeURL;
+  }
+
+  if (!maybeURL.includes("wikipedia")) {
+    return maybeURL;
+  }
+
+  title = decodeURIComponent(maybeURL)
+    .split("wiki/")[1]
+    .split("#")[0]
+    .replace(/_/g, " ");
+
+  return title;
 }
 
 function SetValueToPlaceholderIfEmpty(elementID) {
