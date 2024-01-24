@@ -22,14 +22,30 @@ async function init() {
 }
 
 async function HandleStartGameClicked() {
+  let startPage = SetValueToPlaceholderIfEmpty("start-page-input");
+  let goalPage = SetValueToPlaceholderIfEmpty("goal-page-input");
+
+  startPage = GetArticleTitleFromPotentialUrl(startPage);
+  goalPage = GetArticleTitleFromPotentialUrl(goalPage);
+
+  startPage = await ConvertToCanonicalTitleIfExists(startPage);
+  goalPage = await ConvertToCanonicalTitleIfExists(goalPage);
+
+  if (startPage === "" || goalPage === "") {
+    // start or goal page does not exist
+    return;
+  }
+
+  if (startPage === goalPage) {
+    return;
+  }
+
   const time = SetValueToPlaceholderIfEmpty("time-input");
-  const startPage = SetValueToPlaceholderIfEmpty("start-page-input");
-  const goalPage = SetValueToPlaceholderIfEmpty("goal-page-input");
 
   let startMessage = {
     type: "start",
-    startpage: GetArticleTitleFromPotentialUrl(startPage),
-    goalpage: GetArticleTitleFromPotentialUrl(goalPage),
+    startpage: startPage,
+    goalpage: goalPage,
     countdown: ParseTime(time),
   };
   SendMessage(startMessage);

@@ -241,3 +241,45 @@ async function GetRandomWikipediaArticles(n) {
 
   return articles.map((article) => article.title);
 }
+
+async function ConvertToCanonicalTitleIfExists(title) {
+  var url = "https://en.wikipedia.org/w/api.php";
+
+  var params = {
+    action: "query",
+    list: "search",
+    srsearch: title,
+    format: "json",
+    srlimit: 1,
+  };
+
+  url = url + "?origin=*";
+  Object.keys(params).forEach(function (key) {
+    url += "&" + key + "=" + params[key];
+  });
+
+  response = await fetch(url)
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch(function (error) {
+      console.log(error);
+      return {};
+    });
+
+  if (!response) {
+    return "";
+  }
+
+  if (response.query.search.length < 1) {
+    return "";
+  }
+
+  const canonicalTitle = response.query.search[0].title;
+
+  if (canonicalTitle.toLocaleLowerCase() != title.toLocaleLowerCase()) {
+    // An article with title title does not exist
+    return "";
+  }
+
+  return canonicalTitle;
+}
