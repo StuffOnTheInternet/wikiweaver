@@ -37,7 +37,7 @@ chrome.webNavigation.onCommitted.addListener(
 
     console.log("page response: ", response);
 
-    await SetPageCount((await GetPageCount()) + Number(response.Success));
+    await IncrementPageCount(response.Success);
     await UpdateBadge(response.Success);
 
     lastPage[event.tabId] = page;
@@ -143,6 +143,10 @@ async function GetPageCount() {
 
 async function SetPageCount(pageCount) {
   await chrome.storage.session.set({ pageCount });
+}
+
+async function IncrementPageCount(success) {
+  await SetPageCount(((await GetPageCount()) + Number(success)) % 100);
 }
 
 async function UpdateBadge(success) {
