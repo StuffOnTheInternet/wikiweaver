@@ -18,7 +18,7 @@ The pages all the players visit will be visualized as nodes on the website. The 
 
 ## For developers
 
-Make the website and browser extension connect to the development server by chaning which lines are commented out at the top of `networking.js` and `background.js`, respectively. 
+Make the website and browser extension connect to the development server by changing which lines are commented out at the top of `networking.js` and `background.js`, respectively. 
 
 Serve the website in `wikiweaver-web/` using whatever webserver you like. I prefer `python3 -m http.server <port>`.
 
