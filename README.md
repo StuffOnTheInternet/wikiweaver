@@ -1,7 +1,6 @@
 # WikiWeaver
 
-WikiWeaver makes spectating WikiRaces a lot more interesting.
-It is also fun as a basis for discussion after a match.
+WikiWeaver makes participating in and especially spectating WikiRaces a lot more interesting by visualizing every page you and your peers visits as a colorful node in a graph. 
 
 ![Image of website](example.png)
 
