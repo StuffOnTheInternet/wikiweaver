@@ -1,9 +1,21 @@
 # WikiWeaver
 
-Wikiweaver makes spectating wikiraces a lot more interesting.
-It visualises every page a player visits as a node.
+WikiWeaver makes spectating WikiRaces a lot more interesting.
+It is also fun as a basis for discussion after a match.
 
 ![Image of website](example.png)
+
+## Getting started
+
+Creating and joining lobbies is super simple.
+
+The host goes to [stuffontheinter.net](https://stuffontheinter.net) to create and view a lobby.
+
+All players then join this lobby using the [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/). All players that have successfully joined the lobby will be shown in the leaderboard in bottom right.
+
+The host then decides on the start and goal pages, and proceeds to start the lobby.
+
+The pages all the players visit will be visualized as nodes on the website. The number of pages they have visited and their finish time is also shown.
 
 ## For developers
 
