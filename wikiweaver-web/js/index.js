@@ -51,6 +51,8 @@ async function HandleStartGameClicked() {
     countdown: ParseTime(time),
   };
   SendMessage(startMessage);
+
+  ResetPagePlaceholderTimer();
 }
 
 async function HandleEndClicked() {
@@ -60,6 +62,8 @@ async function HandleEndClicked() {
     type: "end",
   };
   SendMessage(endMessage);
+
+  UpdatePagePlaceholderEveryFewSeconds(10);
 }
 
 function HandleRedrawClicked() {
@@ -73,6 +77,8 @@ async function HandleResetClicked() {
     type: "reset",
   };
   SendMessage(resetMessage);
+
+  UpdatePagePlaceholderEveryFewSeconds(10);
 }
 
 async function HandleExportClicked() {
@@ -381,10 +387,14 @@ function IsValidTime(time) {
 
 var PagePlaceholderTimer;
 
+function ResetPagePlaceholderTimer() {
+  clearInterval(PagePlaceholderTimer);
+}
+
 function UpdatePagePlaceholderEveryFewSeconds(n) {
   SetPagePlaceholderToRandomArticles();
 
-  clearInterval(PagePlaceholderTimer);
+  ResetPagePlaceholderTimer();
   PagePlaceholderTimer = setInterval(
     SetPagePlaceholderToRandomArticles,
     n * 1_000
