@@ -191,7 +191,7 @@ function ResetGraph() {
         selector: "node",
         style: {
           "background-color": "#fff",
-          label: "data(id)",
+          label: "data(shortid)",
           "font-size": 18,
           "text-outline-color": "#555",
           "text-outline-width": 1.6,
@@ -252,7 +252,7 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
-      data: { id: ToString, group: CList.group, time: timeadded },
+      data: { id: ToString, group: CList.group, time: timeadded, shortid: ShortenString(ToString) },
       position: {
         x: webgraph.getElementById(CList.fromnode).position("x"),
         y: webgraph.getElementById(CList.fromnode).position("y"),
@@ -305,12 +305,12 @@ function StartGame(StartNode, GoalNode) {
   ResetGraph();
 
   webgraph.add({
-    data: { id: StartNode, group: "Start" },
+    data: { id: StartNode, group: "Start", shortid: ShortenString(StartNode) },
     position: { x: 0, y: 0 },
   });
 
   webgraph.add({
-    data: { id: GoalNode, group: "Goal" },
+    data: { id: GoalNode, group: "Goal", shortid: ShortenString(GoalNode) },
     position: { x: 0, y: 0 },
   });
 
@@ -327,6 +327,14 @@ function StartGame(StartNode, GoalNode) {
   ForceNewLayout();
 
   // document.getElementById("redraw-button").disabled = false;
+}
+
+function ShortenString(InString) {
+  let MaxLength = 30;
+  if (InString.length > MaxLength) {
+    return InString.substring(0, MaxLength - 3) + "...";
+  }
+  return InString;
 }
 
 function createColorTest() {
