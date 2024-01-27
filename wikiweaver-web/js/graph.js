@@ -295,6 +295,11 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Reposition the player to the new node
   CList.fromnode = ToString;
 
+  // If goal node has been found, show it
+  if (webgraph.nodes('[group = "Goal"]').degree() > 0) {
+    webgraph.nodes('[group = "Goal"]').show();
+  }
+
   ForceNewLayout(NewNodeOptions);
 }
 
@@ -328,6 +333,8 @@ function StartGame(StartNode, GoalNode) {
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
   webgraph.nodes('[group = "Goal"]').style("width", 40);
   webgraph.nodes('[group = "Goal"]').style("height", 40);
+
+  webgraph.nodes('[group = "Goal"]').hide()
 
   ForceNewLayout();
 
