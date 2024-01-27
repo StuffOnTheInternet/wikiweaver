@@ -93,14 +93,6 @@ func (l *Lobby) hasHost() bool {
 	return false
 }
 
-func (l *Lobby) TimeLeft() int {
-	if l.State == Started {
-		return int((l.Countdown - time.Since(l.StartTime)).Seconds())
-	} else {
-		return int(l.Countdown.Seconds())
-	}
-}
-
 func (l *Lobby) Broadcast(v interface{}) {
 	for _, wc := range l.WebClients {
 		wc.sendWithWarningOnFail(v)
@@ -339,7 +331,7 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 		wc.sendWithWarningOnFail(joinToWebMessage)
 	}
 
-	if countdown := lobby.TimeLeft(); countdown > 0 {
+	if lobby.Countdown > 0 {
 
 		startMsg := StartToWebMessage{
 			Message: Message{
@@ -348,7 +340,8 @@ func sendHistory(lobby *Lobby, wc *WebClient) {
 			Success:   true,
 			StartPage: lobby.StartPage,
 			GoalPage:  lobby.GoalPage,
-			Countdown: lobby.TimeLeft(),
+			Countdown: int(lobby.Countdown.Seconds()),
+			StartTime: int(lobby.StartTime.Unix()),
 		}
 
 		wc.sendWithWarningOnFail(startMsg)
@@ -499,6 +492,7 @@ type StartToWebMessage struct {
 	StartPage string
 	GoalPage  string
 	Countdown int
+	StartTime int
 }
 
 func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
@@ -563,7 +557,8 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		Success:   true,
 		StartPage: lobby.StartPage,
 		GoalPage:  lobby.GoalPage,
-		Countdown: lobby.TimeLeft(),
+		Countdown: int(lobby.Countdown.Seconds()),
+		StartTime: int(lobby.StartTime.Unix()),
 	}
 
 	lobby.Broadcast(msgResponse)

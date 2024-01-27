@@ -292,11 +292,17 @@ function ResetLeaderboardScores() {
   numberOfPlayersFinished = 0;
 }
 
+var StartTimeSeconds;
+var CountdownSeconds;
 var CountdownTimer;
 
-function StartCountdownTimer() {
+function StartCountdownTimer(StartTime, Countdown) {
+  StartTimeSeconds = StartTime;
+  CountdownSeconds = Countdown;
+
   clearInterval(CountdownTimer);
   CountdownTimer = setInterval(DoCountdown, 1000);
+  DoCountdown();
 }
 
 function ResetCountdownTimer() {
@@ -305,22 +311,14 @@ function ResetCountdownTimer() {
 }
 
 function DoCountdown() {
-  timeElem = document.getElementById("time-input");
-
-  if (timeElem.value == "") {
-    ResetCountdownTimer();
-    return;
-  }
-
-  let time = ParseTime(timeElem.value);
-  time -= 1;
+  const now = Math.floor(Date.now() / 1000);
+  const time = Math.max(CountdownSeconds - (now - StartTimeSeconds), 0);
 
   if (time <= 0) {
     HandleEndClicked();
-    return;
   }
 
-  timeElem.value = FormatTime(time);
+  SetTime(time);
 }
 
 function SetTime(time) {
