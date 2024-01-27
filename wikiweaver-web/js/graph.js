@@ -184,6 +184,7 @@ function NumberOfPlayersInLobby() {
 
 function ResetGraph() {
   webgraph = cytoscape({
+    wheelSensitivity: 0.3,
     container: document.getElementById("maincanvas"), // container to render in
     style: [
       // the stylesheet for the graph
