@@ -740,9 +740,17 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if lobby.State == Initial {
-			log.Printf("extension %s tried to join, but lobby %s is still showing example lobby", r.RemoteAddr, lobby.Code)
-			SendResponseToExt(w, failResponse)
-			return
+			// Reset lobby when first players joins, if it is still showing example
+			resetMessage := ResetToWebMessage{
+				Message: Message{
+					Type: "reset",
+				},
+				Success: true,
+			}
+
+			lobby.Broadcast(resetMessage)
+
+			lobby.State = Reset
 		}
 
 		userID := generateUserID()
