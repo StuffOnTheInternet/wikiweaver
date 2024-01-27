@@ -8,7 +8,7 @@ WikiWeaver makes participating in and especially spectating WikiRaces a lot more
 
 Creating and joining lobbies is super simple.
 
-The host goes to [stuffontheinter.net](https://stuffontheinter.net) to create and view a lobby.
+The host goes to the [WikiWeaver webiste](https://wikiweaver.stuffontheinter.net/) to create and view a lobby.
 
 All players then join this lobby using the [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/). All players that have successfully joined the lobby will be shown in the leaderboard in the bottom right.
 
