@@ -1,4 +1,4 @@
-const domain = "wss://stuffontheinter.net"; // Use this for production
+const domain = "wss://wikiweaver.stuffontheinter.net"; // Use this for production
 // const domain = "ws://localhost:4242"; // Use this for local development
 
 const pingInterval = 30000; // milliseconds

@@ -4,7 +4,7 @@ services:
   web:
     build: ./wikiweaver-web
     ports:
-      - 443:443
+      - 4243:443
     volumes:
       - /etc/letsencrypt/live/stuffontheinter.net/fullchain.pem:/fullchain.pem
       - /etc/letsencrypt/live/stuffontheinter.net/privkey.pem:/privkey.pem
