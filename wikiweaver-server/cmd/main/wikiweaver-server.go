@@ -563,7 +563,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		Success:   true,
 		StartPage: lobby.StartPage,
 		GoalPage:  lobby.GoalPage,
-		Countdown: int(lobby.Countdown.Seconds()),
+		Countdown: lobby.TimeLeft(),
 	}
 
 	lobby.Broadcast(msgResponse)
