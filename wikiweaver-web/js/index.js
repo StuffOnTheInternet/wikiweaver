@@ -22,6 +22,8 @@ async function init() {
 }
 
 async function HandleStartGameClicked() {
+  if (!isHost) return;
+
   let startPage = SetValueToPlaceholderIfEmpty("start-page-input");
   let goalPage = SetValueToPlaceholderIfEmpty("goal-page-input");
 
@@ -52,6 +54,8 @@ async function HandleStartGameClicked() {
 }
 
 async function HandleEndClicked() {
+  if (!isHost) return;
+
   let endMessage = {
     type: "end",
   };
@@ -63,6 +67,8 @@ function HandleRedrawClicked() {
 }
 
 async function HandleResetClicked() {
+  if (!isHost) return;
+
   let resetMessage = {
     type: "reset",
   };
