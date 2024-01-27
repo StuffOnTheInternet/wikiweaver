@@ -198,7 +198,7 @@ function ResetGraph() {
           "text-outline-width": 1.6,
           color: "#fff",
           "border-width": 3,
-          "border-color": "#bbb",
+          "border-color": "#333",
         },
       },
       {
@@ -319,11 +319,15 @@ function StartGame(StartNode, GoalNode) {
     CMap[color].fromnode = StartNode;
   }
 
-  webgraph.nodes('[group = "Start"]').style("shape", "round-rectangle");
+  webgraph.nodes('[group = "Start"]').style("shape", "round-diamond");
   webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
+  webgraph.nodes('[group = "Start"]').style("width", 45);
+  webgraph.nodes('[group = "Start"]').style("height", 45);
 
   webgraph.nodes('[group = "Goal"]').style("shape", "star");
   webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
+  webgraph.nodes('[group = "Goal"]').style("width", 40);
+  webgraph.nodes('[group = "Goal"]').style("height", 40);
 
   ForceNewLayout();
 
