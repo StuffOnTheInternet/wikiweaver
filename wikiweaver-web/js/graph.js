@@ -110,7 +110,7 @@ var CMap = {
   },
 };
 
-var options = {
+var DefaultOptions = {
   animate: true, // whether to show the layout as it's running
   refresh: 1, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 3000, // max length in ms to run the layout
@@ -147,6 +147,14 @@ var options = {
   unconstrIter: undefined, // unconstrained initial layout iterations
   userConstIter: undefined, // initial layout iterations with user-specified constraints
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
+};
+
+var NewNodeOptions = {
+  fit: false, // on every layout reposition of nodes, fit the viewport
+};
+
+var ExampleGraphOptions = {
+  maxSimulationTime: 8000, // max length in ms to run the layout
 };
 
 function AddNewPlayer(Player) {
@@ -286,11 +294,11 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Reposition the player to the new node
   CList.fromnode = ToString;
 
-  ForceNewLayout();
+  ForceNewLayout(NewNodeOptions);
 }
 
-function ForceNewLayout() {
-  webgraph.layout({ name: "cola", ...options }).run();
+function ForceNewLayout(OverrideOptions) {
+  webgraph.layout({ name: "cola", ...DefaultOptions, ...OverrideOptions }).run();
 }
 
 function StartGame(StartNode, GoalNode) {
@@ -478,7 +486,8 @@ function CreateNicerExample() {
   AddNewPage("username", "Mesopotamia", 10);
   AddNewPage("username", "Sheep", 10, true);
   AddNewPage("username", "Passover sacrifice", 10);
-  //UpdateLeaderboardEntry("username", 8, 4, 0);
+
+  ForceNewLayout(ExampleGraphOptions);
 
   //createColorTest()
 }
