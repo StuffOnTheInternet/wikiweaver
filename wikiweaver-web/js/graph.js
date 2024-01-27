@@ -150,11 +150,19 @@ var DefaultOptions = {
 };
 
 var NewNodeOptions = {
-  fit: false, // on every layout reposition of nodes, fit the viewport
+  // Layout options when adding a new node
+  fit: false,
+};
+
+var StartupOptions = {
+  // Layout options when starting a new game
+  fit: false,
 };
 
 var ExampleGraphOptions = {
-  maxSimulationTime: 8000, // max length in ms to run the layout
+  // Layout options for the example graph
+  maxSimulationTime: 8000,
+  refresh: 2,
 };
 
 function AddNewPlayer(Player) {
@@ -336,7 +344,7 @@ function StartGame(StartNode, GoalNode) {
 
   webgraph.nodes('[group = "Goal"]').hide()
 
-  ForceNewLayout();
+  ForceNewLayout(StartupOptions);
 
   // document.getElementById("redraw-button").disabled = false;
 }
@@ -455,6 +463,7 @@ function CreateNicerExample() {
   AddLeaderboardEntry("SomeRandomDude", 5, 5);
   AddNewPage("SomeRandomDude", "Saint Nicholas", 10);
   AddNewPage("SomeRandomDude", "Early Christianity", 10);
+  AddNewPage("SomeRandomDude", "Jesus in Christianity", 10);
   AddNewPage("SomeRandomDude", "Christianity", 10);
   AddNewPage("SomeRandomDude", "Lent", 10);
   AddNewPage("SomeRandomDude", "Fish", 10);
