@@ -66,6 +66,8 @@ document.addEventListener("click", async (e) => {
 });
 
 async function HandleMessageConnect(msg) {
+  await chrome.extension.getBackgroundPage().SetConnectionStatus(msg.Success);
+
   IndicateConnectionStatus({
     status: msg.Success ? "connected" : "disconnected",
   });

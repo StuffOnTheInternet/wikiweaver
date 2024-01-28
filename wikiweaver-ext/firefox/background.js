@@ -11,6 +11,8 @@ chrome.webNavigation.onCommitted.addListener(
 
     if (event.transitionType != "link") return;
 
+    if (!(await GetConnectionStatus())) return;
+
     const page = await GetWikipediaArticleTitle(event.url);
     const previousPage = await GetPreviousPageOnTab(event.tabId);
 
@@ -172,6 +174,17 @@ async function SetPreviousPageOnTab(tabId, page) {
   previous[tabId] = page;
 
   await chrome.storage.session.set({ previous: previous });
+}
+
+async function GetConnectionStatus() {
+  let connected = (await chrome.storage.session.get("connected")).connected;
+  if (connected === undefined) connected = false;
+
+  return connected;
+}
+
+async function SetConnectionStatus(connected) {
+  await chrome.storage.session.set({ connected });
 }
 
 async function GetPageCount() {
