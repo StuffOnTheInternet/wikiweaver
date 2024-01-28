@@ -6,18 +6,9 @@ chrome.webNavigation.onCommitted.addListener(
     if (event.transitionType != "link") return;
 
     const page = await GetWikipediaArticleTitle(event.url);
+    const previousPage = await GetPreviousPageOnTab(event.tabId);
+
     const options = await chrome.storage.local.get();
-
-    let lastPage = (await chrome.storage.session.get("lastPage")).lastPage;
-    if (lastPage === undefined) lastPage = {};
-
-    if (lastPage[event.tabId] === undefined) {
-      // The first page we send in each new tab will have the same previous
-      // page and current page. This is so that we can show the badge as
-      // green already on the first page.
-      lastPage[event.tabId] = page;
-      await chrome.storage.session.set({ lastPage: lastPage });
-    }
 
     const response = await fetch(`${domain}/api/ext/page`, {
       method: "POST",
@@ -26,7 +17,7 @@ chrome.webNavigation.onCommitted.addListener(
         username: options.username,
         page: page,
         backmove: event.transitionQualifiers.includes("forward_back"),
-        previous: lastPage[event.tabId],
+        previous: previousPage,
       }),
     })
       .then((response) => response.json())
@@ -39,9 +30,7 @@ chrome.webNavigation.onCommitted.addListener(
 
     await IncrementPageCount(response.Success);
     await UpdateBadge(response.Success);
-
-    lastPage[event.tabId] = page;
-    await chrome.storage.session.set({ lastPage: lastPage });
+    await SetPreviousPageOnTab(event.tabId, page);
   },
   { url: [{ hostSuffix: ".wikipedia.org" }] }
 );
@@ -135,6 +124,25 @@ async function SearchForWikipediaArticle(title) {
   }
 
   return response.query.search[0].title;
+}
+
+async function GetPreviousPageOnTab(tabId) {
+  let previous = (await chrome.storage.session.get("previous")).previous;
+  if (previous === undefined) previous = {};
+
+  let page = previous[tabId];
+  if (page === undefined) page = "";
+
+  return page;
+}
+
+async function SetPreviousPageOnTab(tabId, page) {
+  let previous = (await chrome.storage.session.get("previous")).previous;
+  if (previous === undefined) previous = {};
+
+  previous[tabId] = page;
+
+  await chrome.storage.session.set({ previous: previous });
 }
 
 async function GetPageCount() {

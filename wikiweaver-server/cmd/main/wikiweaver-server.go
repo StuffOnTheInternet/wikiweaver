@@ -873,15 +873,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if lobby.StartPage == pageFromExtMessage.Page && extClient.Page == pageFromExtMessage.Page {
-			log.Printf("extension %s went to start page, responding with success", r.RemoteAddr)
-			successResponse := PageToExtResponse{
-				Success: true,
-			}
-			SendResponseToExt(w, successResponse)
-			return
-		}
-
 		if extClient.Page != pageFromExtMessage.Previous {
 			log.Printf("refusing to forward page from %s to lobby %s: previous page mismatch: server thinks %s while extension thinks %s", r.RemoteAddr, code, extClient.Page, pageFromExtMessage.Previous)
 			SendResponseToExt(w, failResponse)
