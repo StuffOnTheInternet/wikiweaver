@@ -99,29 +99,12 @@ func (l *Lobby) Broadcast(v interface{}) {
 	}
 }
 
-func (l *Lobby) removeWebClient(wcToRemove *WebClient) error {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	index := -1
-	for i, wc := range l.WebClients {
-		if wc == wcToRemove {
-			index = i
-			break
+func (l *Lobby) removeWebClient(wcToRemove *WebClient) {
+	for i := len(l.WebClients) - 1; i >= 0; i-- {
+		if l.WebClients[i] == wcToRemove {
+			l.WebClients = append(l.WebClients[:i], l.WebClients[i+1:]...)
 		}
 	}
-
-	if index == -1 {
-		return fmt.Errorf("internal server error: web client %v not found in list %v", wcToRemove, l.WebClients)
-	}
-
-	length := len(l.WebClients)
-
-	l.WebClients[index] = l.WebClients[length-1]
-	l.WebClients[length-1] = nil
-	l.WebClients = l.WebClients[:length-1]
-
-	return nil
 }
 
 func (l *Lobby) GetExtClientFromUsername(usernameToCheck string) *ExtClient {
@@ -572,10 +555,10 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 		if err != nil {
 			log.Printf("web client %s disconnected from lobby %s\n", wc.conn.RemoteAddr(), lobby.Code)
 
-			err = lobby.removeWebClient(wc)
-			if err != nil {
-				log.Printf("failed to remove web client: %s", err)
-			}
+			lobby.mu.Lock()
+			defer lobby.mu.Unlock()
+
+			lobby.removeWebClient(wc)
 
 			return
 		}
