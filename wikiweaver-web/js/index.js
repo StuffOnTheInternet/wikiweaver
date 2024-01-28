@@ -12,7 +12,7 @@ async function init() {
   };
   EnableElements(elements);
 
-  UpdatePagePlaceholderEveryFewSeconds(10);
+  await UpdatePagePlaceholderEveryFewSeconds(10);
 
   CreateNicerExample();
 
@@ -63,7 +63,7 @@ async function HandleEndClicked() {
   };
   SendMessage(endMessage);
 
-  UpdatePagePlaceholderEveryFewSeconds(10);
+  await UpdatePagePlaceholderEveryFewSeconds(10);
 }
 
 function HandleRedrawClicked() {
@@ -78,7 +78,7 @@ async function HandleResetClicked() {
   };
   SendMessage(resetMessage);
 
-  UpdatePagePlaceholderEveryFewSeconds(10);
+  await UpdatePagePlaceholderEveryFewSeconds(10);
 }
 
 async function HandleExportClicked() {
@@ -396,8 +396,8 @@ function ResetPagePlaceholderTimer() {
   clearInterval(PagePlaceholderTimer);
 }
 
-function UpdatePagePlaceholderEveryFewSeconds(n) {
-  SetPagePlaceholderToRandomArticles();
+async function UpdatePagePlaceholderEveryFewSeconds(n) {
+  await SetPagePlaceholderToRandomArticles();
 
   ResetPagePlaceholderTimer();
   PagePlaceholderTimer = setInterval(
