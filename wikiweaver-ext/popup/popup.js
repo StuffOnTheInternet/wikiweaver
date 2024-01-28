@@ -10,11 +10,6 @@ async function init() {
     const usernameElem = document.getElementById("username");
     usernameElem.value = options.username;
   }
-
-  if (options.code) {
-    IndicateConnectionStatus({ status: "pending" });
-    await browser.runtime.sendMessage({ type: "connect" });
-  }
 }
 
 function IndicateConnectionStatus(connected) {
