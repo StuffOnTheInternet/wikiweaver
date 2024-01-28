@@ -11,11 +11,6 @@ async function init() {
     usernameElem.value = options.username;
   }
 
-  const sessionStorage = await chrome.storage.session.get("lobbies");
-  if (sessionStorage === undefined) sessionStorage = {};
-  if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
-  const lobbies = sessionStorage.lobbies;
-
   if (options.code) {
     IndicateConnectionStatus({ status: "pending" });
     await browser.runtime.sendMessage({ type: "connect" });
