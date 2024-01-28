@@ -138,64 +138,64 @@ async function SearchForWikipediaArticle(title) {
   return response.query.search[0].title;
 }
 
+async function GetStorageValue(keys, defaultValue) {
+  let obj = await chrome.storage.session.get();
+
+  for (let key of keys.slice(0, keys.length - 1)) {
+    obj = obj[key];
+    if (obj === undefined) obj = {};
+  }
+
+  let value = obj[keys.slice(-1)];
+  if (value === undefined) value = defaultValue;
+
+  return value;
+}
+
+async function SetStorageValue(keys, value) {
+  let storage = await chrome.storage.session.get();
+  let obj = storage;
+
+  for (let key of keys.slice(0, keys.length - 1)) {
+    if (obj[key] === undefined) obj[key] = {};
+    obj = obj[key];
+  }
+
+  obj[keys.slice(-1)] = value;
+
+  await chrome.storage.session.set(storage);
+}
+
 async function GetUserIdForLobby(code) {
-  let lobbies = (await chrome.storage.session.get("lobbies")).lobbies;
-  if (lobbies === undefined) lobbies = {};
-
-  let userId = lobbies[code];
-  if (userId === undefined) userId = "";
-
-  return userId;
+  return await GetStorageValue(["lobbies", code], "");
 }
 
 async function SetUserIdForLobby(code, userId) {
-  let lobbies = (await chrome.storage.session.get("lobbies")).lobbies;
-  if (lobbies === undefined) lobbies = {};
-
-  lobbies[code] = userId;
-
-  await chrome.storage.session.set({ lobbies: lobbies });
+  return await SetStorageValue(["lobbies", code], userId);
 }
 
 async function GetPreviousPageOnTab(tabId) {
-  let previous = (await chrome.storage.session.get("previous")).previous;
-  if (previous === undefined) previous = {};
-
-  let page = previous[tabId];
-  if (page === undefined) page = "";
-
-  return page;
+  return await GetStorageValue(["previous", tabId], "");
 }
 
 async function SetPreviousPageOnTab(tabId, page) {
-  let previous = (await chrome.storage.session.get("previous")).previous;
-  if (previous === undefined) previous = {};
-
-  previous[tabId] = page;
-
-  await chrome.storage.session.set({ previous: previous });
+  return await SetStorageValue(["previous", tabId], page);
 }
 
 async function GetConnectionStatus() {
-  let connected = (await chrome.storage.session.get("connected")).connected;
-  if (connected === undefined) connected = false;
-
-  return connected;
+  return await GetStorageValue(["connected"], false);
 }
 
 async function SetConnectionStatus(connected) {
-  await chrome.storage.session.set({ connected });
+  return await SetStorageValue(["connected"], connected);
 }
 
 async function GetPageCount() {
-  let pageCount = (await chrome.storage.session.get("pageCount")).pageCount;
-  if (pageCount === undefined) pageCount = 0;
-
-  return pageCount;
+  return await GetStorageValue(["pageCount"], 0);
 }
 
 async function SetPageCount(pageCount) {
-  await chrome.storage.session.set({ pageCount });
+  return await SetStorageValue(["pageCount"], pageCount);
 }
 
 async function IncrementPageCount(success) {
