@@ -376,11 +376,11 @@ let defaults = {
       content: 'Go to Article', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
+        window.open(Urlify(ele.id())) // `ele` holds the reference to the active element
       }
     },
     {
-      //fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+      fillColor: 'rgba(0, 20, 100, 0.7)',
       content: 'Toggle short/long name', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       // Link to website command
@@ -415,6 +415,18 @@ let defaults = {
   atMouse: false, // draw menu at mouse position
   outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
 };
+
+
+
+function Urlify(InString) {
+  /*
+  title = decodeURIComponent(maybeURL)
+    .split("wiki/")[1]
+    .split("#")[0]
+    .replace(/_/g, " ");
+    */
+  return "https://en.wikipedia.org/wiki/" + InString
+}
 
 
 function createColorTest() {
