@@ -11,9 +11,9 @@ async function init() {
     usernameElem.value = options.username;
   }
 
-  let connected = await chrome.extension
-    .getBackgroundPage()
-    .GetConnectionStatus();
+  let connected = await (
+    await chrome.runtime.getBackgroundPage()
+  ).GetConnectionStatus();
 
   let elements = {
     join: !connected,
@@ -52,7 +52,7 @@ function IndicateConnectionStatus(connected) {
 async function ShouldLeavePreviousLobby() {
   const options = await chrome.storage.local.get();
 
-  if (!(await chrome.extension.getBackgroundPage().GetConnectionStatus()))
+  if (!(await (await chrome.runtime.getBackgroundPage()).GetConnectionStatus()))
     return false;
 
   if (options.code != undefined && options.code != codeElem.value.toLowerCase())
@@ -102,7 +102,9 @@ document.addEventListener("click", async (e) => {
 });
 
 async function HandleMessageConnect(msg) {
-  await chrome.extension.getBackgroundPage().SetConnectionStatus(msg.Success);
+  await (
+    await chrome.runtime.getBackgroundPage()
+  ).SetConnectionStatus(msg.Success);
 
   IndicateConnectionStatus({
     status: msg.Success ? "connected" : "disconnected",
@@ -116,7 +118,7 @@ async function HandleMessageConnect(msg) {
 }
 
 async function HandleMessageDisconnect(msg) {
-  await chrome.extension.getBackgroundPage().SetConnectionStatus(false);
+  await (await chrome.runtime.getBackgroundPage()).SetConnectionStatus(false);
 
   IndicateConnectionStatus({ status: "disconnected" });
 
