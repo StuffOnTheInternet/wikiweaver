@@ -35,6 +35,15 @@ chrome.webNavigation.onCommitted.addListener(
   { url: [{ hostSuffix: ".wikipedia.org" }] }
 );
 
+chrome.tabs.onCreated.addListener(async (event) => {
+  if (event.openerTabId == undefined) return;
+
+  const previousPage = await GetPreviousPageOnTab(event.openerTabId);
+  if (previousPage == "") return;
+
+  SetPreviousPageOnTab(event.id, previousPage);
+});
+
 async function HandleMessageConnect(msg) {
   const options = await chrome.storage.local.get();
 
