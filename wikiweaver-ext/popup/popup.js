@@ -52,6 +52,9 @@ function IndicateConnectionStatus(connected) {
 async function ShouldLeavePreviousLobby() {
   const options = await chrome.storage.local.get();
 
+  const codeElem = document.getElementById("code");
+  const usernameElem = document.getElementById("username");
+
   if (!(await (await chrome.runtime.getBackgroundPage()).GetConnectionStatus()))
     return false;
 
