@@ -510,7 +510,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 
 	err := json.Unmarshal(buf, &msgRequest)
 	if err != nil {
-		log.Printf("failed to parse start message from web: %s", err)
+		log.Printf("failed to parse message from web: %s: '%s'", err, buf)
 		wc.sendWithWarningOnFail(msgResponse)
 		return
 	}
@@ -669,7 +669,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		var request JoinFromExtRequest
 		err = json.Unmarshal(body, &request)
 		if err != nil {
-			log.Printf("failed to parse message from extension: %s", err)
+			log.Printf("failed to parse message from extension: %s: '%s'", err, body)
 			SendResponseToExt(w, failResponse)
 			return
 		}
@@ -820,7 +820,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		var pageFromExtMessage PageFromExtRequest
 		err = json.Unmarshal(body, &pageFromExtMessage)
 		if err != nil {
-			log.Printf("failed to parse message '%s' from extension: %s", body, err)
+			log.Printf("failed to parse message from extension: %s: '%s'", err, body)
 			SendResponseToExt(w, failResponse)
 			return
 		}
