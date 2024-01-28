@@ -82,10 +82,41 @@ async function HandleMessageConnect(msg) {
   });
 }
 
+async function HandleMessageDisconnect(msg) {
+  const options = await chrome.storage.local.get();
+
+  const userid = await GetUserIdForLobby(options.code);
+
+  const response = await fetch(`${domain}/api/ext/leave`, {
+    method: "POST",
+    body: JSON.stringify({
+      code: options.code,
+      username: options.username,
+      userid: userid,
+    }),
+  })
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch((_) => {
+      return { Success: false };
+    });
+
+  console.log("leave response: ", response);
+
+  await browser.runtime.sendMessage({
+    type: "disconnect",
+    ...response,
+  });
+}
+
 browser.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
       await HandleMessageConnect(msg);
+      break;
+
+    case "disconnect":
+      await HandleMessageDisconnect(msg);
       break;
 
     default:

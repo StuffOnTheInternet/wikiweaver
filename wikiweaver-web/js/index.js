@@ -266,9 +266,14 @@ function UpdateLeaderboardEntry(username, clicks, pages, time) {
   }
 }
 
-function MoveLeaderboardEntry(username, position) {
+function RemoveLeaderboardEntry(username) {
   const row = document.getElementById(`leaderboard-row-${username}`);
   row.remove();
+  return row;
+}
+
+function MoveLeaderboardEntry(username, position) {
+  const row = RemoveLeaderboardEntry(username);
 
   const leaderboard = document.getElementById("leaderboard");
   const rows = leaderboard.firstElementChild.children;

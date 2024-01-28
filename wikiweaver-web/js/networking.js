@@ -41,6 +41,18 @@ function HandleMessageJoin(msg) {
   AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 }
 
+function HandleMessageLeave(msg) {
+  // Show these texts if the last player just left
+  let elements = {
+    "no-players-text": NumberOfPlayersInLobby() == 1,
+    "extension-text": NumberOfPlayersInLobby() == 1,
+  };
+  ShowElements(elements);
+
+  RemovePlayer(msg.Username);
+  RemoveLeaderboardEntry(msg.Username);
+}
+
 function HandleMessageLobby(msg) {
   isHost = msg.IsHost;
 
@@ -185,6 +197,10 @@ async function JoinLobby(code) {
 
       case "join":
         HandleMessageJoin(msg);
+        break;
+
+      case "leave":
+        HandleMessageLeave(msg);
         break;
 
       case "lobby":

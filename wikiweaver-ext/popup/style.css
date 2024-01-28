@@ -12,6 +12,7 @@
   --background: #cddcf2;
   --text: #3f3d3d;
   --box-background: #f1f0ff;
+  --box-background-disabled: #bbc8dd;
 }
 
 body {
@@ -47,6 +48,10 @@ body {
   margin-top: 0.5rem;
 }
 
+#leave {
+  background: var(--red);
+}
+
 .flex-vertical-container {
   background: var(--background);
   display: flex;
@@ -68,6 +73,16 @@ body {
   border-width: 0px;
   border-radius: 0.25rem;
   outline: none;
+  filter: drop-shadow(1px 1px 1px #444d);
+}
+
+.box:disabled {
+  background: var(--box-background-disabled) !important;
+  filter: brightness(100%) !important;
+  cursor: default;
+}
+
+.box:not([disabled]) {
   filter: drop-shadow(1px 1px 1px #444d);
 }
 

@@ -239,6 +239,15 @@ function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
   AddNewElement(color, ToString, timeadded, backmove);
 }
 
+function RemovePlayer(Player) {
+  for (let color of ColorArray) {
+    if (CMap[color].group == Player) {
+      CMap[color].group = UNUSED;
+      break;
+    }
+  }
+}
+
 function UsernameToColor(username) {
   // The server calls this function to add new pages
   for (let color in CMap) {
