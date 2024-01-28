@@ -71,18 +71,6 @@ document.addEventListener("click", async (e) => {
 });
 
 async function HandleMessageConnect(msg) {
-  const code = (await chrome.storage.local.get("code")).code;
-  let sessionStorage = await chrome.storage.session.get("lobbies");
-  if (sessionStorage === undefined) sessionStorage = {};
-  if (!("lobbies" in sessionStorage)) sessionStorage["lobbies"] = {};
-  const lobbies = sessionStorage.lobbies;
-
-  if (msg.Success) {
-    lobbies[code] = msg.UserID;
-  }
-
-  await chrome.storage.session.set({ lobbies: lobbies });
-
   IndicateConnectionStatus({
     status: msg.Success ? "connected" : "disconnected",
   });

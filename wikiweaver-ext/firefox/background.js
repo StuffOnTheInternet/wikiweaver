@@ -53,11 +53,7 @@ chrome.tabs.onCreated.addListener(async (event) => {
 async function HandleMessageConnect(msg) {
   const options = await chrome.storage.local.get();
 
-  let sessionStorage = await chrome.storage.session.get("lobbies");
-  if (!("lobbies" in sessionStorage)) sessionStorage = { lobbies: {} };
-  lobbies = sessionStorage.lobbies;
-
-  const userid = options.code in lobbies ? lobbies[options.code] : "";
+  const userid = await GetUserIdForLobby(options.code);
 
   const response = await fetch(`${domain}/api/ext/join`, {
     method: "POST",
@@ -75,10 +71,9 @@ async function HandleMessageConnect(msg) {
 
   console.log("join response: ", response);
 
-  if ((await GetPageCount()) === undefined) SetPageCount(0);
-
-  if (response.Success && !response.AlreadyInLobby) {
+  if (response.Success) {
     await SetPageCount(0);
+    await SetUserIdForLobby(options.code, response.UserID);
   }
 
   await UpdateBadge(response.Success);
@@ -139,6 +134,25 @@ async function SearchForWikipediaArticle(title) {
   }
 
   return response.query.search[0].title;
+}
+
+async function GetUserIdForLobby(code) {
+  let lobbies = (await chrome.storage.session.get("lobbies")).lobbies;
+  if (lobbies === undefined) lobbies = {};
+
+  let userId = lobbies[code];
+  if (userId === undefined) userId = "";
+
+  return userId;
+}
+
+async function SetUserIdForLobby(code, userId) {
+  let lobbies = (await chrome.storage.session.get("lobbies")).lobbies;
+  if (lobbies === undefined) lobbies = {};
+
+  lobbies[code] = userId;
+
+  await chrome.storage.session.set({ lobbies: lobbies });
 }
 
 async function GetPreviousPageOnTab(tabId) {
