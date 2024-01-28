@@ -263,7 +263,7 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
-      data: { id: ToString, group: CList.group, time: timeadded, shortid: ShortenString(ToString) },
+      data: { id: ToString, group: CList.group, time: timeadded, shortid: ShortenString(ToString), isshort: true },
       position: {
         x: webgraph.getElementById(CList.fromnode).position("x"),
         y: webgraph.getElementById(CList.fromnode).position("y"),
@@ -321,12 +321,12 @@ function StartGame(StartNode, GoalNode) {
   ResetGraph();
 
   webgraph.add({
-    data: { id: StartNode, group: "Start", shortid: ShortenString(StartNode) },
+    data: { id: StartNode, group: "Start", shortid: ShortenString(StartNode), isshort: true },
     position: { x: 0, y: 0 },
   });
 
   webgraph.add({
-    data: { id: GoalNode, group: "Goal", shortid: ShortenString(GoalNode) },
+    data: { id: GoalNode, group: "Goal", shortid: ShortenString(GoalNode), isshort: true },
     position: { x: 0, y: 0 },
   });
 
@@ -372,7 +372,7 @@ let defaults = {
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
       // Link to website command
-      //fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+      fillColor: 'rgba(40, 90, 200, 0.9)', // the background colour of the menu
       content: 'Go to Article', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -380,12 +380,21 @@ let defaults = {
       }
     },
     {
-      fillColor: 'rgba(0, 20, 100, 0.7)',
+      // Toggle between long and short node id
+      fillColor: 'rgba(0, 50, 180, 0.9)',
       content: 'Toggle short/long name', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      // Link to website command
       select: function (ele) { // a function to execute when the command is selected
         window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
+      }
+    },
+    {
+      // Third command
+      fillColor: 'rgba(0, 40, 130, 0.9)',
+      content: 'Third thing', // html/text content to be displayed in the menu
+      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+      select: function (ele) { // a function to execute when the command is selected
+        window.open(Urlify(ele.id())) // `ele` holds the reference to the active element
       }
     }
     /*
@@ -399,12 +408,12 @@ let defaults = {
     }
     */
   ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
-  fillColor: 'rgba(0, 50, 150, 0.7)', // the background colour of the menu
-  activeFillColor: 'rgba(1, 105, 217, 0.75)', // the colour used to indicate the selected command
+  fillColor: 'rgba(0, 0, 0, 0.9)', // the background colour of the menu
+  activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
   activePadding: 10, // additional size in pixels for the active command
   indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
   separatorWidth: 3, // the empty spacing in pixels between successive commands
-  spotlightPadding: 4, // extra spacing in pixels between the element and the spotlight
+  spotlightPadding: 5, // extra spacing in pixels between the element and the spotlight
   adaptativeNodeSpotlightRadius: false, // specify whether the spotlight radius should adapt to the node size
   minSpotlightRadius: 20, // the minimum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
   maxSpotlightRadius: 30, // the maximum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
@@ -418,17 +427,12 @@ let defaults = {
 
 
 
+// Turns an id back into a URL
 function Urlify(InString) {
-  /*
-  title = decodeURIComponent(maybeURL)
-    .split("wiki/")[1]
-    .split("#")[0]
-    .replace(/_/g, " ");
-    */
   return "https://en.wikipedia.org/wiki/" + InString
 }
 
-
+// A full sized test for the maximum amount of players
 function createColorTest() {
   // Added at the end of NicerExample to provide the final extra colors needed
   AddNewPlayer("TEST1");
@@ -447,76 +451,7 @@ function createColorTest() {
   AddNewPage("TEST3", "f", 10);
 }
 
-function createExampleGraph() {
-  StartGame("That guy in the coca cola commercials", "Fish", 0);
-
-  // A three player example of a race between Santa Claus and Fish
-  AddNewPlayer("Bob");
-  AddNewPage("Bob", "East-West Schism", 10);
-  AddNewPage("Bob", "Lent", 10);
-  AddNewPage("Bob", "Lent", 10);
-  AddNewPage("Bob", "Lent", 10);
-  AddNewPage("Bob", "Lent", 10);
-  AddNewPage("Bob", "Lent", 10);
-  AddNewPage("Bob", "Fish", 10);
-
-  AddNewPlayer("Charlie");
-  AddNewPage("Charlie", "East-West Schism", 10);
-  AddNewPage("Charlie", "Lent", 10);
-  AddNewPage("Charlie", "Winter", 10);
-
-  AddNewPlayer("Mark");
-  AddNewPage("Mark", "Saint Nick", 10);
-  AddNewPage("Mark", "Christianty", 10);
-  AddNewPage("Mark", "Catholicism", 10);
-  AddNewPage("Mark", "Lent", 10);
-  AddNewPage("Mark", "Fish", 10);
-
-  AddNewPlayer("Alice");
-  AddNewPage("Alice", "Coca Cola", 10);
-  AddNewPage("Alice", "Atlanta", 10);
-  AddNewPage("Alice", "Georgia", 10);
-
-  AddNewPlayer("Emma");
-  AddNewPage("Emma", "East-West Schism", 10);
-  AddNewPage("Emma", "Passover", 10);
-  AddNewPage("Emma", "Pike", 10);
-  AddNewPage("Emma", "Passover", 10);
-  AddNewPage("Emma", "Carp", 10);
-  AddNewPage("Emma", "Rough Fish", 10);
-  AddNewPage("Emma", "Fish", 10);
-
-  AddNewPlayer("Robert");
-  AddNewPage("Robert", "Coca Cola", 10);
-  AddNewPage("Robert", "United States", 10);
-  AddNewPage("Robert", "Fish", 10);
-
-  AddNewPlayer("XXANTSLAYERXX");
-  AddNewPage("XXANTSLAYERXX", "Coca Cola", 10);
-  AddNewPage("XXANTSLAYERXX", "Pepsi Cola", 10);
-  AddNewPage("XXANTSLAYERXX", "Pepsi", 10);
-
-  AddNewPlayer("Your dad");
-  AddNewPage("Your dad", "Coca Cola", 10);
-  AddNewPage("Your dad", "Pepsi Cola", 10);
-  AddNewPage("Your dad", "Pepsi", 10);
-  AddNewPage("Your dad", "Soda", 10);
-  AddNewPage("Your dad", "United States", 10);
-
-  AddNewPlayer("asdfghjk");
-  AddNewPage("asdfghjk", "Beard", 10);
-  AddNewPage("asdfghjk", "Hair", 10);
-  AddNewPage("asdfghjk", "Head", 10);
-
-  AddNewPlayer("Paul");
-  AddNewPage("Paul", "East-West Schism", 10);
-  AddNewPage("Paul", "Passover", 10);
-  AddNewPage("Paul", "Carp", 10);
-  AddNewPage("Paul", "Aquaculture", 10);
-  AddNewPage("Paul", "Goldfish", 10);
-  AddNewPage("Paul", "Fish", 10);
-}
-
+// The example shown for the released product
 function CreateNicerExample() {
   StartGame("Santa Claus", "Fish", 0);
 
@@ -548,7 +483,7 @@ function CreateNicerExample() {
   AddNewPage("BEE", "Pike", 10);
   AddNewPage("BEE", "Passover", 10, true);
   AddNewPage("BEE", "Carp", 10);
-  AddNewPage("BEE", "Rough Fish", 10);
+  AddNewPage("BEE", "Rough fish", 10);
   AddNewPage("BEE", "Fish", 10);
   UpdateLeaderboardEntry("BEE", 7, 5, 192);
 
@@ -589,6 +524,4 @@ function CreateNicerExample() {
   AddNewPage("username", "Passover sacrifice", 10);
 
   ForceNewLayout(ExampleGraphOptions);
-
-  //createColorTest()
 }
