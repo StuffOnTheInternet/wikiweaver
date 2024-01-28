@@ -15,6 +15,10 @@ async function init() {
     await chrome.runtime.getBackgroundPage()
   ).GetConnectionStatus();
 
+  if (connected) {
+    HandleJoinClicked();
+  }
+
   let elements = {
     join: !connected,
     leave: connected,
