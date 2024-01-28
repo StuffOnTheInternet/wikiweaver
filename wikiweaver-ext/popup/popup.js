@@ -28,6 +28,8 @@ async function init() {
   IndicateConnectionStatus({
     status: connected ? "connected" : "disconnected",
   });
+
+  await (await chrome.runtime.getBackgroundPage()).UpdateBadge(connected);
 }
 
 function IndicateConnectionStatus(connected) {

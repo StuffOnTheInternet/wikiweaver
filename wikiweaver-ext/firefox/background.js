@@ -103,6 +103,8 @@ async function HandleMessageDisconnect(msg) {
 
   console.log("leave response: ", response);
 
+  await (await chrome.runtime.getBackgroundPage()).UpdateBadge(false);
+
   await browser.runtime.sendMessage({
     type: "disconnect",
     ...response,
