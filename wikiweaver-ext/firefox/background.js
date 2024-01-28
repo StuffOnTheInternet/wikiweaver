@@ -3,17 +3,13 @@ const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for product
 
 chrome.webNavigation.onCommitted.addListener(
   async (event) => {
-    if (event.transitionType == "typed") {
-      const page = await GetWikipediaArticleTitle(event.url);
+    const page = await GetWikipediaArticleTitle(event.url);
+
+    if (!(await GetConnectionStatus()) || event.transitionType != "link") {
       await SetPreviousPageOnTab(event.tabId, page);
       return;
     }
 
-    if (event.transitionType != "link") return;
-
-    if (!(await GetConnectionStatus())) return;
-
-    const page = await GetWikipediaArticleTitle(event.url);
     const previousPage = await GetPreviousPageOnTab(event.tabId);
 
     const options = await chrome.storage.local.get();
