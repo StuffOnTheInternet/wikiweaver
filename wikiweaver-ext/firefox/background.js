@@ -175,7 +175,10 @@ async function SetPreviousPageOnTab(tabId, page) {
 }
 
 async function GetPageCount() {
-  return (await chrome.storage.session.get("pageCount")).pageCount;
+  let pageCount = (await chrome.storage.session.get("pageCount")).pageCount;
+  if (pageCount === undefined) pageCount = 0;
+
+  return pageCount;
 }
 
 async function SetPageCount(pageCount) {
