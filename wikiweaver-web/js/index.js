@@ -30,8 +30,8 @@ async function HandleStartGameClicked() {
   startPage = GetArticleTitleFromPotentialUrl(startPage);
   goalPage = GetArticleTitleFromPotentialUrl(goalPage);
 
-  startPage = await ConvertToCanonicalTitleIfExists(startPage);
-  goalPage = await ConvertToCanonicalTitleIfExists(goalPage);
+  startPage = await SearchForWikipediaTitle(startPage);
+  goalPage = await SearchForWikipediaTitle(goalPage);
 
   if (startPage === "" || goalPage === "") {
     // start or goal page does not exist
