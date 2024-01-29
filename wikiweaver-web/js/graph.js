@@ -360,6 +360,7 @@ function StartGame(StartNode, GoalNode) {
   // Activate the context menu, so something happens when you rightclick
   let menu = webgraph.cxtmenu(MenuNode);
   webgraph.cxtmenu(MenuEdge);
+  webgraph.cxtmenu(MenuBG);
 
   // document.getElementById("redraw-button").disabled = false;
 }
@@ -382,14 +383,10 @@ function UpdateMenuColor(element) {
 function ShowOnePlayer(element) {
   webgraph.edges().hide()
   webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').show()
-  //webgraph.nodes('[group = "Start"]').show()
-  //webgraph.nodes('[group = "Goal"]').show()
 }
-
 
 let MenuNode = {
   menuRadius: function (ele) {
-    UpdateMenuColor(ele);
     return 100;
   }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
@@ -439,7 +436,6 @@ let MenuNode = {
 
 let MenuEdge = {
   menuRadius: function (ele) {
-    UpdateMenuColor(ele);
     return 100;
   }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   selector: 'edge', // elements matching this Cytoscape.js selector will trigger cxtmenus
@@ -447,7 +443,7 @@ let MenuEdge = {
     {
       // Toggle between long and short node id
       fillColor: 'rgba(130, 130, 130, 0.95)',
-      content: 'Toggle short/long name', // html/text content to be displayed in the menu
+      content: 'Toggle edge names', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
         window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
@@ -460,6 +456,48 @@ let MenuEdge = {
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
         ShowOnePlayer(ele)
+      }
+    }
+  ],
+
+  activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
+  activePadding: 10, // additional size in pixels for the active command
+  indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
+  separatorWidth: 3, // the empty spacing in pixels between successive commands
+  spotlightPadding: 5, // extra spacing in pixels between the element and the spotlight
+  adaptativeNodeSpotlightRadius: false, // specify whether the spotlight radius should adapt to the node size
+  minSpotlightRadius: 20, // the minimum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
+  maxSpotlightRadius: 30, // the maximum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
+  openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
+  itemColor: 'white', // the colour of text in the command's content
+  itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
+  atMouse: false, // draw menu at mouse position
+  outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
+};
+
+
+let MenuBG = {
+  menuRadius: function (ele) {
+    return 100;
+  }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
+  selector: 'core', // elements matching this Cytoscape.js selector will trigger cxtmenus
+  commands: [ // an array of commands to list in the menu or a function that returns the array
+    {
+      // Toggle between long and short node id
+      fillColor: 'rgba(130, 130, 130, 0.95)',
+      content: 'Toggle edge names', // html/text content to be displayed in the menu
+      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+      select: function (ele) { // a function to execute when the command is selected
+        window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
+      }
+    },
+    {
+      // Third command
+      fillColor: 'rgba(110, 110, 110, 0.95)',
+      content: 'Show all players', // html/text content to be displayed in the menu
+      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+      select: function (ele) { // a function to execute when the command is selected
+        webgraph.edges().show()
       }
     }
   ],
