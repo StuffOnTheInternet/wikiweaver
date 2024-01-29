@@ -133,18 +133,22 @@ async function GetWikipediaArticleTitle(url) {
     .split("#")[0]
     .replace(/_/g, " ");
 
-  return await SearchForWikipediaArticle(title);
+  return await SearchForWikipediaTitle(title);
 }
 
-async function SearchForWikipediaArticle(title) {
-  var url = "https://en.wikipedia.org/w/api.php";
+async function SearchForWikipediaTitle(title) {
+  // See documentation: https://en.wikipedia.org/w/api.php?action=help&modules=query
 
-  var params = {
-    action: "query",
-    list: "search",
-    srsearch: title,
-    format: "json",
-    srlimit: 1,
+  let url = "https://en.wikipedia.org/w/api.php";
+
+  const params = {
+    action: "query", // Query Wikipedia
+    gpssearch: title, // For this title
+    generator: "prefixsearch", // Using prefixssearch
+    gpsnamespace: 0, // Regular Wikipedia
+    gpslimit: 5, // Ask for 5 pages
+    redirects: "", // Resolve redirects
+    format: "json", // In json format
   };
 
   url = url + "?origin=*";
@@ -156,15 +160,22 @@ async function SearchForWikipediaArticle(title) {
     .then((response) => response.json())
     .then((json) => json)
     .catch(function (error) {
-      console.log(error);
-      return {};
+      return { error: error };
     });
 
-  if (response.query.search.length < 1) {
-    return title;
+  if (!response) return "";
+
+  if (response.error != undefined) return "";
+
+  // Results are returned unordered, so find the best result
+
+  const pages = response.query.pages;
+
+  for (let [_, page] of Object.entries(pages)) {
+    if (page.index === 1) return page.title;
   }
 
-  return response.query.search[0].title;
+  return "";
 }
 
 async function GetStorageValue(keys, defaultValue) {
