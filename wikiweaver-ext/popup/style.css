@@ -52,6 +52,14 @@ body {
   background: var(--red);
 }
 
+.title-row {
+  text-align: center;
+}
+
+.title-row > * {
+  vertical-align: middle;
+}
+
 .flex-vertical-container {
   background: var(--background);
   display: flex;
