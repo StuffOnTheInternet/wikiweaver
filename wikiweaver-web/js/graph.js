@@ -1,6 +1,8 @@
 // The graph
 var webgraph;
 
+var edgenameson = false;
+
 const UNUSED = "UNUSED";
 
 var ColorArray = [
@@ -191,7 +193,6 @@ function NumberOfPlayersInLobby() {
 }
 
 
-
 function ResetGraph() {
   webgraph = cytoscape({
     wheelSensitivity: 0.3,
@@ -215,10 +216,10 @@ function ResetGraph() {
         selector: "edge",
         style: {
           width: 4,
-          //label: "data(group)", //Implement this as colorblind mode as a toggle
+          label: "data(group)", //Implement this as colorblind mode as a toggle
           "text-rotation": "autorotate",
           color: "#fff",
-          "font-size": 10,
+          "font-size": 0,
           "text-outline-color": "#000",
           "text-outline-width": 0.6,
           "target-arrow-shape": "triangle",
@@ -257,7 +258,6 @@ function UsernameToColor(username) {
   }
 
   console.log("failed to find player " + username + " in CMap: " + CMap);
-
   return undefined;
 }
 
@@ -385,6 +385,19 @@ function ShowOnePlayer(element) {
   webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').show()
 }
 
+function ToggleEdgeNames() {
+  if (edgenameson) {
+    // Turn off edge names
+    webgraph.edges().style("font-size", 0);
+    edgenameson = false;
+  }
+  else {
+    // Turn on edge names
+    webgraph.edges().style("font-size", 10);
+    edgenameson = true;
+  }
+}
+
 let MenuNode = {
   menuRadius: function (ele) {
     return 100;
@@ -410,7 +423,7 @@ let MenuNode = {
       }
     },
     {
-      // Third command
+      // Show the path for one specific player
       fillColor: 'rgba(110, 110, 110, 0.95)',
       content: 'Show player path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
@@ -441,16 +454,7 @@ let MenuEdge = {
   selector: 'edge', // elements matching this Cytoscape.js selector will trigger cxtmenus
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
-      // Toggle between long and short node id
-      fillColor: 'rgba(130, 130, 130, 0.95)',
-      content: 'Toggle edge names', // html/text content to be displayed in the menu
-      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
-        window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
-      }
-    },
-    {
-      // Third command
+      // Show the path for one specific player
       fillColor: 'rgba(110, 110, 110, 0.95)',
       content: 'Show player  path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
@@ -483,16 +487,16 @@ let MenuBG = {
   selector: 'core', // elements matching this Cytoscape.js selector will trigger cxtmenus
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
-      // Toggle between long and short node id
+      // Toggle between showing usernames on edges and not
       fillColor: 'rgba(130, 130, 130, 0.95)',
       content: 'Toggle edge names', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
+        ToggleEdgeNames() // `ele` holds the reference to the active element
       }
     },
     {
-      // Third command
+      // Show all player paths
       fillColor: 'rgba(110, 110, 110, 0.95)',
       content: 'Show all players', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
@@ -614,4 +618,6 @@ function CreateNicerExample() {
   AddNewPage("username", "Passover sacrifice", 10);
 
   ForceNewLayout(ExampleGraphOptions);
+  //createColorTest()
+
 }
