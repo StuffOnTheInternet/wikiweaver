@@ -226,6 +226,12 @@ function ResetGraph() {
           "control-point-step-size": 15,
         },
       },
+      {
+        selector: ".FullNode",
+        style: {
+          label: "data(id)",
+        },
+      },
     ],
   });
 
@@ -374,6 +380,10 @@ function ShortenString(InString) {
   return InString;
 }
 
+function ToggleFullString(element) {
+  element.toggleClass("FullNode");
+}
+
 function ShowOnePlayer(element) {
   // Shows the path of a specific player
   webgraph.edges().hide()
@@ -418,7 +428,7 @@ let MenuNode = {
       content: 'Toggle short/long name', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ") // `ele` holds the reference to the active element
+        ToggleFullString(ele)
       }
     },
     {
