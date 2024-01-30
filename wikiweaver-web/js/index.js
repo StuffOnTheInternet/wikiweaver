@@ -235,7 +235,8 @@ function GetCodeFromUrl() {
 }
 
 function SetCode(code) {
-  window.location.hash = `#${code}`;
+  // https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
+  history.replaceState(null, "", `${window.location.origin}/#${code}`);
   document.getElementById("code").innerText = code;
 }
 
