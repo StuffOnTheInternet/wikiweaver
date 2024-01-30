@@ -935,12 +935,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		lobby.mu.Lock()
 		defer lobby.mu.Unlock()
 
-		if lobby.State == Ended {
-			log.Printf("refusing to forward page from %s to lobby %s: lobby has ended", r.RemoteAddr, code)
-			SendResponseToExt(w, failResponse)
-			return
-		}
-
 		if lobby.State != Started {
 			log.Printf("refusing to forward page from %s to lobby %s: lobby is not started", r.RemoteAddr, code)
 			SendResponseToExt(w, failResponse)
