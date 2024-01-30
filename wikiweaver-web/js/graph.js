@@ -250,11 +250,11 @@ function ResetGraph() {
   // document.getElementById("redraw-button").disabled = true;
 }
 
-function AddNewPage(Player, ToString, timeadded = 200, backmove = false) {
+function AddNewPage(Player, Fromstring, ToString, backmove = false) {
   let color = UsernameToColor(Player);
   if (color === undefined) return;
 
-  AddNewElement(color, ToString, timeadded, backmove);
+  AddNewElement(color, Fromstring, ToString, backmove);
 }
 
 function RemovePlayer(Player) {
@@ -278,9 +278,11 @@ function UsernameToColor(username) {
   return undefined;
 }
 
-function AddNewElement(PColor, ToString, timeadded, backmove) {
+function AddNewElement(PColor, Fromstring, ToString, backmove) {
   // Add a new edge and possibly a new node for a player click
   var CList = CMap[PColor];
+
+  CList.fromnode = Fromstring;
 
   if (CList.fromnode == ToString) {
     return;
@@ -289,7 +291,7 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
-      data: { id: ToString, group: CList.group, time: timeadded, shortid: ShortenString(ToString), isshort: true },
+      data: { id: ToString, group: CList.group, shortid: ShortenString(ToString), isshort: true },
       position: {
         x: webgraph.getElementById(CList.fromnode).position("x"),
         y: webgraph.getElementById(CList.fromnode).position("y"),
@@ -309,7 +311,6 @@ function AddNewElement(PColor, ToString, timeadded, backmove) {
       group: CList.group,
       source: CList.fromnode,
       target: ToString,
-      time: timeadded,
     },
   });
   webgraph
@@ -377,8 +378,6 @@ function StartGame(StartNode, GoalNode) {
 
   // document.getElementById("redraw-button").disabled = false;
 }
-
-
 
 function ShortenString(InString) {
   let MaxLength = 25;
@@ -548,23 +547,23 @@ function createColorTest() {
   // Added at the end of NicerExample to provide the final extra colors needed
   AddNewPlayer("TEST1");
   AddLeaderboardEntry("TEST1", 2, 2);
-  AddNewPage("TEST1", "a", 10);
-  AddNewPage("TEST1", "b", 10);
+  AddNewPage("TEST1", "a");
+  AddNewPage("TEST1", "b");
 
   AddNewPlayer("TEST2");
   AddLeaderboardEntry("TEST2", 2, 2);
-  AddNewPage("TEST2", "c", 10);
-  AddNewPage("TEST2", "d", 10);
+  AddNewPage("TEST2", "c");
+  AddNewPage("TEST2", "d");
 
   AddNewPlayer("TEST3");
   AddLeaderboardEntry("TEST3", 2, 2);
-  AddNewPage("TEST3", "e", 10);
-  AddNewPage("TEST3", "f", 10);
+  AddNewPage("TEST3", "e");
+  AddNewPage("TEST3", "f");
 }
 
 // The example shown for the released product
 function CreateNicerExample() {
-  StartGame("Santa Claus", "Fish", 0);
+  StartGame("Santa Claus", "Fish");
 
   document.getElementById("start-page-input").value = "Santa Claus";
   document.getElementById("goal-page-input").value = "Fish";
@@ -572,67 +571,69 @@ function CreateNicerExample() {
   // A three player example of a race between Santa Claus and Fish
   AddNewPlayer("l0fen");
   AddLeaderboardEntry("l0fen", 3, 3);
-  AddNewPage("l0fen", "East-West Schism", 10);
-  AddNewPage("l0fen", "Lent", 10);
-  AddNewPage("l0fen", "Fish", 10);
+  AddNewPage("l0fen", "Santa Claus", "East-West Schism");
+  AddNewPage("l0fen", "East-West Schism", "Lent");
+  AddNewPage("l0fen", "Lent", "Fish");
   UpdateLeaderboardEntry("l0fen", 3, 3, 97);
 
   AddNewPlayer("SomeRandomDude");
   AddLeaderboardEntry("SomeRandomDude", 5, 5);
-  AddNewPage("SomeRandomDude", "Saint Nicholas", 10);
-  AddNewPage("SomeRandomDude", "Early Christianity", 10);
-  AddNewPage("SomeRandomDude", "Jesus in Christianity", 10);
-  AddNewPage("SomeRandomDude", "Christianity", 10);
-  AddNewPage("SomeRandomDude", "Lent", 10);
-  AddNewPage("SomeRandomDude", "Fish", 10);
+  AddNewPage("SomeRandomDude", "Santa Claus", "Saint Nicholas");
+  AddNewPage("SomeRandomDude", "Saint Nicholas", "Early Christianity");
+  AddNewPage("SomeRandomDude", "Early Christianity", "Jesus in Christianity");
+  AddNewPage("SomeRandomDude", "Jesus in Christianity", "Adam");
+  AddNewPage("SomeRandomDude", "Jesus in Christianity", "Jerusalem");
+  AddNewPage("SomeRandomDude", "Jesus in Christianity", "Christianity");
+  AddNewPage("SomeRandomDude", "Christianity", "Lent");
+  AddNewPage("SomeRandomDude", "Lent", "Fish");
   UpdateLeaderboardEntry("SomeRandomDude", 5, 5, 165);
 
   AddNewPlayer("BEE");
   AddLeaderboardEntry("BEE", 7, 5);
-  AddNewPage("BEE", "East-West Schism", 10);
-  AddNewPage("BEE", "Passover", 10);
-  AddNewPage("BEE", "Pike", 10);
-  AddNewPage("BEE", "Passover", 10, true);
-  AddNewPage("BEE", "Carp", 10);
-  AddNewPage("BEE", "Rough fish", 10);
-  AddNewPage("BEE", "Fish", 10);
+  AddNewPage("BEE", "Santa Claus", "East-West Schism");
+  AddNewPage("BEE", "East-West Schism", "Passover");
+  AddNewPage("BEE", "Passover", "Pike");
+  AddNewPage("BEE", "Pike", "Passover", true);
+  AddNewPage("BEE", "Passover", "Carp");
+  AddNewPage("BEE", "Carp", "Rough fish");
+  AddNewPage("BEE", "Rough fish", "Fish");
   UpdateLeaderboardEntry("BEE", 7, 5, 192);
 
   AddNewPlayer("Retroducky");
   AddLeaderboardEntry("Retroducky", 5, 5);
-  AddNewPage("Retroducky", "Pepsi", 10);
-  AddNewPage("Retroducky", "Fat", 10);
-  AddNewPage("Retroducky", "Tuna", 10);
-  AddNewPage("Retroducky", "Game Fish", 10);
-  AddNewPage("Retroducky", "Fish", 10);
+  AddNewPage("Retroducky", "Santa Claus", "Pepsi");
+  AddNewPage("Retroducky", "Pepsi", "Fat");
+  AddNewPage("Retroducky", "Fat", "Tuna");
+  AddNewPage("Retroducky", "Tuna", "Game Fish");
+  AddNewPage("Retroducky", "Game Fish", "Fish");
   UpdateLeaderboardEntry("Retroducky", 5, 5, 239);
 
   AddNewPlayer("vi9ke");
   AddLeaderboardEntry("vi9ke", 2, 2);
-  AddNewPage("vi9ke", "Pepsi", 10);
-  AddNewPage("vi9ke", "Pepsiman (video game)", 10);
+  AddNewPage("vi9ke", "Santa Claus", "Pepsi");
+  AddNewPage("vi9ke", "Pepsi", "Pepsiman (video game)");
 
   AddNewPlayer("Paul");
   AddLeaderboardEntry("Paul", 6, 6);
-  AddNewPage("Paul", "East-West Schism", 10);
-  AddNewPage("Paul", "Passover", 10);
-  AddNewPage("Paul", "Carp", 10);
-  AddNewPage("Paul", "Aquaculture", 10);
-  AddNewPage("Paul", "Goldfish", 10);
-  AddNewPage("Paul", "Fish", 10);
+  AddNewPage("Paul", "Santa Claus", "East-West Schism");
+  AddNewPage("Paul", "East-West Schism", "Passover");
+  AddNewPage("Paul", "Passover", "Carp");
+  AddNewPage("Paul", "Carp", "Aquaculture");
+  AddNewPage("Paul", "Aquaculture", "Goldfish");
+  AddNewPage("Paul", "Goldfish", "Fish");
   UpdateLeaderboardEntry("Paul", 6, 6, 323);
   MoveLeaderboardEntry("Paul", 4);
 
   AddNewPlayer("username");
   AddLeaderboardEntry("username", 8, 4);
-  AddNewPage("username", "East-West Schism", 10);
-  AddNewPage("username", "Lent", 10);
-  AddNewPage("username", "East-West Schism", 10, true);
-  AddNewPage("username", "Passover", 10);
-  AddNewPage("username", "Sheep", 10);
-  AddNewPage("username", "Mesopotamia", 10);
-  AddNewPage("username", "Sheep", 10, true);
-  AddNewPage("username", "Food and Agriculture Organization", 10);
+  AddNewPage("username", "Santa Claus", "East-West Schism");
+  AddNewPage("username", "East-West Schism", "Lent");
+  AddNewPage("username", "Lent", "East-West Schism", true);
+  AddNewPage("username", "East-West Schism", "Passover");
+  AddNewPage("username", "Passover", "Sheep");
+  AddNewPage("username", "Sheep", "Mesopotamia");
+  AddNewPage("username", "Mesopotamia", "Sheep", true);
+  AddNewPage("username", "Sheep", "Food and Agriculture Organization");
 
   ForceNewLayout(ExampleGraphOptions);
   //createColorTest()

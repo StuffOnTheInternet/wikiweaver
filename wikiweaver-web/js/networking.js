@@ -101,7 +101,11 @@ function HandleMessageStart(msg) {
 }
 
 function HandleMessagePage(msg) {
-  AddNewPage(msg.Username, msg.Page, msg.TimeAdded, msg.Backmove);
+  //
+  //
+  AddNewPage(msg.Username, msg.Page, msg.Page, msg.Backmove); // FIRST PAGE NEEDS TO BE FROM PAGE, SECOND PAGE NEEDS TO BE TO
+  //
+  //
   UpdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 
   if (msg.FinishTime) {
