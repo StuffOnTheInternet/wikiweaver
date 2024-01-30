@@ -45,13 +45,13 @@ type WebClient struct {
 }
 
 type ExtClient struct {
-	UserID     string
-	Username   string
-	Clicks     int
-	Pages      int
-	FinishTime time.Duration
-	Page       string
-	mu         sync.Mutex
+	UserID       string
+	Username     string
+	Clicks       int
+	Pages        int
+	FinishTime   time.Duration
+	VisitedPages map[string]bool
+	mu           sync.Mutex
 }
 
 type LobbyState int
@@ -536,7 +536,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		extClient.Clicks = 0
 		extClient.Pages = 0
 		extClient.FinishTime = 0
-		extClient.Page = lobby.StartPage
+		extClient.VisitedPages = map[string]bool{lobby.StartPage: true}
 	}
 
 	log.Printf("web client %s started lobby %s with pages '%s' to '%s' (%.0f seconds)", wc.conn.RemoteAddr(), lobby.Code, lobby.StartPage, lobby.GoalPage, lobby.Countdown.Seconds())
@@ -742,12 +742,12 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		userID := generateUserID()
 
 		extClient := ExtClient{
-			UserID:     userID,
-			Username:   request.Username,
-			Clicks:     0,
-			Pages:      0,
-			FinishTime: 0,
-			Page:       lobby.StartPage,
+			UserID:       userID,
+			Username:     request.Username,
+			Clicks:       0,
+			Pages:        0,
+			FinishTime:   0,
+			VisitedPages: map[string]bool{lobby.StartPage: true},
 		}
 		lobby.ExtClients = append(lobby.ExtClients, &extClient)
 
@@ -887,7 +887,7 @@ type PageToWebMessage struct {
 	Message
 	Username   string
 	Page       string
-	TimeAdded  int64
+	Previous   string
 	Backmove   bool
 	Clicks     int
 	Pages      int
@@ -964,8 +964,8 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if extClient.Page != pageFromExtMessage.Previous {
-			log.Printf("refusing to forward page from %s to lobby %s: previous page mismatch: server thinks %s while extension thinks %s", r.RemoteAddr, code, extClient.Page, pageFromExtMessage.Previous)
+		if _, ok := extClient.VisitedPages[pageFromExtMessage.Previous]; !ok {
+			log.Printf("refusing to forward page from %s to lobby %s: unvisited previous page %s", r.RemoteAddr, code, pageFromExtMessage.Previous)
 			SendResponseToExt(w, failResponse)
 			return
 		}
@@ -986,7 +986,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			extClient.FinishTime = time.Since(lobby.StartTime)
 		}
 
-		extClient.Page = pageFromExtMessage.Page
+		extClient.VisitedPages[pageFromExtMessage.Page] = true
 
 		pageToWebMessage := PageToWebMessage{
 			Message: Message{
@@ -994,7 +994,7 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			},
 			Username:   pageFromExtMessage.Username,
 			Page:       pageFromExtMessage.Page,
-			TimeAdded:  time.Since(lobby.StartTime).Milliseconds(),
+			Previous:   pageFromExtMessage.Previous,
 			Backmove:   pageFromExtMessage.Backmove,
 			Clicks:     extClient.Clicks,
 			Pages:      extClient.Pages,
