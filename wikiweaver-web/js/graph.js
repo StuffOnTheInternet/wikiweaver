@@ -1,8 +1,7 @@
 // The graph
 var webgraph;
 
-var edgenameson = false;
-
+var edgenameson = false; // Used for toggling edge labels
 const UNUSED = "UNUSED";
 
 var ColorArray = [
@@ -375,13 +374,13 @@ function ShortenString(InString) {
   return InString;
 }
 
-var menucolor;
-function UpdateMenuColor(element) {
-  menucolor = CMap[UsernameToColor(element.data("group"))].bgcolor
-}
-
 function ShowOnePlayer(element) {
+  // Shows the path of a specific player
   webgraph.edges().hide()
+  if (element.data("group") == "Start" || element.data("group") == "Goal") {
+    // Don't attempt to look at Start or Goal ""Path""
+    return
+  }
   webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').show()
 }
 
