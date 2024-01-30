@@ -257,10 +257,26 @@ function AddLeaderboardEntry(username, clicks, pages) {
   );
 }
 
-function UpdateLeaderboardEntry(username, clicks, pages, time) {
+function UpdateLeaderboardEntry(
+  username,
+  clicks = null,
+  pages = null,
+  time = null
+) {
   row = document.getElementById(`leaderboard-row-${username}`).children;
-  row[2].innerHTML = clicks;
-  row[3].innerHTML = pages;
+
+  if (!row) {
+    console.log("Attempting to update non-existent leadboard entry:", username);
+    return;
+  }
+
+  if (clicks) {
+    row[2].innerHTML = clicks;
+  }
+
+  if (pages) {
+    row[3].innerHTML = pages;
+  }
 
   if (time) {
     row[4].innerHTML = FormatTime(time);
