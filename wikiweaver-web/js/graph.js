@@ -131,7 +131,7 @@ var DefaultOptions = {
   handleDisconnected: true, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
   nodeSpacing: function (node) {
-    return 10;
+    return 15;
   }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
   alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
@@ -203,19 +203,30 @@ function ResetGraph() {
         style: {
           "background-color": "#fff",
           label: "data(shortid)",
-          "font-size": 18,
-          "text-outline-color": "#555",
-          "text-outline-width": 1.6,
-          color: "#fff",
+          "font-size": 20,
+          color: "#222",
           "border-width": 3,
           "border-color": "#333",
+          "text-background-opacity": 0.6,
+          "text-background-color": "#fff",
+          "text-background-shape": "round-rectangle",
+          "text-background-padding": 2
+        },
+      },
+      {
+        // Start or goal node
+        selector: ".SG",
+        style: {
+          "font-size": 22,
+          width: 45,
+          height: 45,
         },
       },
       {
         selector: "edge",
         style: {
           width: 4,
-          label: "data(group)", //Implement this as colorblind mode as a toggle
+          label: "data(group)",
           "text-rotation": "autorotate",
           color: "#fff",
           "font-size": 0,
@@ -227,6 +238,7 @@ function ResetGraph() {
         },
       },
       {
+        // Used for toggling short/long node name
         selector: ".FullNode",
         style: {
           label: "data(id)",
@@ -348,15 +360,11 @@ function StartGame(StartNode, GoalNode) {
     CMap[color].fromnode = StartNode;
   }
 
-  webgraph.nodes('[group = "Start"]').style("shape", "round-diamond");
-  webgraph.nodes('[group = "Start"]').style("text-outline-color", "#000");
-  webgraph.nodes('[group = "Start"]').style("width", 45);
-  webgraph.nodes('[group = "Start"]').style("height", 45);
+  webgraph.nodes('[group = "Start"]').addClass("SG");
+  webgraph.nodes('[group = "Goal"]').addClass("SG");
 
+  webgraph.nodes('[group = "Start"]').style("shape", "round-diamond");
   webgraph.nodes('[group = "Goal"]').style("shape", "star");
-  webgraph.nodes('[group = "Goal"]').style("text-outline-color", "#000");
-  webgraph.nodes('[group = "Goal"]').style("width", 40);
-  webgraph.nodes('[group = "Goal"]').style("height", 40);
 
   webgraph.nodes('[group = "Goal"]').hide()
 
