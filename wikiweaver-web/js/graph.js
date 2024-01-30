@@ -373,7 +373,7 @@ function StartGame(StartNode, GoalNode) {
 
 
 function ShortenString(InString) {
-  let MaxLength = 30;
+  let MaxLength = 25;
   if (InString.length > MaxLength) {
     return InString.substring(0, MaxLength - 3) + "...";
   }
@@ -624,7 +624,7 @@ function CreateNicerExample() {
   AddNewPage("username", "Sheep", 10);
   AddNewPage("username", "Mesopotamia", 10);
   AddNewPage("username", "Sheep", 10, true);
-  AddNewPage("username", "Passover sacrifice", 10);
+  AddNewPage("username", "Food and Agriculture Organization", 10);
 
   ForceNewLayout(ExampleGraphOptions);
   //createColorTest()
