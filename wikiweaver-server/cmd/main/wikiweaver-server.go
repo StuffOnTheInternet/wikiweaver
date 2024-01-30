@@ -959,9 +959,18 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if _, ok := extClient.VisitedPages[pageFromExtMessage.Previous]; !ok {
-			log.Printf("refusing to forward page from %s to lobby %s: unvisited previous page %s", r.RemoteAddr, code, pageFromExtMessage.Previous)
+			log.Printf("refusing to forward page from %s to lobby %s: cannot move from non visited page %s", r.RemoteAddr, code, pageFromExtMessage.Previous)
 			SendResponseToExt(w, failResponse)
 			return
+		}
+
+		if pageFromExtMessage.Backmove {
+			// When making a backmove, the page we move to must have been visited previously
+			if _, ok := extClient.VisitedPages[pageFromExtMessage.Page]; !ok {
+				log.Printf("refusing to forward page from %s to lobby %s: cannot move back to non visited page %s", r.RemoteAddr, code, pageFromExtMessage.Page)
+				SendResponseToExt(w, failResponse)
+				return
+			}
 		}
 
 		extClient.Clicks += 1
