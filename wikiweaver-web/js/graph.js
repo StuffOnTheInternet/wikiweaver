@@ -203,8 +203,9 @@ function ResetGraph() {
         style: {
           "background-color": "#fff",
           label: "data(shortid)",
-          "font-size": 20,
+          "font-size": 21,
           color: "#222",
+          "font-family": "Rubik",
           "border-width": 3,
           "border-color": "#333",
           "text-background-opacity": 0.6,
