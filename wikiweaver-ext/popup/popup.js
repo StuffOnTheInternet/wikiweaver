@@ -91,7 +91,15 @@ async function HandleJoinClicked(e) {
 }
 
 async function HandleLeaveClicked(e) {
-  await browser.runtime.sendMessage({ type: "disconnect" });
+  await (await chrome.runtime.getBackgroundPage()).SetConnectionStatus(false);
+
+  IndicateConnectionStatus({ status: "disconnected" });
+
+  let elements = {
+    join: true,
+    leave: false,
+  };
+  EnableElements(elements);
 }
 
 document.addEventListener("click", async (e) => {
@@ -126,26 +134,10 @@ async function HandleMessageConnect(msg) {
   EnableElements(elements);
 }
 
-async function HandleMessageDisconnect(msg) {
-  await (await chrome.runtime.getBackgroundPage()).SetConnectionStatus(false);
-
-  IndicateConnectionStatus({ status: "disconnected" });
-
-  let elements = {
-    join: true,
-    leave: false,
-  };
-  EnableElements(elements);
-}
-
 browser.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
       await HandleMessageConnect(msg);
-      break;
-
-    case "disconnect":
-      await HandleMessageDisconnect(msg);
       break;
 
     default:
