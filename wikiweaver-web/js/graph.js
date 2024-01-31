@@ -5,65 +5,58 @@ var edgenameson = false; // Used for toggling edge labels
 
 // GRAPH SETTINGS
 
-function ResetGraph() {
-  webgraph = cytoscape({
-    wheelSensitivity: 0.3,
-    container: document.getElementById("maincanvas"), // container to render in
-    style: [
-      // the stylesheet for the graph
-      {
-        selector: "node",
-        style: {
-          "background-color": "#fff",
-          label: "data(shortid)",
-          "font-size": 21,
-          color: "#222",
-          "font-family": "Rubik",
-          "border-width": 3,
-          "border-color": "#333",
-          "text-background-opacity": 0.6,
-          "text-background-color": "#fff",
-          "text-background-shape": "round-rectangle",
-          "text-background-padding": 2
-        },
-      },
-      {
-        // Start or goal node
-        selector: ".SG",
-        style: {
-          "font-size": 22,
-          width: 45,
-          height: 45,
-        },
-      },
-      {
-        selector: "edge",
-        style: {
-          width: 4,
-          label: "data(group)",
-          "text-rotation": "autorotate",
-          color: "#fff",
-          "font-size": 0,
-          "text-outline-color": "#000",
-          "text-outline-width": 0.6,
-          "target-arrow-shape": "triangle",
-          "curve-style": "bezier",
-          "control-point-step-size": 15,
-        },
-      },
-      {
-        // Used for toggling short/long node name
-        selector: ".FullNode",
-        style: {
-          label: "data(id)",
-        },
-      },
-    ],
-  });
-
-  // document.getElementById("redraw-button").disabled = true;
-}
-
+var GraphStyle = [
+  // the stylesheet for the graph
+  {
+    selector: "node",
+    style: {
+      "background-color": "#fff",
+      label: "data(shortid)",
+      "font-size": 21,
+      color: "#222",
+      "font-family": "Rubik",
+      "border-width": 3,
+      "border-color": "#333",
+      "text-background-opacity": 0.6,
+      "text-background-color": "#fff",
+      "text-background-shape": "round-rectangle",
+      "text-background-padding": 2
+    },
+  },
+  {
+    // Start or goal node
+    selector: ".SG",
+    style: {
+      "font-size": 22,
+      width: 45,
+      height: 45,
+    },
+  },
+  {
+    selector: "edge",
+    style: {
+      width: 4,
+      label: "data(shortgroup)",
+      "text-rotation": "autorotate",
+      color: "#000",
+      "font-size": 0,
+      "text-background-opacity": 0,
+      "text-background-color": "#fff",
+      "text-background-shape": "round-rectangle",
+      "text-background-padding": 1,
+      "target-arrow-shape": "triangle",
+      "curve-style": "bezier",
+      "control-point-step-size": 15,
+    },
+  },
+  {
+    // Used for toggling short/long node name
+    selector: ".FullNode",
+    style: {
+      label: "data(id)",
+    },
+  },
+]
 
 // COLOR SETTINGS
 
@@ -305,7 +298,7 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
   // Add a new node if it does not already exist
   if (!webgraph.getElementById(ToString).inside()) {
     webgraph.add({
-      data: { id: ToString, group: CList.group, shortid: ShortenString(ToString), isshort: true },
+      data: { id: ToString, group: CList.group, shortid: ShortenString(ToString, 25), isshort: true },
       position: {
         x: webgraph.getElementById(CList.fromnode).position("x"),
         y: webgraph.getElementById(CList.fromnode).position("y"),
@@ -325,6 +318,7 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
       group: CList.group,
       source: CList.fromnode,
       target: ToString,
+      shortgroup: ShortenString(CList.group, 10),
     },
   });
   webgraph
@@ -362,12 +356,12 @@ function StartGame(StartNode, GoalNode) {
   ResetGraph();
 
   webgraph.add({
-    data: { id: StartNode, group: "Start", shortid: ShortenString(StartNode), isshort: true },
+    data: { id: StartNode, group: "Start", shortid: ShortenString(StartNode, 25), isshort: true },
     position: { x: 0, y: 0 },
   });
 
   webgraph.add({
-    data: { id: GoalNode, group: "Goal", shortid: ShortenString(GoalNode), isshort: true },
+    data: { id: GoalNode, group: "Goal", shortid: ShortenString(GoalNode, 25), isshort: true },
     position: { x: 0, y: 0 },
   });
 
@@ -393,10 +387,19 @@ function StartGame(StartNode, GoalNode) {
   // document.getElementById("redraw-button").disabled = false;
 }
 
+function ResetGraph() {
+  webgraph = cytoscape({
+    wheelSensitivity: 0.3,
+    container: document.getElementById("maincanvas"), // container to render in
+    style: GraphStyle,
+  });
+  // document.getElementById("redraw-button").disabled = true;
+}
+
+
 // CONTEXT MENU FUNCTIONS
 
-function ShortenString(InString) {
-  let MaxLength = 25;
+function ShortenString(InString, MaxLength) {
   if (InString.length > MaxLength) {
     return InString.substring(0, MaxLength - 3) + "...";
   }
@@ -421,11 +424,15 @@ function ToggleEdgeNames() {
   if (edgenameson) {
     // Turn off edge names
     webgraph.edges().style("font-size", 0);
+    webgraph.edges().style("text-background-opacity", 0);
+    webgraph.edges().style("control-point-step-size", 15);
     edgenameson = false;
   }
   else {
     // Turn on edge names
-    webgraph.edges().style("font-size", 10);
+    webgraph.edges().style("font-size", 15);
+    webgraph.edges().style("text-background-opacity", 0.8);
+    webgraph.edges().style("control-point-step-size", 25);
     edgenameson = true;
   }
 }
