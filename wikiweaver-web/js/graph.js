@@ -1,8 +1,71 @@
-// The graph
-var webgraph;
+
+var webgraph; // The graph
 
 var edgenameson = false; // Used for toggling edge labels
-const UNUSED = "UNUSED";
+
+// GRAPH SETTINGS
+
+function ResetGraph() {
+  webgraph = cytoscape({
+    wheelSensitivity: 0.3,
+    container: document.getElementById("maincanvas"), // container to render in
+    style: [
+      // the stylesheet for the graph
+      {
+        selector: "node",
+        style: {
+          "background-color": "#fff",
+          label: "data(shortid)",
+          "font-size": 21,
+          color: "#222",
+          "font-family": "Rubik",
+          "border-width": 3,
+          "border-color": "#333",
+          "text-background-opacity": 0.6,
+          "text-background-color": "#fff",
+          "text-background-shape": "round-rectangle",
+          "text-background-padding": 2
+        },
+      },
+      {
+        // Start or goal node
+        selector: ".SG",
+        style: {
+          "font-size": 22,
+          width: 45,
+          height: 45,
+        },
+      },
+      {
+        selector: "edge",
+        style: {
+          width: 4,
+          label: "data(group)",
+          "text-rotation": "autorotate",
+          color: "#fff",
+          "font-size": 0,
+          "text-outline-color": "#000",
+          "text-outline-width": 0.6,
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+          "control-point-step-size": 15,
+        },
+      },
+      {
+        // Used for toggling short/long node name
+        selector: ".FullNode",
+        style: {
+          label: "data(id)",
+        },
+      },
+    ],
+  });
+
+  // document.getElementById("redraw-button").disabled = true;
+}
+
+
+// COLOR SETTINGS
 
 var ColorArray = [
   "Red",
@@ -17,7 +80,8 @@ var ColorArray = [
   "Brown",
 ];
 
-// Color settings
+const UNUSED = "UNUSED";
+
 var CMap = {
   Red: {
     group: UNUSED,
@@ -111,6 +175,9 @@ var CMap = {
   },
 };
 
+
+// LAYOUT OPTIONS
+
 var DefaultOptions = {
   animate: true, // whether to show the layout as it's running
   refresh: 1, // number of ticks per frame; higher is faster but more jerky
@@ -166,6 +233,9 @@ var ExampleGraphOptions = {
   refresh: 2,
 };
 
+
+// PLAYER HANDLING
+
 function AddNewPlayer(Player) {
   for (let color of ColorArray) {
     if (CMap[color].group == UNUSED) {
@@ -191,73 +261,6 @@ function NumberOfPlayersInLobby() {
   return i;
 }
 
-
-function ResetGraph() {
-  webgraph = cytoscape({
-    wheelSensitivity: 0.3,
-    container: document.getElementById("maincanvas"), // container to render in
-    style: [
-      // the stylesheet for the graph
-      {
-        selector: "node",
-        style: {
-          "background-color": "#fff",
-          label: "data(shortid)",
-          "font-size": 21,
-          color: "#222",
-          "font-family": "Rubik",
-          "border-width": 3,
-          "border-color": "#333",
-          "text-background-opacity": 0.6,
-          "text-background-color": "#fff",
-          "text-background-shape": "round-rectangle",
-          "text-background-padding": 2
-        },
-      },
-      {
-        // Start or goal node
-        selector: ".SG",
-        style: {
-          "font-size": 22,
-          width: 45,
-          height: 45,
-        },
-      },
-      {
-        selector: "edge",
-        style: {
-          width: 4,
-          label: "data(group)",
-          "text-rotation": "autorotate",
-          color: "#fff",
-          "font-size": 0,
-          "text-outline-color": "#000",
-          "text-outline-width": 0.6,
-          "target-arrow-shape": "triangle",
-          "curve-style": "bezier",
-          "control-point-step-size": 15,
-        },
-      },
-      {
-        // Used for toggling short/long node name
-        selector: ".FullNode",
-        style: {
-          label: "data(id)",
-        },
-      },
-    ],
-  });
-
-  // document.getElementById("redraw-button").disabled = true;
-}
-
-function AddNewPage(Player, Fromstring, ToString, backmove = false) {
-  let color = UsernameToColor(Player);
-  if (color === undefined) return;
-
-  AddNewElement(color, Fromstring, ToString, backmove);
-}
-
 function RemovePlayer(Player) {
   for (let color of ColorArray) {
     if (CMap[color].group == Player) {
@@ -265,6 +268,16 @@ function RemovePlayer(Player) {
       break;
     }
   }
+}
+
+
+// GRAPH CONSTRUCTION
+
+function AddNewPage(Player, Fromstring, ToString, backmove = false) {
+  let color = UsernameToColor(Player);
+  if (color === undefined) return;
+
+  AddNewElement(color, Fromstring, ToString, backmove);
 }
 
 function UsernameToColor(username) {
@@ -380,6 +393,8 @@ function StartGame(StartNode, GoalNode) {
   // document.getElementById("redraw-button").disabled = false;
 }
 
+// CONTEXT MENU FUNCTIONS
+
 function ShortenString(InString) {
   let MaxLength = 25;
   if (InString.length > MaxLength) {
@@ -414,6 +429,14 @@ function ToggleEdgeNames() {
     edgenameson = true;
   }
 }
+
+function Urlify(InString) {
+  // Turns an id back into a URL
+  return "https://en.wikipedia.org/wiki/" + InString
+}
+
+
+// CONTEXT MENU OPTIONS
 
 let MenuNode = {
   menuRadius: function (ele) {
@@ -496,7 +519,6 @@ let MenuEdge = {
   outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
 };
 
-
 let MenuBG = {
   menuRadius: function (ele) {
     return 100;
@@ -538,13 +560,11 @@ let MenuBG = {
   outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
 };
 
-// Turns an id back into a URL
-function Urlify(InString) {
-  return "https://en.wikipedia.org/wiki/" + InString
-}
 
-// A full sized test for the maximum amount of players
+// EXAMPLE GRAPHS
+
 function createColorTest() {
+  // A full sized test for the maximum amount of players
   // Added at the end of NicerExample to provide the final extra colors needed
   AddNewPlayer("TEST1");
   AddLeaderboardEntry("TEST1", 2, 2);
@@ -562,8 +582,8 @@ function createColorTest() {
   AddNewPage("TEST3", "f");
 }
 
-// The example shown for the released product
 function CreateNicerExample() {
+  // The example shown for the released product
   StartGame("Santa Claus", "Fish");
 
   document.getElementById("start-page-input").value = "Santa Claus";
