@@ -94,17 +94,14 @@ img {
 }
 
 #extension-text {
-  width: 24rem;
   align-self: center;
 }
 
 #disconnect-text {
-  width: 24rem;
   align-self: center;
 }
 
 #spectator-text {
-  width: 24rem;
   align-self: center;
 }
 
@@ -157,7 +154,6 @@ img {
 }
 
 #no-players-text {
-  width: 24rem;
   align-self: center;
 }
 
