@@ -67,7 +67,8 @@ img {
 }
 
 #maincanvas-sidepane-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 72% 28%;
   height: 100vh;
   width: 100vw;
 }
@@ -76,7 +77,6 @@ img {
   background: var(--sidepane-background);
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
   gap: 0.5rem;
   padding: 1rem;
   overflow-y: auto;
@@ -84,7 +84,6 @@ img {
 
 #maincanvas {
   background: var(--maincanvas-background);
-  flex-grow: 4;
   min-width: 0;
 }
 
