@@ -17,6 +17,21 @@
   --box-background-disabled: #bbc8dd;
 }
 
+@media (max-width: 1250px) {
+  .flex-horizontal-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .flex-horizontal-container > * {
+    width: auto !important;
+  }
+
+  #reset-button {
+    margin-bottom: 0.5rem;
+  }
+}
+
 body {
   margin: 0;
 }
