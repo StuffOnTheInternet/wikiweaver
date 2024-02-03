@@ -60,7 +60,7 @@ if [[ -n $PACKAGE_VERSION ]]; then
 
     rm -f $PACKAGE_FILE_REL
     
-    PACKAGE_FILE_ABS=$(readlink -f $PACKAGE_FILE_REL)
+    PACKAGE_FILE_ABS="$PWD/$PACKAGE_FILE_REL"
     (cd $BUILD_TARGET && zip -qr $PACKAGE_FILE_ABS *)
 
     echo "Packaged extension in $PACKAGE_FILE_REL"
