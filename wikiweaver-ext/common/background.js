@@ -1,5 +1,5 @@
-// const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
-const domain = "http://localhost:4242"; // Use this for local development
+const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
+// const domain = "http://localhost:4242"; // Use this for local development
 
 chrome.webNavigation.onCommitted.addListener(
   async (event) => {
