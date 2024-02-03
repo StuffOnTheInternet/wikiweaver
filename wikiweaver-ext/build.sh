@@ -7,7 +7,8 @@ Build and package the WikiWeaver browser extension for Chrome or Firefox.
 Usage: $0 <chrome|firefox> [options]
 
 Options:
-    -h, --help  Print this message and exit.
+    -h, --help     Print this message and exit.
+    -p, --package  Also package the extension.
 EOF
 }
 
@@ -19,6 +20,11 @@ while test $# -gt 0; do
         ;;
     firefox | firefox/ | chrome | chrome/)
         TARGET=$1
+        shift
+        ;;
+    -p | --package)
+        PACKAGE_VERSION=$2
+        shift
         shift
         ;;
     *)
@@ -34,12 +40,20 @@ if [[ -z $TARGET ]]; then
     exit 1
 fi
 
-BUILD_DIR="./build/$TARGET"
+BUILD_BASE="./build"
+BUILD_TARGET="$BUILD_BASE/$TARGET"
 
-rm -rdf $BUILD_DIR
-mkdir -p $BUILD_DIR
+rm -rdf $BUILD_TARGET
+mkdir -p $BUILD_TARGET
 
-cp -r common/* $BUILD_DIR/
-cp -r $TARGET/* $BUILD_DIR
+cp -r common/* $BUILD_TARGET/
+cp -r $TARGET/* $BUILD_TARGET
 
-echo "Created extension in $BUILD_DIR"
+echo "Created extension in $BUILD_TARGET"
+
+if [[ -n $PACKAGE_VERSION ]]; then
+    PACKAGE_FILE="$BUILD_BASE/wikiweaver-ext-v$PACKAGE_VERSION-$TARGET.zip"
+    zip -qr $PACKAGE_FILE $BUILD_TARGET
+    
+    echo "Packaged extension in $PACKAGE_FILE"
+fi
