@@ -2,34 +2,28 @@ async function init() {
   const options = await chrome.storage.local.get();
 
   if (options.code != undefined) {
-    const codeElem = document.getElementById("code");
-    codeElem.value = options.code;
+    document.getElementById("code").value = options.code;
   }
 
   if (options.username != undefined) {
-    const usernameElem = document.getElementById("username");
-    usernameElem.value = options.username;
+    document.getElementById("username").value = options.username;
   }
 
-  let connected = await (
-    await chrome.runtime.getBackgroundPage()
-  ).GetConnectionStatus();
+  if ((await chrome.storage.session.get()).connected) {
+    // If we think we are connected, attempt to join again just to make sure
+    await HandleJoinClicked();
+  } else {
+    // Otherwise show that we are disconnected
+    IndicateConnectionStatus({
+      status: "disconnected",
+    });
 
-  if (connected) {
-    HandleJoinClicked();
+    let elements = {
+      join: true,
+      leave: false,
+    };
+    EnableElements(elements);
   }
-
-  let elements = {
-    join: !connected,
-    leave: connected,
-  };
-  EnableElements(elements);
-
-  IndicateConnectionStatus({
-    status: connected ? "connected" : "disconnected",
-  });
-
-  await (await chrome.runtime.getBackgroundPage()).UpdateBadge(connected);
 }
 
 function IndicateConnectionStatus(connected) {
@@ -38,14 +32,17 @@ function IndicateConnectionStatus(connected) {
     document.getElementById("explanation-text").hidden = true;
     document.getElementById("connected-text").hidden = false;
     color = "--green";
+    UpdateBadgeColor(true);
   } else if (connected.status == "disconnected") {
     document.getElementById("explanation-text").hidden = false;
     document.getElementById("connected-text").hidden = true;
     color = "--red";
+    UpdateBadgeColor(false);
   } else if (connected.status == "pending") {
     document.getElementById("explanation-text").hidden = false;
     document.getElementById("connected-text").hidden = true;
     color = "--yellow";
+    UpdateBadgeColor(false);
   } else {
     console.log("invalid connected status:", connected);
   }
@@ -55,43 +52,32 @@ function IndicateConnectionStatus(connected) {
   ).getPropertyValue(color);
 }
 
-async function ShouldLeavePreviousLobby() {
-  const options = await chrome.storage.local.get();
+async function UpdateBadgeColor(success) {
+  let color;
+  if (success) {
+    color = [220, 253, 151, 255];
+  } else {
+    color = [250, 189, 189, 255];
+  }
 
-  const codeElem = document.getElementById("code");
-  const usernameElem = document.getElementById("username");
-
-  if (!(await (await chrome.runtime.getBackgroundPage()).GetConnectionStatus()))
-    return false;
-
-  if (options.code != undefined && options.code != codeElem.value.toLowerCase())
-    return true;
-
-  if (options.username != undefined && options.username != usernameElem.value)
-    return true;
-
-  return false;
+  chrome.action.setBadgeBackgroundColor({ color: color });
 }
 
 async function HandleJoinClicked(e) {
-  if (await ShouldLeavePreviousLobby()) {
-    HandleLeaveClicked(e);
-  }
-
   const codeElem = document.getElementById("code");
   const usernameElem = document.getElementById("username");
 
-  chrome.storage.local.set({
+  await chrome.storage.local.set({
     code: codeElem.value.toLowerCase(),
     username: usernameElem.value,
   });
 
   IndicateConnectionStatus({ status: "pending" });
-  await browser.runtime.sendMessage({ type: "connect" });
+  await chrome.runtime.sendMessage({ type: "connect" });
 }
 
 async function HandleLeaveClicked(e) {
-  await (await chrome.runtime.getBackgroundPage()).SetConnectionStatus(false);
+  await chrome.storage.session.set({ connected: false });
 
   IndicateConnectionStatus({ status: "disconnected" });
 
@@ -119,10 +105,6 @@ document.addEventListener("click", async (e) => {
 });
 
 async function HandleMessageConnect(msg) {
-  await (
-    await chrome.runtime.getBackgroundPage()
-  ).SetConnectionStatus(msg.Success);
-
   IndicateConnectionStatus({
     status: msg.Success ? "connected" : "disconnected",
   });
@@ -134,7 +116,7 @@ async function HandleMessageConnect(msg) {
   EnableElements(elements);
 }
 
-browser.runtime.onMessage.addListener(async (msg) => {
+chrome.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
       await HandleMessageConnect(msg);

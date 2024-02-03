@@ -1,20 +1,23 @@
 {
-    "manifest_version": 3,
-    "name": "WikiWeaver",
-    "version": "0.1",
-    "description": "Send wikipedia urls to a WikiWeaver server",
-    "icons": {
-        "48": "icons/48.png",
-        "96": "icons/96.png"
+  "manifest_version": 3,
+  "name": "WikiWeaver",
+  "version": "0.2.4",
+  "description": "View you and your peers progress through a WikiRace by syncing visited pages to a lobby on wikiweaver.stuffontheinter.net",
+  "icons": {
+    "48": "icons/48.png",
+    "96": "icons/96.png"
+  },
+  "action": {
+    "default_icon": {
+      "48": "icons/48.png",
+      "96": "icons/96.png"
     },
-    "host_permissions": [
-        "*://*.wikipedia.org/wiki/*",
-        "*://localhost/*"
-    ],
-    "permissions": [
-        "webNavigation"
-    ],
-    "background": {
-        "service_worker": "service_worker.js"
-    }
+    "default_title": "WikiWeaver",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": ["storage", "webNavigation", "webRequest"],
+  "host_permissions": ["https://wikipedia.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  }
 }

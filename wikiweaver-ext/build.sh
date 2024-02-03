@@ -1,10 +1,16 @@
-#!/bin/bash
+#!/bin/bash -e
+
 if [[ $1 == "" ]]; then 
     echo -e Usage: $0 \<firefox\|chrome\>
     exit
 fi
-rm -rdf ./build
-mkdir -p ./build
-cp -r icons ./build/icons
-cp -r popup ./build/popup
-cp -r $1/* ./build
+
+BUILD_DIR="./build/$1"
+
+rm -rdf $BUILD_DIR
+mkdir -p $BUILD_DIR
+
+cp -r common/* $BUILD_DIR/
+cp -r $1/* $BUILD_DIR
+
+echo "Created extension in $BUILD_DIR"

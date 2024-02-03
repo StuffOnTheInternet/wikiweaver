@@ -1,5 +1,5 @@
-const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
-// const domain = "http://localhost:4242"; // Use this for local development
+// const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
+const domain = "http://localhost:4242"; // Use this for local development
 
 chrome.webNavigation.onCommitted.addListener(
   async (event) => {
@@ -75,14 +75,15 @@ async function HandleMessageConnect(msg) {
   }
 
   await UpdateBadge(response.Success);
+  await SetConnectionStatus(response.Success);
 
-  await browser.runtime.sendMessage({
+  await chrome.runtime.sendMessage({
     type: "connect",
     ...response,
   });
 }
 
-browser.runtime.onMessage.addListener(async (msg) => {
+chrome.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
       await HandleMessageConnect(msg);
