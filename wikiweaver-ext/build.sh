@@ -56,7 +56,7 @@ cp -r $TARGET/* $BUILD_TARGET
 echo "Created extension in $BUILD_TARGET"
 
 if [[ -n $PACKAGE_VERSION ]]; then
-    PACKAGE_FILE_REL="$BUILD_BASE/wikiweaver-ext-v$PACKAGE_VERSION-$TARGET.zip"
+    PACKAGE_FILE_REL="$BUILD_BASE/wikiweaver-ext-$PACKAGE_VERSION-$TARGET.zip"
 
     rm -f $PACKAGE_FILE_REL
     
