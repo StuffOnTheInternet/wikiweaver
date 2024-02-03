@@ -1,42 +1,60 @@
 const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
 // const domain = "http://localhost:4242"; // Use this for local development
 
-chrome.webNavigation.onCommitted.addListener(
-  async (event) => {
-    const page = await GetWikipediaArticleTitle(event.url);
+chrome.tabs.onUpdated.addListener(
+  async (tabId, changeInfo, tabInfo) => {
+    const currentPage = await GetWikipediaArticleTitle(tabInfo.url);
+    const previousPage = await GetPreviousPageOnTab(tabId);
 
-    if (!(await GetConnectionStatus()) || event.transitionType != "link") {
-      await SetPreviousPageOnTab(event.tabId, page);
+    if (previousPage === currentPage) {
+      // These events fire more than once for redirects, so after an url change
+      // we sometimes end up on the same page. We get the exact same page name
+      // since we use the Wikipedia API to disambiguate these, so we can simply
+      // check here if they have the same name.
       return;
     }
 
-    const previousPage = await GetPreviousPageOnTab(event.tabId);
+    await SetPreviousPageOnTab(tabId, currentPage);
 
-    const options = await chrome.storage.local.get();
+    if (!(await GetConnectionStatus())) {
+      return;
+    }
 
-    const response = await fetch(`${domain}/api/ext/page`, {
-      method: "POST",
-      body: JSON.stringify({
-        code: options.code,
-        username: options.username,
-        page: page,
-        backmove: event.transitionQualifiers.includes("forward_back"),
-        previous: previousPage,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => json)
-      .catch((e) => {
-        return { Success: false };
-      });
-
-    console.log("page response: ", response);
+    // We sadly do not have any backmove information in this case
+    const response = await SendPage(previousPage, currentPage);
 
     await IncrementPageCount(response.Success);
     await UpdateBadge(response.Success);
-    await SetPreviousPageOnTab(event.tabId, page);
   },
-  { url: [{ hostSuffix: ".wikipedia.org" }] }
+  {
+    urls: [
+      "*://*.thewikipediagame.com/*",
+      "*://*.thewikigame.com/group/wiki/*",
+    ],
+    properties: ["url"],
+  }
+);
+
+chrome.webNavigation.onCommitted.addListener(
+  async (event) => {
+    const currentPage = await GetWikipediaArticleTitle(event.url);
+    const previousPage = await GetPreviousPageOnTab(event.tabId);
+
+    await SetPreviousPageOnTab(event.tabId, currentPage);
+
+    if (!(await GetConnectionStatus())) {
+      return;
+    }
+
+    const backmove = event.transitionQualifiers.includes("forward_back");
+    const response = await SendPage(previousPage, currentPage, backmove);
+
+    await IncrementPageCount(response.Success);
+    await UpdateBadge(response.Success);
+  },
+  {
+    url: [{ hostSuffix: ".wikipedia.org" }],
+  }
 );
 
 chrome.tabs.onCreated.addListener(async (event) => {
@@ -47,6 +65,34 @@ chrome.tabs.onCreated.addListener(async (event) => {
 
   SetPreviousPageOnTab(event.id, previousPage);
 });
+
+async function SendPage(previousPage, currentPage, backmove = false) {
+  const options = await chrome.storage.local.get();
+
+  const body = {
+    code: options.code,
+    username: options.username,
+    page: currentPage,
+    previous: previousPage,
+    backmove: backmove,
+  };
+
+  console.log("Sending:", body);
+
+  let response = await fetch(`${domain}/api/ext/page`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch((e) => {
+      return { Success: false };
+    });
+
+  console.log("Response:", response);
+
+  return response;
+}
 
 async function HandleMessageConnect(msg) {
   const options = await chrome.storage.local.get();
@@ -67,7 +113,7 @@ async function HandleMessageConnect(msg) {
       return { Success: false };
     });
 
-  console.log("join response: ", response);
+  console.log("Join response: ", response);
 
   if (response.Success) {
     await SetPageCount(0);
@@ -101,7 +147,8 @@ chrome.runtime.onMessage.addListener(async (msg) => {
 
 async function GetWikipediaArticleTitle(url) {
   title = decodeURIComponent(url)
-    .split("wiki/")[1]
+    .split("/")
+    .pop()
     .split("#")[0]
     .replace(/_/g, " ");
 

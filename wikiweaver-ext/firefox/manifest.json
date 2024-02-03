@@ -14,8 +14,12 @@
     "default_title": "WikiWeaver",
     "default_popup": "popup/popup.html"
   },
-  "permissions": ["storage", "webNavigation", "webRequest"],
-  "host_permissions": ["https://wikipedia.com/*"],
+  "permissions": ["storage", "tabs", "webNavigation", "webRequest"],
+  "host_permissions": [
+    "https://wikipedia.com/*",
+    "https://thewikipediagame.com/*",
+    "https://thewikigame.com/*"
+  ],
   "background": {
     "scripts": ["background.js"]
   },
