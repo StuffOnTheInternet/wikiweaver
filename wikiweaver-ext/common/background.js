@@ -1,39 +1,58 @@
 const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
 // const domain = "http://localhost:4242"; // Use this for local development
 
-chrome.tabs.onUpdated.addListener(
-  async (tabId, changeInfo, tabInfo) => {
-    const currentPage = await GetWikipediaArticleTitle(tabInfo.url);
-    const previousPage = await GetPreviousPageOnTab(tabId);
-
-    if (previousPage === currentPage) {
-      // These events fire more than once for redirects, so after an url change
-      // we sometimes end up on the same page. We get the exact same page name
-      // since we use the Wikipedia API to disambiguate these, so we can simply
-      // check here if they have the same name.
-      return;
+function Matches(url, filters) {
+  for (let filter of filters) {
+    if (url.match(filter)) {
+      return true;
     }
-
-    await SetPreviousPageOnTab(tabId, currentPage);
-
-    if (!(await GetConnectionStatus())) {
-      return;
-    }
-
-    // We sadly do not have any backmove information in this case
-    const response = await SendPage(previousPage, currentPage);
-
-    await IncrementPageCount(response.Success);
-    await UpdateBadge(response.Success);
-  },
-  {
-    urls: [
-      "*://*.thewikipediagame.com/*",
-      "*://*.thewikigame.com/group/wiki/*",
-    ],
-    properties: ["url"],
   }
-);
+
+  return false;
+}
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
+  const url = changeInfo.url;
+
+  if (url === undefined) {
+    return;
+  }
+
+  const filters = [
+    new RegExp(".*://.*.thewikipediagame.com/.+"),
+    new RegExp(".*://.*.thewikigame.com/group/wiki/.+"),
+  ];
+
+  if (!Matches(url, filters)) {
+    // Firefox takes an optional filter argument to the addListener functions
+    // that does this, but Chrome does not support it sadly. So we have to do
+    // it manually.
+    return;
+  }
+
+  const currentPage = await GetWikipediaArticleTitle(url);
+  const previousPage = await GetPreviousPageOnTab(tabId);
+
+  if (previousPage === currentPage) {
+    // These events fire more than once for redirects, so after an url change
+    // we sometimes end up on the same page. We get the exact same page name
+    // since we use the Wikipedia API to disambiguate these, so we can simply
+    // check here if they have the same name.
+    return;
+  }
+
+  await SetPreviousPageOnTab(tabId, currentPage);
+
+  if (!(await GetConnectionStatus())) {
+    return;
+  }
+
+  // We sadly do not have any backmove information in this case
+  const response = await SendPage(previousPage, currentPage);
+
+  await IncrementPageCount(response.Success);
+  await UpdateBadge(response.Success);
+});
 
 chrome.webNavigation.onCommitted.addListener(
   async (event) => {

@@ -15,7 +15,7 @@
     "default_title": "WikiWeaver",
     "default_popup": "popup/popup.html"
   },
-  "permissions": ["storage", "webNavigation", "webRequest"],
+  "permissions": ["storage", "tabs", "webNavigation", "webRequest"],
   "host_permissions": ["https://wikipedia.com/*"],
   "background": {
     "service_worker": "background.js"
