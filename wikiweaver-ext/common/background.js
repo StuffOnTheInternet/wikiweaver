@@ -77,43 +77,20 @@ async function SendPage(previousPage, currentPage, backmove = false) {
     backmove: backmove,
   };
 
-  console.log("Sending:", body);
-
-  let response = await fetch(`${domain}/api/ext/page`, {
-    method: "POST",
-    body: JSON.stringify(body),
-  })
-    .then((response) => response.json())
-    .then((json) => json)
-    .catch((e) => {
-      return { Success: false };
-    });
-
-  console.log("Response:", response);
-
-  return response;
+  return await SendPOSTRequestToServer("/api/ext/page", body);
 }
 
 async function HandleMessageConnect(msg) {
   const options = await chrome.storage.local.get();
-
   const userid = await GetUserIdForLobby(options.code);
 
-  const response = await fetch(`${domain}/api/ext/join`, {
-    method: "POST",
-    body: JSON.stringify({
-      code: options.code,
-      username: options.username,
-      userid: userid,
-    }),
-  })
-    .then((response) => response.json())
-    .then((json) => json)
-    .catch((_) => {
-      return { Success: false };
-    });
+  const body = {
+    code: options.code,
+    username: options.username,
+    userid: userid,
+  };
 
-  console.log("Join response: ", response);
+  const response = await SendPOSTRequestToServer("/api/ext/join", body);
 
   if (response.Success) {
     await SetPageCount(0);
@@ -144,6 +121,24 @@ chrome.runtime.onMessage.addListener(async (msg) => {
       break;
   }
 });
+
+async function SendPOSTRequestToServer(endpoint, body) {
+  console.log("sent:", body);
+
+  let response = await fetch(`${domain}${endpoint}`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+    .then((response) => response.json())
+    .then((json) => json)
+    .catch((e) => {
+      return { Success: false };
+    });
+
+  console.log("recv:", response);
+
+  return response;
+}
 
 async function GetWikipediaArticleTitle(url) {
   title = decodeURIComponent(url)
