@@ -73,7 +73,7 @@ var ColorArray = [
   "Brown",
 ];
 
-const UNUSED = "UNUSED";
+const UNUSED = "";
 
 var CMap = {
   Red: {
