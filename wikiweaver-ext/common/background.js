@@ -21,21 +21,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
   const filters = [
     new RegExp(".*://.*.thewikipediagame.com/.+"),
     new RegExp(".*://.*.thewikigame.com/group/wiki/.+"),
-    new RegExp(".*://.*wikispeedrun.org/wiki/.+"),
   ];
 
   if (!Matches(url, filters)) {
     // Firefox takes an optional filter argument to the addListener functions
     // that does this, but Chrome does not support it sadly. So we have to do
     // it manually.
-    return;
-  }
-
-  if (url.includes("$")) {
-    // A special case for wikispeedrun.org since it goes back in forth between
-    // pages for some reason. If we exclude urls with a $ we only get one
-    // transition to correct page. Since (I think) no Wikipedia pages contains
-    // a $, I think we will not filter out any correct pages.
     return;
   }
 
