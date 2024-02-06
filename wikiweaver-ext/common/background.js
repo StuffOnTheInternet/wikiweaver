@@ -43,6 +43,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
 
   await SetPreviousPageOnTab(tabId, currentPage);
 
+  console.log("Transition:", previousPage, "->", currentPage);
+
   if (!(await GetConnectionStatus())) {
     return;
   }
@@ -65,6 +67,8 @@ chrome.webNavigation.onCommitted.addListener(
     const previousPage = await GetPreviousPageOnTab(event.tabId);
 
     await SetPreviousPageOnTab(event.tabId, currentPage);
+
+    console.log("Transition:", previousPage, "->", currentPage);
 
     if (!(await GetConnectionStatus())) {
       return;
