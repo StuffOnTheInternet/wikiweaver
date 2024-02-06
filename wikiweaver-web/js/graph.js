@@ -632,8 +632,8 @@ function CreateNicerExample() {
   AddNewPage("Retroducky", "Santa Claus", "Pepsi");
   AddNewPage("Retroducky", "Pepsi", "Fat");
   AddNewPage("Retroducky", "Fat", "Tuna");
-  AddNewPage("Retroducky", "Tuna", "Game Fish");
-  AddNewPage("Retroducky", "Game Fish", "Fish");
+  AddNewPage("Retroducky", "Tuna", "Game fish");
+  AddNewPage("Retroducky", "Game fish", "Fish");
   UpdateLeaderboardEntry("Retroducky", 5, 5, 239);
 
   AddNewPlayer("vi9ke");
