@@ -16,7 +16,11 @@
     "default_popup": "popup/popup.html"
   },
   "permissions": ["storage", "tabs", "webNavigation", "webRequest"],
-  "host_permissions": ["https://wikipedia.com/*"],
+  "host_permissions": [
+    "*://*.thewikigame.com/*",
+    "*://*.thewikipediagame.com/*",
+    "*://*.wikipedia.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   }
