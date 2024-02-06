@@ -19,7 +19,8 @@
   "host_permissions": [
     "*://*.thewikigame.com/*",
     "*://*.thewikipediagame.com/*",
-    "*://*.wikipedia.com/*"
+    "*://*.wikipedia.com/*",
+    "*://*.wikispeedrun.org/*"
   ],
   "background": {
     "service_worker": "background.js"
