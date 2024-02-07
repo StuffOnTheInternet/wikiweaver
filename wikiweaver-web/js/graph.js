@@ -84,6 +84,7 @@ var CMap = {
     arrowcolor: "#d33",
     arrowshape: "triangle",
     fromnode: "", // Assigned at startup
+    showon: true, // Used for toggling player paths with ctxmenu
   },
   Orange: {
     group: UNUSED,
@@ -92,7 +93,8 @@ var CMap = {
     linecolor: "#fa0",
     arrowcolor: "#d80",
     arrowshape: "chevron",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Yellow: {
     group: UNUSED,
@@ -101,7 +103,8 @@ var CMap = {
     linecolor: "#fe0",
     arrowcolor: "#db1",
     arrowshape: "triangle",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Lime: {
     group: UNUSED,
@@ -110,7 +113,8 @@ var CMap = {
     linecolor: "#be2",
     arrowcolor: "#bd2",
     arrowshape: "chevron",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Green: {
     group: UNUSED,
@@ -119,7 +123,8 @@ var CMap = {
     linecolor: "#6d5",
     arrowcolor: "#6b5",
     arrowshape: "triangle",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Cyan: {
     group: UNUSED,
@@ -128,7 +133,8 @@ var CMap = {
     linecolor: "#1dd",
     arrowcolor: "#1bb",
     arrowshape: "chevron",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Blue: {
     group: UNUSED,
@@ -137,7 +143,8 @@ var CMap = {
     linecolor: "#55f",
     arrowcolor: "#55e",
     arrowshape: "triangle",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Violet: {
     group: UNUSED,
@@ -146,7 +153,8 @@ var CMap = {
     linecolor: "#a3e",
     arrowcolor: "#a3c",
     arrowshape: "chevron",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Magenta: {
     group: UNUSED,
@@ -155,7 +163,8 @@ var CMap = {
     linecolor: "#f2e",
     arrowcolor: "#d2c",
     arrowshape: "triangle",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
   Brown: {
     group: UNUSED,
@@ -164,7 +173,8 @@ var CMap = {
     linecolor: "#c73",
     arrowcolor: "#a53",
     arrowshape: "chevron",
-    fromnode: "", // Assigned at startup
+    fromnode: "",
+    showon: true,
   },
 };
 
@@ -380,9 +390,10 @@ function StartGame(StartNode, GoalNode) {
   ForceNewLayout(StartupOptions);
 
   // Activate the context menu, so something happens when you rightclick
-  let menu = webgraph.cxtmenu(MenuNode);
-  webgraph.cxtmenu(MenuEdge);
-  webgraph.cxtmenu(MenuBG);
+  let menu = webgraph.cxtmenu({ ...MenuNode, ...MenuStyle });
+  webgraph.cxtmenu({ ...MenuEdge, ...MenuStyle });
+  webgraph.cxtmenu({ ...MenuBG, ...MenuStyle });
+
 
   // Guarantee proper zoom level
   webgraph.zoom({ level: 1 });
@@ -423,6 +434,11 @@ function ShowOnePlayer(element) {
   webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').show()
 }
 
+function ShowAllPlayers() {
+  // Shows the path for every player
+  webgraph.edges().show()
+}
+
 function ToggleEdgeNames() {
   if (edgenameson) {
     // Turn off edge names
@@ -449,9 +465,6 @@ function Urlify(InString) {
 // CONTEXT MENU OPTIONS
 
 let MenuNode = {
-  menuRadius: function (ele) {
-    return 100;
-  }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
@@ -483,30 +496,14 @@ let MenuNode = {
       }
     }
   ],
-  activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
-  activePadding: 10, // additional size in pixels for the active command
-  indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
-  separatorWidth: 3, // the empty spacing in pixels between successive commands
-  spotlightPadding: 5, // extra spacing in pixels between the element and the spotlight
-  adaptativeNodeSpotlightRadius: false, // specify whether the spotlight radius should adapt to the node size
-  minSpotlightRadius: 20, // the minimum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
-  maxSpotlightRadius: 30, // the maximum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
-  openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
-  itemColor: 'white', // the colour of text in the command's content
-  itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
-  atMouse: false, // draw menu at mouse position
-  outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
 };
 
 let MenuEdge = {
-  menuRadius: function (ele) {
-    return 100;
-  }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   selector: 'edge', // elements matching this Cytoscape.js selector will trigger cxtmenus
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
       // Show the path for one specific player
-      fillColor: 'rgba(110, 110, 110, 0.95)',
+      fillColor: 'rgba(150, 150, 150, 0.95)',
       content: 'Show player  path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -514,26 +511,9 @@ let MenuEdge = {
       }
     }
   ],
-
-  activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
-  activePadding: 10, // additional size in pixels for the active command
-  indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
-  separatorWidth: 3, // the empty spacing in pixels between successive commands
-  spotlightPadding: 5, // extra spacing in pixels between the element and the spotlight
-  adaptativeNodeSpotlightRadius: false, // specify whether the spotlight radius should adapt to the node size
-  minSpotlightRadius: 20, // the minimum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
-  maxSpotlightRadius: 30, // the maximum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
-  openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
-  itemColor: 'white', // the colour of text in the command's content
-  itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
-  atMouse: false, // draw menu at mouse position
-  outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
 };
 
 let MenuBG = {
-  menuRadius: function (ele) {
-    return 100;
-  }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   selector: 'core', // elements matching this Cytoscape.js selector will trigger cxtmenus
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
@@ -542,7 +522,7 @@ let MenuBG = {
       content: 'Toggle edge names', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        ToggleEdgeNames() // `ele` holds the reference to the active element
+        ToggleEdgeNames(); // `ele` holds the reference to the active element
       }
     },
     {
@@ -551,11 +531,16 @@ let MenuBG = {
       content: 'Show all players', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        webgraph.edges().show()
+        ShowAllPlayers();
       }
     }
   ],
+};
 
+let MenuStyle = {
+  menuRadius: function (ele) {
+    return 100;
+  }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
   activePadding: 10, // additional size in pixels for the active command
   indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
@@ -565,12 +550,10 @@ let MenuBG = {
   minSpotlightRadius: 20, // the minimum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
   maxSpotlightRadius: 30, // the maximum radius in pixels of the spotlight (ignored for the node if adaptativeNodeSpotlightRadius is enabled but still used for the edge & background)
   openMenuEvents: 'cxttapstart taphold', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
-  itemColor: 'white', // the colour of text in the command's content
   itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
   atMouse: false, // draw menu at mouse position
   outsideMenuCancel: false // if set to a number, this will cancel the command if the pointer is released outside of the spotlight, padded by the number given 
 };
-
 
 // EXAMPLE GRAPHS
 
