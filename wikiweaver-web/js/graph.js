@@ -33,6 +33,106 @@ var GraphStyle = [
     },
   },
   {
+    selector: ".Red",
+    style: {
+      "background-color": "#e44",
+      "border-color": "#d33",
+      "line-color": "#e22",
+      "target-arrow-color": "#d33",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Orange",
+    style: {
+      "background-color": "#fa0",
+      "border-color": "#e90",
+      "line-color": "#fa0",
+      "target-arrow-color": "#d80",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
+    selector: ".Yellow",
+    style: {
+      "background-color": "#fe0",
+      "border-color": "#ed1",
+      "line-color": "#fe0",
+      "target-arrow-color": "#db1",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Lime",
+    style: {
+      "background-color": "#ce3",
+      "border-color": "#bd2",
+      "line-color": "#be2",
+      "target-arrow-color": "#bd2",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
+    selector: ".Green",
+    style: {
+      "background-color": "#6c5",
+      "border-color": "#5b4",
+      "line-color": "#6d5",
+      "target-arrow-color": "#6b5",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Cyan",
+    style: {
+      "background-color": "#1de",
+      "border-color": "#1cd",
+      "line-color": "#1dd",
+      "target-arrow-color": "#1bb",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
+    selector: ".Blue",
+    style: {
+      "background-color": "#66f",
+      "border-color": "#55f",
+      "line-color": "#55f",
+      "target-arrow-color": "#55e",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Violet",
+    style: {
+      "background-color": "#b4e",
+      "border-color": "#a3d",
+      "line-color": "#a3e",
+      "target-arrow-color": "#a3c",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
+    selector: ".Magenta",
+    style: {
+      "background-color": "#e2d",
+      "border-color": "#c2c",
+      "line-color": "#f2e",
+      "target-arrow-color": "#d2c",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Brown",
+    style: {
+      "background-color": "#b63",
+      "border-color": "#a53",
+      "line-color": "#c73",
+      "target-arrow-color": "#a53",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
     selector: "edge",
     style: {
       width: 4,
@@ -44,7 +144,6 @@ var GraphStyle = [
       "text-background-color": "#fff",
       "text-background-shape": "round-rectangle",
       "text-background-padding": 1,
-      "target-arrow-shape": "triangle",
       "curve-style": "bezier",
       "control-point-step-size": 15,
     },
@@ -79,101 +178,51 @@ var CMap = {
   Red: {
     group: UNUSED,
     bgcolor: "#e44",
-    bordercolor: "#d33",
-    linecolor: "#e22",
-    arrowcolor: "#d33",
-    arrowshape: "triangle",
-    fromnode: "", // Assigned at startup
     showon: true, // Used for toggling player paths with ctxmenu
   },
   Orange: {
     group: UNUSED,
     bgcolor: "#fa0",
-    bordercolor: "#e90",
-    linecolor: "#fa0",
-    arrowcolor: "#d80",
-    arrowshape: "chevron",
-    fromnode: "",
     showon: true,
   },
   Yellow: {
     group: UNUSED,
     bgcolor: "#fe0",
-    bordercolor: "#ed1",
-    linecolor: "#fe0",
-    arrowcolor: "#db1",
-    arrowshape: "triangle",
-    fromnode: "",
     showon: true,
   },
   Lime: {
     group: UNUSED,
     bgcolor: "#ce3",
-    bordercolor: "#bd2",
-    linecolor: "#be2",
-    arrowcolor: "#bd2",
-    arrowshape: "chevron",
-    fromnode: "",
     showon: true,
   },
   Green: {
     group: UNUSED,
     bgcolor: "#6c5",
-    bordercolor: "#5b4",
-    linecolor: "#6d5",
-    arrowcolor: "#6b5",
-    arrowshape: "triangle",
-    fromnode: "",
     showon: true,
   },
   Cyan: {
     group: UNUSED,
     bgcolor: "#1de",
-    bordercolor: "#1cd",
-    linecolor: "#1dd",
-    arrowcolor: "#1bb",
-    arrowshape: "chevron",
-    fromnode: "",
     showon: true,
   },
   Blue: {
     group: UNUSED,
     bgcolor: "#66f",
-    bordercolor: "#55f",
-    linecolor: "#55f",
-    arrowcolor: "#55e",
-    arrowshape: "triangle",
-    fromnode: "",
     showon: true,
   },
   Violet: {
     group: UNUSED,
     bgcolor: "#b4e",
-    bordercolor: "#a3d",
-    linecolor: "#a3e",
-    arrowcolor: "#a3c",
-    arrowshape: "chevron",
-    fromnode: "",
     showon: true,
   },
   Magenta: {
     group: UNUSED,
     bgcolor: "#e2d",
-    bordercolor: "#c2c",
-    linecolor: "#f2e",
-    arrowcolor: "#d2c",
-    arrowshape: "triangle",
-    fromnode: "",
     showon: true,
   },
   Brown: {
     group: UNUSED,
     bgcolor: "#b63",
-    bordercolor: "#a53",
-    linecolor: "#c73",
-    arrowcolor: "#a53",
-    arrowshape: "chevron",
-    fromnode: "",
     showon: true,
   },
 };
@@ -299,9 +348,7 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
   // Add a new edge and possibly a new node for a player click
   var CList = CMap[PColor];
 
-  CList.fromnode = Fromstring;
-
-  if (CList.fromnode == ToString) {
+  if (Fromstring == ToString) {
     return;
   }
 
@@ -310,40 +357,27 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
     webgraph.add({
       data: { id: ToString, group: CList.group, shortid: ShortenString(ToString, 25), isshort: true },
       position: {
-        x: webgraph.getElementById(CList.fromnode).position("x"),
-        y: webgraph.getElementById(CList.fromnode).position("y"),
+        x: webgraph.getElementById(Fromstring).position("x"),
+        y: webgraph.getElementById(Fromstring).position("y"),
       },
+      classes: [PColor]
     });
-    webgraph
-      .nodes('[group = "' + CList.group + '"]')
-      .style("background-color", CList.bgcolor);
-    webgraph
-      .nodes('[group = "' + CList.group + '"]')
-      .style("border-color", CList.bordercolor);
   }
 
   // Always add a new edge
   webgraph.add({
     data: {
       group: CList.group,
-      source: CList.fromnode,
+      source: Fromstring,
       target: ToString,
       shortgroup: ShortenString(CList.group, 10),
     },
+    classes: [PColor]
   });
-  webgraph
-    .edges('[group = "' + CList.group + '"]')
-    .style("line-color", CList.linecolor);
-  webgraph
-    .edges('[group = "' + CList.group + '"]')
-    .style("target-arrow-color", CList.arrowcolor);
-  webgraph
-    .edges('[group = "' + CList.group + '"]')
-    .style("target-arrow-shape", CList.arrowshape);
 
   if (backmove) {
     webgraph
-      .edges('[target = "' + ToString + '"][source = "' + CList.fromnode + '"][group = "' + CList.group + '"]')
+      .edges('[target = "' + ToString + '"][source = "' + Fromstring + '"][group = "' + CList.group + '"]')
       .style("line-style", "dashed");
   }
 
@@ -351,9 +385,6 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
   if (!CList.showon) {
     webgraph.edges('[group = "' + CList.group + '"]').hide();
   }
-
-  // Reposition the player to the new node
-  CList.fromnode = ToString;
 
   // If goal node has been found, show it
   if (webgraph.nodes('[group = "Goal"]').degree() > 0) {
@@ -379,10 +410,6 @@ function StartGame(StartNode, GoalNode) {
     data: { id: GoalNode, group: "Goal", shortid: ShortenString(GoalNode, 25), isshort: true },
     position: { x: 0, y: 0 },
   });
-
-  for (let color in CMap) {
-    CMap[color].fromnode = StartNode;
-  }
 
   webgraph.nodes('[group = "Start"]').addClass("SG");
   webgraph.nodes('[group = "Goal"]').addClass("SG");
