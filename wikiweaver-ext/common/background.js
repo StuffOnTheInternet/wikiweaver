@@ -43,6 +43,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
 
   await SetPreviousPageOnTab(tabId, currentPage);
 
+  console.log("Transition:", previousPage, "->", currentPage);
+
   if (!(await GetConnectionStatus())) {
     return;
   }
@@ -56,10 +58,17 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
 
 chrome.webNavigation.onCommitted.addListener(
   async (event) => {
+    if (!event.url.includes("/wiki/")) {
+      // Filter out Wikipedia pages which are not actually articles.
+      return;
+    }
+
     const currentPage = await GetWikipediaArticleTitle(event.url);
     const previousPage = await GetPreviousPageOnTab(event.tabId);
 
     await SetPreviousPageOnTab(event.tabId, currentPage);
+
+    console.log("Transition:", previousPage, "->", currentPage);
 
     if (!(await GetConnectionStatus())) {
       return;
