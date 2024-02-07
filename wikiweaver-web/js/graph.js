@@ -347,6 +347,11 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
       .style("line-style", "dashed");
   }
 
+  // If we are hiding a player path, hide the edges but not the nodes
+  if (!CList.showon) {
+    webgraph.edges('[group = "' + CList.group + '"]').hide();
+  }
+
   // Reposition the player to the new node
   CList.fromnode = ToString;
 
@@ -390,9 +395,9 @@ function StartGame(StartNode, GoalNode) {
   ForceNewLayout(StartupOptions);
 
   // Activate the context menu, so something happens when you rightclick
-  let menu = webgraph.cxtmenu({ ...MenuNode, ...MenuStyle });
-  webgraph.cxtmenu({ ...MenuEdge, ...MenuStyle });
-  webgraph.cxtmenu({ ...MenuBG, ...MenuStyle });
+  let menu = webgraph.cxtmenu({ ...MenuStyle, ...MenuNode });
+  webgraph.cxtmenu({ ...MenuStyle, ...MenuEdge });
+  webgraph.cxtmenu({ ...MenuStyle, ...MenuBG });
 
 
   // Guarantee proper zoom level
@@ -424,19 +429,37 @@ function ToggleFullString(element) {
   element.toggleClass("FullNode");
 }
 
-function ShowOnePlayer(element) {
-  // Shows the path of a specific player
-  webgraph.edges().hide()
+function ToggleOnePlayer(element) {
+  // Toggles showing the path of a specific player
   if (element.data("group") == "Start" || element.data("group") == "Goal") {
     // Don't attempt to look at Start or Goal ""Path""
     return
   }
-  webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').show()
+
+  if (CMap[UsernameToColor(element.data("group"))].showon) {
+    webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').hide();
+    CMap[UsernameToColor(element.data("group"))].showon = false;
+  }
+  else {
+    webgraph.edges('[group = "' + CMap[UsernameToColor(element.data("group"))].group + '"]').show();
+    CMap[UsernameToColor(element.data("group"))].showon = true;
+  }
 }
 
 function ShowAllPlayers() {
   // Shows the path for every player
   webgraph.edges().show()
+  for (let color of ColorArray) {
+    CMap[color].showon = true;
+  }
+}
+
+function HideAllPlayers() {
+  // hides the path for every player
+  webgraph.edges().hide()
+  for (let color of ColorArray) {
+    CMap[color].showon = false;
+  }
 }
 
 function ToggleEdgeNames() {
@@ -469,7 +492,7 @@ let MenuNode = {
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
       // Link to website command
-      fillColor: 'rgba(150, 150, 150, 0.95)', // the background colour of the menu
+      fillColor: 'rgba(190, 150, 150, 0.95)', // the background colour of the menu
       content: 'Go to Article', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -479,7 +502,7 @@ let MenuNode = {
     },
     {
       // Toggle between long and short node id
-      fillColor: 'rgba(130, 130, 130, 0.95)',
+      fillColor: 'rgba(170, 130, 130, 0.95)',
       content: 'Toggle short/long name', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -488,11 +511,11 @@ let MenuNode = {
     },
     {
       // Show the path for one specific player
-      fillColor: 'rgba(110, 110, 110, 0.95)',
-      content: 'Show player path', // html/text content to be displayed in the menu
+      fillColor: 'rgba(150, 110, 110, 0.95)',
+      content: 'Toggle player path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        ShowOnePlayer(ele)
+        ToggleOnePlayer(ele)
       }
     }
   ],
@@ -503,14 +526,16 @@ let MenuEdge = {
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
       // Show the path for one specific player
-      fillColor: 'rgba(150, 150, 150, 0.95)',
-      content: 'Show player  path', // html/text content to be displayed in the menu
+      fillColor: 'rgba(150, 150, 190, 0.95)',
+      content: 'Toggle player path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
-        ShowOnePlayer(ele)
+        ToggleOnePlayer(ele)
       }
     }
   ],
+  minSpotlightRadius: 10,
+  maxSpotlightRadius: 10,
 };
 
 let MenuBG = {
@@ -518,7 +543,7 @@ let MenuBG = {
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
       // Toggle between showing usernames on edges and not
-      fillColor: 'rgba(130, 130, 130, 0.95)',
+      fillColor: 'rgba(150, 190, 150, 0.95)',
       content: 'Toggle edge names', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -527,17 +552,29 @@ let MenuBG = {
     },
     {
       // Show all player paths
-      fillColor: 'rgba(110, 110, 110, 0.95)',
+      fillColor: 'rgba(130, 170, 130, 0.95)',
       content: 'Show all players', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
         ShowAllPlayers();
       }
+    },
+    {
+      // Hide all player paths
+      fillColor: 'rgba(110, 150, 110, 0.95)',
+      content: 'Hide all players', // html/text content to be displayed in the menu
+      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+      select: function (ele) {
+        HideAllPlayers();
+      }
     }
   ],
+  minSpotlightRadius: 10,
+  maxSpotlightRadius: 10,
 };
 
 let MenuStyle = {
+  // The default menu style for all cxt menus. Can be overriden by MenuNode/MenuEdge/MenuBG
   menuRadius: function (ele) {
     return 100;
   }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
