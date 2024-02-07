@@ -492,7 +492,7 @@ let MenuNode = {
   commands: [ // an array of commands to list in the menu or a function that returns the array
     {
       // Link to website command
-      fillColor: 'rgba(190, 150, 150, 0.95)', // the background colour of the menu
+      fillColor: 'rgba(230, 130, 130, 0.95)', // the background colour of the menu
       content: 'Go to Article', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -502,7 +502,7 @@ let MenuNode = {
     },
     {
       // Toggle between long and short node id
-      fillColor: 'rgba(170, 130, 130, 0.95)',
+      fillColor: 'rgba(210, 110, 110, 0.95)',
       content: 'Toggle short/long name', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -511,7 +511,7 @@ let MenuNode = {
     },
     {
       // Show the path for one specific player
-      fillColor: 'rgba(150, 110, 110, 0.95)',
+      fillColor: 'rgba(200, 100, 100, 0.95)',
       content: 'Toggle player path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
@@ -519,6 +519,8 @@ let MenuNode = {
       }
     }
   ],
+  activeFillColor: 'rgba(230, 40, 0, 0.75)', // the colour used to indicate the selected command
+
 };
 
 let MenuEdge = {
@@ -534,8 +536,10 @@ let MenuEdge = {
       }
     }
   ],
+  activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
   minSpotlightRadius: 10,
   maxSpotlightRadius: 10,
+  menuRadius: 70,
 };
 
 let MenuBG = {
@@ -569,6 +573,7 @@ let MenuBG = {
       }
     }
   ],
+  activeFillColor: 'rgba(0, 230, 120, 0.75)', // the colour used to indicate the selected command
   minSpotlightRadius: 10,
   maxSpotlightRadius: 10,
 };
@@ -578,7 +583,6 @@ let MenuStyle = {
   menuRadius: function (ele) {
     return 100;
   }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
-  activeFillColor: 'rgba(0, 120, 230, 0.75)', // the colour used to indicate the selected command
   activePadding: 10, // additional size in pixels for the active command
   indicatorSize: 24, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
   separatorWidth: 3, // the empty spacing in pixels between successive commands
