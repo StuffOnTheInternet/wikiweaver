@@ -384,6 +384,9 @@ function StartGame(StartNode, GoalNode) {
   webgraph.cxtmenu(MenuEdge);
   webgraph.cxtmenu(MenuBG);
 
+  // Guarantee proper zoom level
+  webgraph.zoom({ level: 1 });
+
   // document.getElementById("redraw-button").disabled = false;
 }
 
@@ -457,6 +460,7 @@ let MenuNode = {
       content: 'Go to Article', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) { // a function to execute when the command is selected
+
         window.open(Urlify(ele.id())) // `ele` holds the reference to the active element
       }
     },
@@ -664,6 +668,7 @@ function CreateNicerExample() {
   AddNewPage("username", "Sheep", "Food and Agriculture Organization");
 
   ForceNewLayout(ExampleGraphOptions);
+
   //createColorTest()
 
 }
