@@ -671,17 +671,17 @@ function CreateNicerExample() {
   AddNewPage("l0fen", "Lent", "Fish");
   UpdateLeaderboardEntry("l0fen", 3, 3, 97);
 
-  AddNewPlayer("SomeRandomDude");
-  AddLeaderboardEntry("SomeRandomDude", 5, 5);
-  AddNewPage("SomeRandomDude", "Santa Claus", "Saint Nicholas");
-  AddNewPage("SomeRandomDude", "Saint Nicholas", "Early Christianity");
-  AddNewPage("SomeRandomDude", "Early Christianity", "Jesus in Christianity");
-  AddNewPage("SomeRandomDude", "Jesus in Christianity", "Adam");
-  AddNewPage("SomeRandomDude", "Jesus in Christianity", "Jerusalem");
-  AddNewPage("SomeRandomDude", "Jesus in Christianity", "Christianity");
-  AddNewPage("SomeRandomDude", "Christianity", "Lent");
-  AddNewPage("SomeRandomDude", "Lent", "Fish");
-  UpdateLeaderboardEntry("SomeRandomDude", 5, 5, 165);
+  AddNewPlayer("SomeRndmDude");
+  AddLeaderboardEntry("SomeRndmDude", 5, 5);
+  AddNewPage("SomeRndmDude", "Santa Claus", "Saint Nicholas");
+  AddNewPage("SomeRndmDude", "Saint Nicholas", "Early Christianity");
+  AddNewPage("SomeRndmDude", "Early Christianity", "Jesus in Christianity");
+  AddNewPage("SomeRndmDude", "Jesus in Christianity", "Adam");
+  AddNewPage("SomeRndmDude", "Jesus in Christianity", "Jerusalem");
+  AddNewPage("SomeRndmDude", "Jesus in Christianity", "Christianity");
+  AddNewPage("SomeRndmDude", "Christianity", "Lent");
+  AddNewPage("SomeRndmDude", "Lent", "Fish");
+  UpdateLeaderboardEntry("SomeRndmDude", 5, 5, 165);
 
   AddNewPlayer("BEE");
   AddLeaderboardEntry("BEE", 7, 5);
