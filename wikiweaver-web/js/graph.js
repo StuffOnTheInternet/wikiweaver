@@ -388,24 +388,24 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
       .style("line-style", "dashed");
   }
 
-
-
-
   // If we are hiding a player path, hide the edges but not the nodes
   if (!CList.showon) {
     webgraph.edges('[group = "' + CList.group + '"]').hide();
   }
 
-  // If goal node has been found, show it, and calculate the distance taken
+  // If goal node has been found, show it
   if (webgraph.nodes('[group = "Goal"]').id() == ToString) {
     webgraph.nodes('[group = "Goal"]').show();
-    let results = webgraph.elements('[group = "' + CList.group + '"],node').aStar({ root: ".Start", goal: ".Goal" });
-    // DISTANCE LOGGED HERE!
-    console.log(results.distance);
   }
 
   ForceNewLayout(NewNodeOptions);
 }
+
+function GetPlayerDistance(Playername) {
+  let results = webgraph.elements('[group = "' + Playername + '"],node').aStar({ root: ".Start", goal: ".Goal" });
+  return results.distance;
+}
+
 
 function ForceNewLayout(OverrideOptions) {
   webgraph.layout({ name: "cola", ...DefaultOptions, ...OverrideOptions }).run();

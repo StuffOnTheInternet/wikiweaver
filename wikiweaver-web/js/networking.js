@@ -93,6 +93,8 @@ function HandleMessagePage(msg) {
   UpdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 
   if (msg.FinishTime) {
+    UpdateLeaderboardEntry(msg.Username, msg.Clicks, GetPlayerDistance(msg.Username), msg.FinishTime);
+
     MoveLeaderboardEntry(msg.Username, numberOfPlayersFinished);
     numberOfPlayersFinished += 1;
 
