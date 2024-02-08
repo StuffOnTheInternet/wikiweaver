@@ -14,7 +14,7 @@
     "default_title": "WikiWeaver",
     "default_popup": "popup/popup.html"
   },
-  "permissions": ["storage", "tabs", "webNavigation", "webRequest"],
+  "permissions": ["storage", "tabs", "webNavigation"],
   "host_permissions": [
     "*://*.thewikigame.com/*",
     "*://*.thewikipediagame.com/*",
