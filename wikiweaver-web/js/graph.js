@@ -24,8 +24,15 @@ var GraphStyle = [
     },
   },
   {
-    // Start or goal node
-    selector: ".SG",
+    selector: ".Start",
+    style: {
+      "font-size": 22,
+      width: 45,
+      height: 45,
+    },
+  },
+  {
+    selector: ".Goal",
     style: {
       "font-size": 22,
       width: 45,
@@ -381,14 +388,20 @@ function AddNewElement(PColor, Fromstring, ToString, backmove) {
       .style("line-style", "dashed");
   }
 
+
+
+
   // If we are hiding a player path, hide the edges but not the nodes
   if (!CList.showon) {
     webgraph.edges('[group = "' + CList.group + '"]').hide();
   }
 
-  // If goal node has been found, show it
-  if (webgraph.nodes('[group = "Goal"]').degree() > 0) {
+  // If goal node has been found, show it, and calculate the distance taken
+  if (webgraph.nodes('[group = "Goal"]').id() == ToString) {
     webgraph.nodes('[group = "Goal"]').show();
+    let results = webgraph.elements('[group = "' + CList.group + '"],node').aStar({ root: ".Start", goal: ".Goal" });
+    // DISTANCE LOGGED HERE!
+    console.log(results.distance);
   }
 
   ForceNewLayout(NewNodeOptions);
@@ -411,8 +424,8 @@ function StartGame(StartNode, GoalNode) {
     position: { x: 0, y: 0 },
   });
 
-  webgraph.nodes('[group = "Start"]').addClass("SG");
-  webgraph.nodes('[group = "Goal"]').addClass("SG");
+  webgraph.nodes('[group = "Start"]').addClass("Start");
+  webgraph.nodes('[group = "Goal"]').addClass("Goal");
 
   webgraph.nodes('[group = "Start"]').style("shape", "round-diamond");
   webgraph.nodes('[group = "Goal"]').style("shape", "star");
@@ -425,7 +438,6 @@ function StartGame(StartNode, GoalNode) {
   let menu = webgraph.cxtmenu({ ...MenuStyle, ...MenuNode });
   webgraph.cxtmenu({ ...MenuStyle, ...MenuEdge });
   webgraph.cxtmenu({ ...MenuStyle, ...MenuBG });
-
 
   // Guarantee proper zoom level
   webgraph.zoom({ level: 1 });
