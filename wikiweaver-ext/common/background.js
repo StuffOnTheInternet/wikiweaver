@@ -205,9 +205,10 @@ async function SearchForWikipediaTitle(title) {
       return { error: error };
     });
 
-  if (!response) return "";
-
-  if (response.error != undefined) return "";
+  if (!responsonse || response.error != undefined) {
+    console.log(`warning: no result for Wikipedia search for '${title}'`);
+    return title;
+  }
 
   // Results are returned unordered, so find the best result
 
@@ -217,7 +218,8 @@ async function SearchForWikipediaTitle(title) {
     if (page.index === 1) return page.title;
   }
 
-  return "";
+  console.log(`warning: no good page for Wikipedia search for '${title}'`);
+  return title;
 }
 
 async function GetStorageValue(keys, defaultValue) {
