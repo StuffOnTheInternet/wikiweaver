@@ -94,6 +94,14 @@ chrome.tabs.onCreated.addListener(async (event) => {
   SetPreviousPageOnTab(event.id, previousPage);
 });
 
+chrome.webNavigation.onCompleted.addListener(async (details) => {
+  if (!(await GetConnectionStatus())) {
+    return;
+  }
+
+  await chrome.tabs.sendMessage(details.tabId, { type: "hide" });
+});
+
 async function SendPage(previousPage, currentPage, backmove = false) {
   const options = await chrome.storage.local.get();
 

@@ -27,7 +27,7 @@
   "content_scripts": [
     {
       "matches": ["*://*.wikipedia.org/*"],
-      "css": ["/content/style.css"],
+      "js": ["content/content.js"],
       "run_at": "document_start"
     }
   ]
