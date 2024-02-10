@@ -205,7 +205,7 @@ async function SearchForWikipediaTitle(title) {
       return { error: error };
     });
 
-  if (!responsonse || response.error != undefined) {
+  if (!response || response.error != undefined) {
     console.log(`warning: no result for Wikipedia search for '${title}'`);
     return title;
   }
