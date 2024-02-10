@@ -19,9 +19,16 @@
   "host_permissions": [
     "*://*.thewikigame.com/*",
     "*://*.thewikipediagame.com/*",
-    "*://*.wikipedia.com/*"
+    "*://*.wikipedia.org/*"
   ],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.wikipedia.org/*"],
+      "css": ["/content/style.css"],
+      "run_at": "document_start"
+    }
+  ]
 }
