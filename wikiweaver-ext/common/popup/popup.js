@@ -130,15 +130,11 @@ chrome.runtime.onMessage.addListener(async (msg) => {
 
 const ContentScripts = [
   {
-    id: "hideSearchBar",
+    id: "content",
     css: ["../content/style.css"],
-    matches: ["*://*.wikipedia.org/*"],
-    runAt: "document_start",
-  },
-  {
-    id: "disableLinks",
     js: ["../content/content.js"],
     matches: ["*://*.wikipedia.org/*"],
+    runAt: "document_start",
   },
 ];
 

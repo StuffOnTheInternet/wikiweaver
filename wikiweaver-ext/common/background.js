@@ -94,7 +94,7 @@ chrome.tabs.onCreated.addListener(async (event) => {
   SetPreviousPageOnTab(event.id, previousPage);
 });
 
-chrome.webNavigation.onCompleted.addListener(async (details) => {
+chrome.webNavigation.onDOMContentLoaded.addListener(async (details) => {
   if (!(await GetConnectionStatus())) {
     return;
   }
