@@ -32,13 +32,13 @@ function HideSuperfluousElements() {
 const ValidWikipediaUrl = RegExp(".*://en.wikipedia.org/wiki/.+");
 
 const InvalidStringsInUrl = [
-  "Category:",
+  // "Category:",
   "Draft:",
   "File:",
   "Help:",
   "MediaWiki:",
   "Module:",
-  "Portal:",
+  // "Portal:",
   "Special:",
   "Talk:",
   "Template:",
