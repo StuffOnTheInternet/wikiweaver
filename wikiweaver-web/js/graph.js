@@ -39,6 +39,17 @@ var GraphStyle = [
       height: 45,
     },
   },
+
+  {
+    selector: ".Maroon",
+    style: {
+      "background-color": "#b21",
+      "border-color": "#a32",
+      "line-color": "#b21",
+      "target-arrow-color": "#932",
+      "target-arrow-shape": "chevron",
+    },
+  },
   {
     selector: ".Red",
     style: {
@@ -100,6 +111,26 @@ var GraphStyle = [
     },
   },
   {
+    selector: ".Teal",
+    style: {
+      "background-color": "#1ab",
+      "border-color": "#19a",
+      "line-color": "#1aa",
+      "target-arrow-color": "#19a",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Lblue",
+    style: {
+      "background-color": "#9bf",
+      "border-color": "#8af",
+      "line-color": "#9bf",
+      "target-arrow-color": "#8ae",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
     selector: ".Blue",
     style: {
       "background-color": "#66f",
@@ -110,13 +141,23 @@ var GraphStyle = [
     },
   },
   {
+    selector: ".Navy",
+    style: {
+      "background-color": "#33c",
+      "border-color": "#22c",
+      "line-color": "#22b",
+      "target-arrow-color": "#22c",
+      "target-arrow-shape": "chevron",
+    },
+  },
+  {
     selector: ".Violet",
     style: {
       "background-color": "#b4e",
       "border-color": "#a3d",
       "line-color": "#a3e",
       "target-arrow-color": "#a3c",
-      "target-arrow-shape": "chevron",
+      "target-arrow-shape": "triangle",
     },
   },
   {
@@ -126,7 +167,7 @@ var GraphStyle = [
       "border-color": "#c2c",
       "line-color": "#f2e",
       "target-arrow-color": "#d2c",
-      "target-arrow-shape": "triangle",
+      "target-arrow-shape": "chevron",
     },
   },
   {
@@ -136,7 +177,27 @@ var GraphStyle = [
       "border-color": "#a53",
       "line-color": "#c73",
       "target-arrow-color": "#a53",
+      "target-arrow-shape": "triangle",
+    },
+  },
+  {
+    selector: ".Gray",
+    style: {
+      "background-color": "#999",
+      "border-color": "#888",
+      "line-color": "888",
+      "target-arrow-color": "#888",
       "target-arrow-shape": "chevron",
+    },
+  },
+  {
+    selector: ".Black",
+    style: {
+      "background-color": "#444",
+      "border-color": "#222",
+      "line-color": "#444",
+      "target-arrow-color": "#222",
+      "target-arrow-shape": "triangle",
     },
   },
   {
@@ -177,6 +238,12 @@ var ColorArray = [
   "Magenta",
   "Lime",
   "Brown",
+  "Teal",
+  "Maroon",
+  "Lblue",
+  "Gray",
+  "Navy",
+  "Black",
 ];
 
 const UNUSED = "";
@@ -232,6 +299,37 @@ var CMap = {
     bgcolor: "#b63",
     showon: true,
   },
+  Teal: {
+    group: UNUSED,
+    bgcolor: "#1ab",
+    showon: true,
+  },
+  Maroon: {
+    group: UNUSED,
+    bgcolor: "#b21",
+    showon: true,
+  },
+  Lblue: {
+    group: UNUSED,
+    bgcolor: "#9bf",
+    showon: true,
+  },
+  Gray: {
+    group: UNUSED,
+    bgcolor: "#999",
+    showon: true,
+  },
+  Navy: {
+    group: UNUSED,
+    bgcolor: "#33c",
+    showon: true,
+  },
+  Black: {
+    group: UNUSED,
+    bgcolor: "#444",
+    showon: true,
+  },
+
 };
 
 
@@ -640,20 +738,50 @@ let MenuStyle = {
 function createColorTest() {
   // A full sized test for the maximum amount of players
   // Added at the end of NicerExample to provide the final extra colors needed
-  AddNewPlayer("TEST1");
-  AddLeaderboardEntry("TEST1", 2, 2);
-  AddNewPage("TEST1", "a");
-  AddNewPage("TEST1", "b");
+  AddNewPlayer("A");
+  AddLeaderboardEntry("A", 3, 3);
+  AddNewPage("A", "Santa Claus", "1");
+  UpdateLeaderboardEntry("A", 3, 3, 97);
 
-  AddNewPlayer("TEST2");
-  AddLeaderboardEntry("TEST2", 2, 2);
-  AddNewPage("TEST2", "c");
-  AddNewPage("TEST2", "d");
+  AddNewPlayer("B");
+  AddLeaderboardEntry("B", 3, 3);
+  AddNewPage("B", "Santa Claus", "2");
+  UpdateLeaderboardEntry("B", 3, 3, 97);
 
-  AddNewPlayer("TEST3");
-  AddLeaderboardEntry("TEST3", 2, 2);
-  AddNewPage("TEST3", "e");
-  AddNewPage("TEST3", "f");
+  AddNewPlayer("C");
+  AddLeaderboardEntry("C", 3, 3);
+  AddNewPage("C", "Santa Claus", "3");
+  UpdateLeaderboardEntry("C", 3, 3, 97);
+
+  AddNewPlayer("D");
+  AddLeaderboardEntry("D", 3, 3);
+  AddNewPage("D", "Santa Claus", "4");
+  UpdateLeaderboardEntry("D", 3, 3, 97);
+
+  AddNewPlayer("E");
+  AddLeaderboardEntry("E", 3, 3);
+  AddNewPage("E", "Santa Claus", "5");
+  UpdateLeaderboardEntry("E", 3, 3, 97);
+
+  AddNewPlayer("F");
+  AddLeaderboardEntry("F", 3, 3);
+  AddNewPage("F", "Santa Claus", "6");
+  UpdateLeaderboardEntry("F", 3, 3, 97);
+
+  AddNewPlayer("G");
+  AddLeaderboardEntry("G", 3, 3);
+  AddNewPage("G", "Santa Claus", "7");
+  UpdateLeaderboardEntry("G", 3, 3, 97);
+
+  AddNewPlayer("H");
+  AddLeaderboardEntry("H", 3, 3);
+  AddNewPage("H", "Santa Claus", "8");
+  UpdateLeaderboardEntry("H", 3, 3, 97);
+
+  AddNewPlayer("I");
+  AddLeaderboardEntry("I", 3, 3);
+  AddNewPage("I", "Santa Claus", "9");
+  UpdateLeaderboardEntry("I", 3, 3, 97);
 }
 
 function CreateNicerExample() {
@@ -732,6 +860,6 @@ function CreateNicerExample() {
 
   ForceNewLayout(ExampleGraphOptions);
 
-  //createColorTest()
+  //createColorTest();
 
 }
