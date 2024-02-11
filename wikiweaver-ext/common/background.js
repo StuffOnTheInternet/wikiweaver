@@ -213,7 +213,7 @@ async function SearchForWikipediaTitle(title) {
       return { error: error };
     });
 
-  if (!response || response.error != undefined) {
+  if (!response || !response.query || response.error) {
     console.log(`warning: no result for Wikipedia search for '${title}'`);
     return title;
   }
