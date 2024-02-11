@@ -131,8 +131,8 @@ chrome.runtime.onMessage.addListener(async (msg) => {
 const ContentScripts = [
   {
     id: "content",
-    css: ["../content/style.css"],
-    js: ["../content/content.js"],
+    css: ["/content/style.css"],
+    js: ["/content/content.js"],
     matches: ["*://*.wikipedia.org/*"],
     runAt: "document_start",
   },
@@ -145,7 +145,7 @@ async function RegisterContentScripts() {
 }
 
 async function UnregisterContentScripts() {
-  await browser.scripting.unregisterContentScripts();
+  await chrome.scripting.unregisterContentScripts();
 }
 
 function EnableElements(elements) {
