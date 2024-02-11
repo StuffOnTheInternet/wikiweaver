@@ -104,7 +104,7 @@ function HideDisallowedLinks() {
 }
 
 function HandleMessageHide() {
-  HideSuperfluousElements();
+  // HideSuperfluousElements();
   HideDisallowedLinks();
 }
 
