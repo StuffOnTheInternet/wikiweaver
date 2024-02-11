@@ -14,15 +14,7 @@ async function init() {
     await HandleJoinClicked();
   } else {
     // Otherwise show that we are disconnected
-    IndicateConnectionStatus({
-      status: "disconnected",
-    });
-
-    let elements = {
-      join: true,
-      leave: false,
-    };
-    EnableElements(elements);
+    await HandleLeaveClicked();
   }
 }
 
@@ -86,6 +78,8 @@ async function HandleLeaveClicked(e) {
     leave: false,
   };
   EnableElements(elements);
+
+  await UnregisterContentScripts();
 }
 
 document.addEventListener("click", async (e) => {
@@ -114,6 +108,12 @@ async function HandleMessageConnect(msg) {
     leave: msg.Success,
   };
   EnableElements(elements);
+
+  if (msg.Success) {
+    await RegisterContentScripts();
+  } else {
+    await UnregisterContentScripts();
+  }
 }
 
 chrome.runtime.onMessage.addListener(async (msg) => {
@@ -127,6 +127,30 @@ chrome.runtime.onMessage.addListener(async (msg) => {
       break;
   }
 });
+
+const ContentScripts = [
+  {
+    id: "hideSearchBar",
+    css: ["../content/style.css"],
+    matches: ["*://*.wikipedia.org/*"],
+    runAt: "document_start",
+  },
+  {
+    id: "disableLinks",
+    js: ["../content/content.js"],
+    matches: ["*://*.wikipedia.org/*"],
+  },
+];
+
+async function RegisterContentScripts() {
+  if ((await chrome.scripting.getRegisteredContentScripts()).length <= 0) {
+    await chrome.scripting.registerContentScripts(ContentScripts);
+  }
+}
+
+async function UnregisterContentScripts() {
+  await browser.scripting.unregisterContentScripts();
+}
 
 function EnableElements(elements) {
   for (const elemID in elements) {
