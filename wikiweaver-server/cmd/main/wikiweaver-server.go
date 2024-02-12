@@ -20,7 +20,6 @@ const (
 	CODE_LENGTH                     = 4
 	LOBBY_CLEANING_INTERVAL         = 15 * time.Minute
 	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 60 * time.Minute
-	HISTORY_SEND_INTERVAL           = 200 * time.Millisecond
 	WORDS_FILEPATH                  = "words.json"
 	MAX_USERNAME_LEN                = 12
 	MAX_USERS_PER_LOBBY             = 16
