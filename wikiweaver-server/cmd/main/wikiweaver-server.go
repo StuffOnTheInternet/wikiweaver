@@ -16,13 +16,11 @@ import (
 )
 
 const (
-	PORT                            = 4242
-	CODE_LENGTH                     = 4
-	LOBBY_CLEANING_INTERVAL         = 15 * time.Minute
-	LOBBY_IDLE_TIME_BEFORE_SHUTDOWN = 60 * time.Minute
-	WORDS_FILEPATH                  = "words.json"
-	MAX_USERNAME_LEN                = 12
-	MAX_USERS_PER_LOBBY             = 16
+	PORT                = 4242
+	CODE_LENGTH         = 4
+	WORDS_FILEPATH      = "words.json"
+	MAX_USERNAME_LEN    = 12
+	MAX_USERS_PER_LOBBY = 16
 )
 
 var Version = "dev"
@@ -63,17 +61,16 @@ const (
 )
 
 type Lobby struct {
-	Code                string
-	State               LobbyState
-	WebClients          []*WebClient
-	ExtClients          []*ExtClient
-	LastInteractionTime time.Time
-	StartTime           time.Time
-	Countdown           time.Duration
-	StartPage           string
-	GoalPage            string
-	History             []PageToWebMessage
-	mu                  sync.Mutex
+	Code       string
+	State      LobbyState
+	WebClients []*WebClient
+	ExtClients []*ExtClient
+	StartTime  time.Time
+	Countdown  time.Duration
+	StartPage  string
+	GoalPage   string
+	History    []PageToWebMessage
+	mu         sync.Mutex
 }
 
 func (l *Lobby) close() {
@@ -114,6 +111,18 @@ func (l *Lobby) GetExtClientFromUsername(usernameToCheck string) *ExtClient {
 	}
 
 	return nil
+}
+
+func (g *GlobalState) CloseLobby(lobby *Lobby) {
+	log.Printf("Closing lobby '%s'", lobby.Code)
+
+	for _, extClient := range lobby.ExtClients {
+		delete(globalState.UserIDs, extClient.UserID)
+	}
+
+	lobby.close()
+
+	delete(globalState.Lobbies, lobby.Code)
 }
 
 var upgrader = websocket.Upgrader{
@@ -174,34 +183,6 @@ func generateUniqueCode() string {
 	return code
 }
 
-func lobbyCleaner() {
-	for {
-		time.Sleep(LOBBY_CLEANING_INTERVAL)
-
-		globalState.mu.Lock()
-		for code, lobby := range globalState.Lobbies {
-
-			lobby.mu.Lock()
-			idleTime := time.Since(lobby.LastInteractionTime).Round(time.Second)
-			lobby.mu.Unlock()
-
-			if idleTime >= LOBBY_IDLE_TIME_BEFORE_SHUTDOWN {
-				log.Printf("lobby %s idle for %s, closing", code, idleTime)
-
-				lobby.mu.Lock()
-				for _, extClient := range lobby.ExtClients {
-					delete(globalState.UserIDs, extClient.UserID)
-				}
-				lobby.close()
-				lobby.mu.Unlock()
-
-				delete(globalState.Lobbies, code)
-			}
-		}
-		globalState.mu.Unlock()
-	}
-}
-
 type Message struct {
 	Type string
 }
@@ -223,9 +204,8 @@ func CreateLobby() string {
 	code := generateUniqueCode()
 
 	globalState.Lobbies[code] = &Lobby{
-		Code:                code,
-		State:               Initial,
-		LastInteractionTime: time.Now(),
+		Code:  code,
+		State: Initial,
 	}
 
 	return code
@@ -239,6 +219,9 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 		code = CreateLobby()
 		log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
 	}
+
+	globalState.mu.Lock()
+	defer globalState.mu.Unlock()
 
 	lobby := globalState.Lobbies[code]
 
@@ -260,7 +243,6 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 	shouldBeHost := !lobby.hasHost()
 	wc := &WebClient{conn: conn, isHost: shouldBeHost}
 
-	lobby.LastInteractionTime = time.Now()
 	lobby.WebClients = append(lobby.WebClients, wc)
 
 	if shouldBeHost {
@@ -445,7 +427,6 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 
 	lobby.State = Reset
 	lobby.ExtClients = lobby.ExtClients[:0]
-	lobby.LastInteractionTime = time.Now()
 	lobby.StartTime = time.Time{}
 	lobby.Countdown = time.Duration(0)
 	lobby.StartPage = ""
@@ -520,7 +501,6 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 	lobby.StartPage = msgRequest.StartPage
 	lobby.GoalPage = msgRequest.GoalPage
 	lobby.Countdown = time.Duration(msgRequest.Countdown * int(time.Second))
-	lobby.LastInteractionTime = time.Now()
 	lobby.History = lobby.History[:0]
 
 	for _, extClient := range lobby.ExtClients {
@@ -558,6 +538,13 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 			defer lobby.mu.Unlock()
 
 			lobby.removeWebClient(wc)
+
+			globalState.mu.Lock()
+			defer globalState.mu.Unlock()
+
+			if len(lobby.WebClients) <= 0 {
+				globalState.CloseLobby(lobby)
+			}
 
 			return
 		}
@@ -895,7 +882,6 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 			FinishTime: int(extClient.FinishTime.Seconds()),
 		}
 
-		lobby.LastInteractionTime = time.Now()
 		lobby.History = append(lobby.History, pageToWebMessage)
 
 		log.Printf("extension %s sent page: %+v", r.RemoteAddr, pageFromExtMessage)
@@ -950,8 +936,6 @@ func main() {
 		UserIDs: make(map[string]bool),
 		Rand:    rand.New(rand.NewSource(seed)),
 	}
-
-	go lobbyCleaner()
 
 	http.HandleFunc("/api/ws/web/join", handleWebJoin)
 
