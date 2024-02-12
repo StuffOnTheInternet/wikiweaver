@@ -68,14 +68,14 @@ function IsLinkAllowed(link) {
 }
 
 function HideDisallowedLinks() {
-  const DisabledLinksCount = new Array(
+  const LinksCount = new Array(
     NumSpecialReasons + InvalidStringsInUrl.length
   ).fill(0);
 
   for (let elem of document.getElementsByTagName("a")) {
     const [isAllowed, reason] = IsLinkAllowed(elem.href);
 
-    DisabledLinksCount[reason] += 1;
+    LinksCount[reason] += 1;
 
     if (isAllowed) {
       continue;
@@ -87,18 +87,16 @@ function HideDisallowedLinks() {
     elem.style.cursor = "default";
   }
 
-  const total = DisabledLinksCount.reduce((x, y) => x + y);
-  const allowed = DisabledLinksCount[0];
-  const nonWikipedia = DisabledLinksCount[1];
+  const total = LinksCount.reduce((x, y) => x + y);
+  const allowed = LinksCount[0];
+  const nonWikipedia = LinksCount[1];
   const disallowed = total - allowed;
 
   console.log(`Links: ${total}`);
   console.log(`  Allowed:    ${allowed}`);
   console.log(`  Disallowed: ${disallowed}`);
   console.log(`    Non-Wikipedia URL: ${nonWikipedia}`);
-  for (const [index, count] of DisabledLinksCount.slice(
-    NumSpecialReasons
-  ).entries()) {
+  for (const [index, count] of LinksCount.slice(NumSpecialReasons).entries()) {
     console.log(`    Contains '${InvalidStringsInUrl[index]}': ${count}`);
   }
 }
