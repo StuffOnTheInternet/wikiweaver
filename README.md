@@ -7,8 +7,8 @@ WikiWeaver makes participating in (and spectating) WikiRaces more fun by visuali
 ## Getting started
 
 Creating and joining lobbies is simple and intuitive:
-- The host goes to the [WikiWeaver website](https://wikiweaver.stuffontheinter.net/) to create and view a lobby.
-- All players then join this lobby using the [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/). Upon successfully joining the lobby, their usernames will be shown on the leaderboard in the bottom right.
+- The host goes to the [WikiWeaver website](https://wikiweaver.stuffontheinter.net/), which will automatically create a lobby. The code for the lobby is shown in the top right.
+- All players then join this lobby using this code in either the [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/) or [Chrome extension](https://chromewebstore.google.com/detail/apmgfgikhdikmeljhhomehnkhabiidmp?hl=en). Upon successfully joining the lobby, their usernames will be shown on the leaderboard in the bottom right.
 - To start a race, the host enters a start and end page (you can copy in a url too!), and when everyone is ready they press start.
 - During the race, the pages players visit will be visualized as nodes in a graph, and upon reaching the end node their finish time and total clicks will be logged on the leaderboard.
 
