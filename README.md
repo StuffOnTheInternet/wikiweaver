@@ -1,6 +1,6 @@
 # WikiWeaver
 
-WikiWeaver makes participating in (and spectating) WikiRaces more fun by visualizing every page you and your peers visit as colorful nodes in a graph. 
+WikiWeaver makes participating in (and spectating) Wikipedia Races more fun by visualizing every page you and your peers visit as colorful nodes in a graph. 
 
 ![Image of website](example.png)
 
