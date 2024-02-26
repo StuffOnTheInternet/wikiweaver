@@ -3,6 +3,8 @@ var webgraph; // The graph
 
 var edgenameson = false; // Used for toggling edge labels
 
+cytoscape.warnings(false);
+
 // GRAPH SETTINGS
 
 var GraphStyle = [
