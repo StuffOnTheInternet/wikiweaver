@@ -32,7 +32,6 @@ function HandleMessageEnd(msg) {
 
 function HandleMessageJoin(msg) {
   let elements = {
-    "no-players-text": false,
     "extension-text": false,
     "leaderboard-wrapper": true,
   };
@@ -124,7 +123,6 @@ function HandleMessageReset(msg) {
     "disconnect-text": false,
     "spectator-text": !isHost,
     "example-text": false,
-    "no-players-text": true,
     "leaderboard-wrapper": false,
   };
   ShowElements(elements);
@@ -172,7 +170,6 @@ async function JoinLobby(code) {
       "disconnect-text": true,
       "spectator-text": false,
       "example-text": false,
-      "no-players-text": false,
     };
     ShowElements(elements);
   });
