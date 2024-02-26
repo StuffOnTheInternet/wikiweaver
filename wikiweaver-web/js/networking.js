@@ -34,6 +34,7 @@ function HandleMessageJoin(msg) {
   let elements = {
     "no-players-text": false,
     "extension-text": false,
+    "leaderboard-wrapper": true,
   };
   ShowElements(elements);
 
@@ -124,6 +125,7 @@ function HandleMessageReset(msg) {
     "spectator-text": !isHost,
     "example-text": false,
     "no-players-text": true,
+    "leaderboard-wrapper": false,
   };
   ShowElements(elements);
 
