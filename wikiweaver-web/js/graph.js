@@ -187,7 +187,7 @@ var GraphStyle = [
     style: {
       "background-color": "#999",
       "border-color": "#888",
-      "line-color": "888",
+      "line-color": "#888",
       "target-arrow-color": "#888",
       "target-arrow-shape": "chevron",
     },
