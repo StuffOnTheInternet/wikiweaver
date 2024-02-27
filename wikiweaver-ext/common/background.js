@@ -66,6 +66,16 @@ chrome.webNavigation.onCommitted.addListener(
     const currentPage = await GetWikipediaArticleTitle(event.url);
     const previousPage = await GetPreviousPageOnTab(event.tabId);
 
+    if (previousPage === currentPage) {
+      // Sometimes when we go to pages like
+      // https://en.wikipedia.org/w/index.php?title=Stem_(linguistics)&redirect=no
+      // it will seem like we went from page A -> page A, which is incorrect.
+      // We basically went nowhere, so ignore this case. Links like this will
+      // be disabled if the content script is allowed to run, but users will
+      // have to explicitly allow it in Firefox, so we cannot rely on it.
+      return;
+    }
+
     await SetPreviousPageOnTab(event.tabId, currentPage);
 
     console.log("Transition:", previousPage, "->", currentPage);
