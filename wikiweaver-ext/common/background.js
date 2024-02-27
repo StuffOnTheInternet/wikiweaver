@@ -203,7 +203,7 @@ async function SearchForWikipediaTitle(title) {
 
   const params = {
     action: "query", // Query Wikipedia
-    gpssearch: title, // For this title
+    gpssearch: encodeURIComponent(title), // For this title
     generator: "prefixsearch", // Using prefixssearch
     gpsnamespace: 0, // Regular Wikipedia
     gpslimit: 5, // Ask for 5 pages
