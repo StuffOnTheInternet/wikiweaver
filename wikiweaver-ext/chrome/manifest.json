@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WikiWeaver",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "View you and your peers progress through a WikiRace by syncing visited pages to a lobby on wikiweaver.stuffontheinter.net",
   "icons": {
     "48": "icons/48.png",
