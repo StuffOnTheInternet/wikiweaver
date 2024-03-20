@@ -1,5 +1,3 @@
-![image](https://github.com/StuffOnTheInternet/wikiweaver/assets/24913737/a7416aba-3341-4e86-b1a5-3fd7d024940e)
-
 # WikiWeaver
 
 WikiWeaver makes participating in (and spectating) Wikipedia Races more fun by visualizing every page you and your peers visit as colorful nodes in a graph. 
