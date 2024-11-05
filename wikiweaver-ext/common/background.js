@@ -1,5 +1,4 @@
-const domain = "https://wikiweaver.stuffontheinter.net"; // Use this for production
-// const domain = "http://localhost:4242"; // Use this for local development
+const defaultdomain = "https://wikiweaver.stuffontheinter.net";
 
 function Matches(url, filters) {
   for (let filter of filters) {
@@ -123,7 +122,7 @@ async function SendPage(previousPage, currentPage, backmove = false) {
     backmove: backmove,
   };
 
-  return await SendPOSTRequestToServer("/api/ext/page", body);
+  return await SendPOSTRequestToServer(options.url, "/api/ext/page", body);
 }
 
 async function HandleMessageConnect(msg) {
@@ -136,7 +135,7 @@ async function HandleMessageConnect(msg) {
     userid: userid,
   };
 
-  const response = await SendPOSTRequestToServer("/api/ext/join", body);
+  const response = await SendPOSTRequestToServer(options.url, "/api/ext/join", body);
 
   if (response.Success) {
     await SetPageCount(0);
@@ -168,10 +167,13 @@ chrome.runtime.onMessage.addListener(async (msg) => {
   }
 });
 
-async function SendPOSTRequestToServer(endpoint, body) {
+async function SendPOSTRequestToServer(url, endpoint, body) {
   console.log("sent:", body);
 
-  let response = await fetch(`${domain}${endpoint}`, {
+  if (url === "") {
+    url = defaultdomain;
+  }
+  let response = await fetch(`${url}${endpoint}`, {
     method: "POST",
     body: JSON.stringify(body),
   })
