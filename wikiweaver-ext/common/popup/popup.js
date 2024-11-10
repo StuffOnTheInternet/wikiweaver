@@ -1,10 +1,6 @@
 async function init() {
   const options = await chrome.storage.local.get();
 
-  if (options.url != undefined) {
-    document.getElementById("url").value = options.url;
-  }
-
   if (options.code != undefined) {
     document.getElementById("code").value = options.code;
   }
@@ -62,12 +58,10 @@ async function UpdateBadgeColor(success) {
 async function HandleJoinClicked(e) {
   const codeElem = document.getElementById("code");
   const usernameElem = document.getElementById("username");
-  const urlElem = document.getElementById("url");
 
   await chrome.storage.local.set({
     code: codeElem.value.toLowerCase(),
     username: usernameElem.value,
-    url: urlElem.value.toLowerCase(),
   });
 
   IndicateConnectionStatus({ status: "pending" });
@@ -96,6 +90,10 @@ document.addEventListener("click", async (e) => {
 
     case "leave":
       await HandleLeaveClicked(e);
+      break;
+
+    case "open-settings":
+      await chrome.runtime.openOptionsPage();
       break;
 
     default:
