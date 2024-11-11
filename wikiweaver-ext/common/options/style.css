@@ -1,0 +1,45 @@
+/* TODO: figure out how to share these between options/style.css and popup/style.css */
+
+@font-face {
+  font-family: "Rubik";
+  src: url("assets/rubik-regular-webfont.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  --green: #dcfd97;
+  --red: #fabdbd;
+  --yellow: #f0ee92;
+  --background: #cddcf2;
+  --text: #3f3d3d;
+  --box-background: #f1f0ff;
+  --box-background-disabled: #bbc8dd;
+}
+
+body {
+  font-family: "Rubik", "Verdana";
+  background: var(--background);
+}
+
+.box {
+  background: var(--box-background);
+  color: var(--text);
+  line-height: 2;
+  border-width: 0px;
+  border-radius: 0.25rem;
+  outline: none;
+  filter: drop-shadow(1px 1px 1px #444d);
+}
+
+.button {
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(85%);
+}
+
+#submit {
+  margin-top: 0.5rem;
+}
