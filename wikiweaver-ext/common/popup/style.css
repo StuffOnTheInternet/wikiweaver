@@ -15,6 +15,10 @@
   --box-background-disabled: #bbc8dd;
 }
 
+.material-symbols-outlined {
+  vertical-align: middle
+}
+
 body {
   margin: 0;
   background: var(--background);
@@ -54,11 +58,15 @@ body {
   background: var(--red);
 }
 
+#open-settings {
+  margin-top: 0.5rem;
+}
+
 .title-row {
   text-align: center;
 }
 
-.title-row > * {
+.title-row>* {
   vertical-align: middle;
 }
 
