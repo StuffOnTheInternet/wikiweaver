@@ -392,6 +392,11 @@ var ExampleGraphOptions = {
   refresh: 2,
 };
 
+var ContinuousSimluationOptions = {
+  infinite: true, 
+  fit: false
+}
+
 
 // PLAYER HANDLING
 
@@ -535,7 +540,7 @@ function StartGame(StartNode, GoalNode) {
   ForceNewLayout(StartupOptions);
 
   // Activate the context menu, so something happens when you rightclick
-  let menu = webgraph.cxtmenu({ ...MenuStyle, ...MenuNode });
+  webgraph.cxtmenu({ ...MenuStyle, ...MenuNode });
   webgraph.cxtmenu({ ...MenuStyle, ...MenuEdge });
   webgraph.cxtmenu({ ...MenuStyle, ...MenuBG });
 
@@ -616,6 +621,10 @@ function ToggleEdgeNames() {
     webgraph.edges().style("control-point-step-size", 25);
     edgenameson = true;
   }
+}
+
+function EnableContinuousSimulation() {
+  ForceNewLayout(ContinuousSimluationOptions);
 }
 
 function Urlify(InString) {
@@ -709,6 +718,14 @@ let MenuBG = {
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function (ele) {
         HideAllPlayers();
+      }
+    },
+    {
+      fillColor: 'rgba(90, 130, 90, 0.95)',
+      content: 'Enable continuous simulation', // html/text content to be displayed in the menu
+      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+      select: function (ele) {
+        EnableContinuousSimulation();
       }
     }
   ],
