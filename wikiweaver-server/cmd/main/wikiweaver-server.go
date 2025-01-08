@@ -967,15 +967,5 @@ func main() {
 
 	log.Printf("listening on %s", address)
 
-	var err error
-
-	if dev {
-		err = http.ListenAndServe(address, nil)
-	} else {
-		err = http.ListenAndServeTLS(address, "/fullchain.pem", "/privkey.pem", nil)
-	}
-
-	if err != nil {
-		log.Fatalf("listen error: %s", err)
-	}
+  log.Fatal(http.ListenAndServe(address, nil))
 }
