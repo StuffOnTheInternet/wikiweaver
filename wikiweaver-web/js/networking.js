@@ -1,8 +1,3 @@
-const domain = "wss://wikiweaver.stuffontheinter.net"; // Use this for production
-// const domain = "ws://localhost:4242"; // Use this for local development
-
-const pingInterval = 30000; // milliseconds
-
 function SendMessage(msg) {
   if (!globalThis.socket) {
     console.log("not connected to server, wont send message: " + msg);
@@ -137,7 +132,7 @@ async function JoinLobby(code) {
 
   UpdateConnectionStatusIndication("pending");
 
-  globalThis.socket = new WebSocket(`${domain}/api/ws/web/join?code=${code}`);
+  globalThis.socket = new WebSocket(`/api/ws/web/join?code=${code}`);
 
   let PingTimer;
 
@@ -145,7 +140,7 @@ async function JoinLobby(code) {
     // Send ping every so often to keep the websocket connection alive
     PingTimer = setInterval(() => {
       SendMessage({ type: "ping" });
-    }, pingInterval);
+    }, 30000);
   });
 
   globalThis.socket.addEventListener("close", (event) => {
