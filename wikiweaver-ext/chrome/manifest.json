@@ -15,8 +15,15 @@
     "default_title": "WikiWeaver",
     "default_popup": "popup/popup.html"
   },
-  "permissions": ["scripting", "storage", "tabs", "webNavigation"],
-  "host_permissions": ["*://*.wikipedia.org/*"],
+  "permissions": [
+    "scripting",
+    "storage",
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "*://*.wikipedia.org/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },

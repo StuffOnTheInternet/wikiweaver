@@ -14,10 +14,19 @@
     "default_title": "WikiWeaver",
     "default_popup": "popup/popup.html"
   },
-  "permissions": ["scripting", "storage", "tabs", "webNavigation"],
-  "host_permissions": ["*://*.wikipedia.org/*"],
+  "permissions": [
+    "scripting",
+    "storage",
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "*://*.wikipedia.org/*"
+  ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "background.js"
+    ]
   },
   "options_ui": {
     "page": "options/options.html"
