@@ -36,8 +36,8 @@ docker run -d \
   --name wikiweaver \
   --restart unless-stopped \
   -p 80:80 \
-  -e TZ='Europe/Stockholm'
-  # TODO: something like this: ghcr.io/stuffontheinter/wikiweaver:latest
+  -e TZ='Europe/Stockholm' \
+  ghcr.io/stuffontheinternet/wikiweaver:main
 ```
 
 ### docker-compose
@@ -46,7 +46,7 @@ docker run -d \
 services:
   wikiweaver:
     container_name: wikiweaver
-    build: . # TODO: Reference ghcr.io hosted wikiweaver image
+    image: ghcr.io/stuffontheinternet/wikiweaver:main
     ports:
       - 80:80
     environment:
