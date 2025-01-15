@@ -37,7 +37,7 @@ docker run -d \
   --restart unless-stopped \
   -p 80:80 \
   -e TZ='Europe/Stockholm' \
-  ghcr.io/stuffontheinternet/wikiweaver:main
+  ghcr.io/stuffontheinternet/wikiweaver:latest
 ```
 
 ### docker-compose
@@ -46,7 +46,7 @@ docker run -d \
 services:
   wikiweaver:
     container_name: wikiweaver
-    image: ghcr.io/stuffontheinternet/wikiweaver:main
+    image: ghcr.io/stuffontheinternet/wikiweaver:latest
     ports:
       - 80:80
     environment:
@@ -55,7 +55,6 @@ services:
 ```
 
 ## Local development
-
 
 ### Webserver and backend
 
