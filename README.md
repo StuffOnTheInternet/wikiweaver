@@ -69,4 +69,5 @@ By default, the server is hosted on `localhost:3000`.
 Symlink `manifest.json` to the appropriate manifest file (or simply rename one of the existing files to `manifest.json`), depending on which browser you want to test.
 Load contents of the `wikiweaver-ext` folder as temporary add-on in your browser.
 Nothing more will be required, as the browser will automatically refresh the extension on change.
-Set the server as `http://localhost:3000` in the browser extension settings.
+You can also use the [web-ext tool](https://github.com/mozilla/web-ext) to open a new browser instance with only the extension loaded.
+Remember to set the server to `http://localhost:3000` in the browser extension settings.
