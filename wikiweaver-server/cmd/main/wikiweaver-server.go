@@ -988,8 +988,6 @@ func main() {
 
 	address = fmt.Sprintf("%s:%d", address, PORT)
 
-	log.Printf("listening on %s", address)
-
 	if dev {
 		// We want to use docker compose watch for easier development, but it
 		// sends sigquit when rebuilding, causing go to print a stacktrace. Not
