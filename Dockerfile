@@ -16,7 +16,11 @@ RUN update-ca-certificates
 
 COPY wikiweaver-server /wikiweaver-server
 WORKDIR /wikiweaver-server
-RUN make build
+
+ENV GOCACHE=/root/.cache/go-build
+RUN --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target="/root/.cache/go-build" \
+  make build
 
 FROM nginx:latest
 

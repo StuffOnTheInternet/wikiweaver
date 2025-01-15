@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "WikiWeaver",
+  "version": "1.0.0",
+  "description": "View you and your peers progress through a WikiRace by syncing visited pages to a lobby on wikiweaver.stuffontheinter.net",
+  "icons": {
+    "48": "icons/48.png",
+    "96": "icons/96.png"
+  },
+  "action": {
+    "default_icon": {
+      "48": "icons/48.png",
+      "96": "icons/96.png"
+    },
+    "default_title": "WikiWeaver",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": [
+    "scripting",
+    "storage",
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "*://*.wikipedia.org/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options/options.html"
+  }
+}

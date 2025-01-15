@@ -53,3 +53,21 @@ services:
       - TZ=Europe/Stockholm
     restart: unless-stopped
 ```
+
+## Local development
+
+
+### Webserver and backend
+
+In the root folder of the repo, simply run `docker compose up -w`.
+This will make Docker monitor for changes and will update automatically when any is detected.
+You will need to manually refresh your browser to see any changes.
+By default, the server is hosted on `localhost:3000`.
+
+### Browser extension
+
+Symlink `manifest.json` to the appropriate manifest file (or simply rename one of the existing files to `manifest.json`), depending on which browser you want to test.
+Load contents of the `wikiweaver-ext` folder as temporary add-on in your browser.
+Nothing more will be required, as the browser will automatically refresh the extension on change.
+You can also use the [web-ext tool](https://github.com/mozilla/web-ext) to open a new browser instance with only the extension loaded.
+Remember to set the server to `http://localhost:3000` in the browser extension settings.

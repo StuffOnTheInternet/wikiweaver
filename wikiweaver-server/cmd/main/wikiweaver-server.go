@@ -8,8 +8,10 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -32,6 +34,7 @@ type GlobalState struct {
 	Words   []string
 	UserIDs map[string]bool
 	Rand    *rand.Rand
+	Dev     bool
 	mu      sync.Mutex
 }
 
@@ -231,6 +234,21 @@ func CreateLobby() string {
 	return code
 }
 
+func CreateLobbyIfNotExists(code string) {
+	globalState.mu.Lock()
+	defer globalState.mu.Unlock()
+
+	if _, ok := globalState.Lobbies[code]; ok {
+		return
+	}
+
+	globalState.Lobbies[code] = &Lobby{
+		Code:                code,
+		State:               Initial,
+		LastInteractionTime: time.Now(),
+	}
+}
+
 func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
@@ -238,12 +256,16 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 	if code == "" {
 		code = CreateLobby()
 		log.Printf("web client %s created lobby %s", r.RemoteAddr, code)
+	} else if globalState.Dev {
+		// We create the previously used lobby in dev mode so we dont have to
+		// change the browser url before refreshing
+		CreateLobbyIfNotExists(code)
 	}
 
 	lobby := globalState.Lobbies[code]
 
 	if lobby == nil {
-		log.Printf("%s tried to join non existent lobby: %s", r.RemoteAddr, code)
+		log.Printf("%s tried to join non-existent lobby: %s", r.RemoteAddr, code)
 		return
 	}
 
@@ -688,7 +710,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		otherWithSameUsername := lobby.GetExtClientFromUsername(request.Username)
 
 		if otherWithSameUsername != nil {
-			if otherWithSameUsername.UserID == request.UserID {
+			if otherWithSameUsername.UserID == request.UserID || globalState.Dev {
 				successResponse := JoinToExtResponse{
 					Success:        true,
 					UserID:         request.UserID,
@@ -948,6 +970,7 @@ func main() {
 		Lobbies: make(map[string]*Lobby),
 		Words:   readWords(WORDS_FILEPATH),
 		UserIDs: make(map[string]bool),
+		Dev:     dev,
 		Rand:    rand.New(rand.NewSource(seed)),
 	}
 
@@ -965,7 +988,17 @@ func main() {
 
 	address = fmt.Sprintf("%s:%d", address, PORT)
 
-	log.Printf("listening on %s", address)
+	if dev {
+		// We want to use docker compose watch for easier development, but it
+		// sends sigquit when rebuilding, causing go to print a stacktrace. Not
+		// what we want when developing
+		go func() {
+			sigs := make(chan os.Signal, 1)
+			signal.Notify(sigs, syscall.SIGQUIT)
+			_ = <-sigs
+			os.Exit(0)
+		}()
+	}
 
-  log.Fatal(http.ListenAndServe(address, nil))
+	log.Fatal(http.ListenAndServe(address, nil))
 }

@@ -1,0 +1,17 @@
+services:
+  wikiweaver:
+    container_name: wikiweaver-dev
+    build: .
+    ports:
+      - 3000:80
+    environment:
+      - TZ=Europe/Stockholm
+      - WW_SERVER_ARGS=--dev
+    develop:
+      watch:
+        - action: rebuild
+          path: ./wikiweaver-server
+        - action: sync
+          path: ./wikiweaver-web
+          target: /usr/share/nginx/html
+
