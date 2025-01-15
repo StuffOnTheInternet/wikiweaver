@@ -234,13 +234,12 @@ func CreateLobby() string {
 	return code
 }
 
-func CreateLobbyWithCode(code string) {
+func CreateLobbyIfNotExists(code string) {
 	globalState.mu.Lock()
 	defer globalState.mu.Unlock()
 
 	if _, ok := globalState.Lobbies[code]; ok {
-		log.Printf("lobby already exists. Exiting...")
-		os.Exit(1)
+		return
 	}
 
 	globalState.Lobbies[code] = &Lobby{
@@ -260,8 +259,7 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 	} else if globalState.Dev {
 		// We create the previously used lobby in dev mode so we dont have to
 		// change the browser url before refreshing
-		log.Printf("recreating lobby %s", code)
-		CreateLobbyWithCode(code)
+		CreateLobbyIfNotExists(code)
 	}
 
 	lobby := globalState.Lobbies[code]
