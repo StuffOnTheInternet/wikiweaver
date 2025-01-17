@@ -18,8 +18,9 @@ async function save(e) {
   e.preventDefault();
 
   const urlElem = document.querySelector("#url");
+  const url = new URL(urlElem.value.toLowerCase() || urlElem.placeholder);
 
-  await Settings.local.Set("url", urlElem.value.toLowerCase() || urlElem.placeholder);
+  await Settings.local.Set("url", url.toString());
   await Settings.local.Set("autoOpenStartPage", document.querySelector("#auto-open-start-page").checked);
 
   // TODO: show saved succeeded in some way
