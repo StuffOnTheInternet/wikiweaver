@@ -310,4 +310,18 @@ chrome.runtime.onInstalled.addListener(async () => {
   await Settings.session.Defaults({
     connected: false,
   });
+
+  const url = await Settings.local.Get("url");
+
+  if ((await chrome.scripting.getRegisteredContentScripts({ ids: ["join-lobby"] })).length <= 0) {
+    const scripts = [
+      {
+        id: "join-lobby",
+        js: ["/content/join-lobby.js"],
+        matches: [`${url}/*`],
+      }
+    ]
+
+    await chrome.scripting.registerContentScripts(scripts);
+  }
 });

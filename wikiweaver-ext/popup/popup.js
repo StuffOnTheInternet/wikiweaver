@@ -297,6 +297,9 @@ async function HandleMessageConnect(msg) {
     data.connectionStatus = ConnectionStatus.DISCONNECTED;
     await UnregisterContentScripts();
   }
+
+  document.getElementById("code").textContent = msg.Code;
+  document.getElementById("username").textContent = msg.Username;
 }
 
 chrome.runtime.onMessage.addListener(async (msg) => {
@@ -322,12 +325,14 @@ const ContentScripts = [
 ];
 
 async function RegisterContentScripts() {
-  if ((await chrome.scripting.getRegisteredContentScripts()).length <= 0) {
+  if ((await chrome.scripting.getRegisteredContentScripts({ ids: ["content"] })).length <= 0) {
     await chrome.scripting.registerContentScripts(ContentScripts);
   }
 }
 
 async function UnregisterContentScripts() {
-  await chrome.scripting.unregisterContentScripts();
+  if ((await chrome.scripting.getRegisteredContentScripts({ ids: ["content"] })).length > 0) {
+    await chrome.scripting.unregisterContentScripts({ ids: ["content"] });
+  }
 }
 
