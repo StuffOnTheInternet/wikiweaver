@@ -1,22 +1,6 @@
-const fragment = document.createDocumentFragment();
-
-const div = document.createElement("div");
-div.classList.add("flex-horizontal-container")
-
-// TODO: There is probably a better way to do all this
-const btn = document.createElement("btn");
-btn.id = "join-lobby";
-btn.classList.add("button", "box", "text");
+const btn = document.getElementById("join-button");
 btn.onclick = HandleJoinLobbyClicked;
-btn.style = "margin-top: 0.5rem; background: var(--green);";
-btn.textContent = "join";
-
-const reference = document.getElementById("leaderboard-wrapper");
-const parent = document.getElementById("sidepane");
-
-fragment.appendChild(div);
-div.appendChild(btn);
-parent.insertBefore(fragment, reference);
+btn.hidden = false;
 
 async function HandleJoinLobbyClicked() {
   const { username } = await chrome.storage.local.get();
