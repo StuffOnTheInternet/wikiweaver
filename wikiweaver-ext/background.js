@@ -188,9 +188,6 @@ chrome.runtime.onMessage.addListener(async (msg) => {
 async function SendPOSTRequestToServer(url, endpoint, body) {
   console.log("sent:", body);
 
-  if (url === "") {
-    url = defaultdomain;
-  }
   let response = await fetch(`${url}${endpoint}`, {
     method: "POST",
     body: JSON.stringify(body),
@@ -340,3 +337,10 @@ async function UpdateBadge(success) {
   chrome.action.setBadgeBackgroundColor({ color: color });
   chrome.action.setBadgeText({ text: String(await GetPageCount()) });
 }
+
+chrome.runtime.onInstalled.addListener(async () => {
+  let options = await chrome.storage.local.get();
+
+  const url = options.url || defaultdomain;
+  await chrome.storage.local.set({ url });
+});

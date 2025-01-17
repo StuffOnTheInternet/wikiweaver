@@ -4,15 +4,19 @@ async function init(e) {
 
 async function restore() {
   const options = await chrome.storage.local.get()
-  document.querySelector("#url").value = options.url || "";
+  document.querySelector("#url").value = options.url;
 }
 
 async function save(e) {
   e.preventDefault();
-  await chrome.storage.local.set({
-    url: document.querySelector("#url").value.toLowerCase(),
-  });
-  // todo: show saved succeeded in some way
+
+  const urlElem = document.querySelector("#url");
+
+  const url = new URL(urlElem.value.toLowerCase() || urlElem.placeholder);
+
+  await chrome.storage.local.set({ url: url.origin });
+  // TODO: show saved succeeded in some way
+
 }
 
 document.addEventListener("DOMContentLoaded", () => init(), false);
