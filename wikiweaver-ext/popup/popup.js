@@ -82,6 +82,17 @@ async function HandleLeaveClicked(e) {
   await UnregisterContentScripts();
 }
 
+async function HandleOpenLobbyClicked(e) {
+  const options = await chrome.storage.local.get();
+
+  let code = (await chrome.storage.session.get()).connected ? options.code : "";
+
+  await chrome.tabs.create({
+    active: true,
+    url: `${options.url}/#${code}`,
+  })
+}
+
 document.addEventListener("click", async (e) => {
   switch (e.target.id) {
     case "join":
@@ -92,12 +103,16 @@ document.addEventListener("click", async (e) => {
       await HandleLeaveClicked(e);
       break;
 
+    case "open-lobby":
+      await HandleOpenLobbyClicked(e);
+      break;
+
     case "open-settings":
       await chrome.runtime.openOptionsPage();
       break;
 
     default:
-      console.log("Unhandled click event: ", e);
+      // Quietly ignore
       break;
   }
 });
