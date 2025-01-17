@@ -150,13 +150,16 @@ async function HandleMessageConnect(msg) {
 
     // Server sent event reference: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
     eventSource = new EventSource(`${options.url}/api/ext/events?code=${options.code}&userid=${response.UserID}`);
-    eventSource.addEventListener("start", (e) => {
+    eventSource.addEventListener("start", async (e) => {
       const data = JSON.parse(e.data);
+      const options = await chrome.storage.local.get();
 
-      chrome.tabs.create({
-        active: true,
-        url: Urlify(data.StartPage)
-      })
+      if (options.autoOpenStartPage) {
+        chrome.tabs.create({
+          active: true,
+          url: Urlify(data.StartPage)
+        })
+      }
     });
   }
 
@@ -342,5 +345,6 @@ chrome.runtime.onInstalled.addListener(async () => {
   let options = await chrome.storage.local.get();
 
   const url = options.url || defaultdomain;
-  await chrome.storage.local.set({ url });
+  const autoOpenStartPage = options.autoOpenStartPage || true;
+  await chrome.storage.local.set({ url, autoOpenStartPage });
 });
