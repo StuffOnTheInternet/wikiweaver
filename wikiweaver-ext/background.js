@@ -154,6 +154,8 @@ async function HandleMessageConnect(msg) {
       const data = JSON.parse(e.data);
       const options = await chrome.storage.local.get();
 
+      chrome.storage.session.set({ startPage: data.StartPage });
+
       if (options.autoOpenStartPage) {
         chrome.tabs.create({
           active: true,
