@@ -438,6 +438,7 @@ function AddNewPage(Player, Fromstring, ToString, backmove = false) {
 
   AddNewElement(color, Fromstring, ToString, backmove);
   PageHistory.push({ Player, Fromstring, ToString, backmove })
+  HistoryLength++;
 }
 
 function UsernameToColor(username) {
@@ -863,17 +864,17 @@ function CreateNicerExample() {
 
   ForceNewLayout(ExampleGraphOptions);
 
-  //createColorTest();
-
-  console.log(PageHistory[4]);
+  console.log(HistoryLength);
 
   webgraph.remove('edge');
+  webgraph.remove('node[group != "Goal"][group != "Start"]');
 
-  for (let i = 0; i < 5; i++) {
-    AddNewPage(PageHistory[i][0], PageHistory[i][1], PageHistory[i][2], PageHistory[i][3]);
+  for (let i = 0; i < 39; i++) {
+    AddNewPage(PageHistory[i].Player, PageHistory[i].Fromstring, PageHistory[i].ToString, PageHistory[i].backmove);
   }
 
 
 }
 
 let PageHistory = [];
+let HistoryLength = 0;
