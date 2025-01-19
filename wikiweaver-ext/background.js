@@ -1,5 +1,7 @@
 const defaultdomain = "https://wikiweaver.stuffontheinter.net";
 
+var eventSource = null;
+
 function Matches(url, filters) {
   for (let filter of filters) {
     if (url.match(filter)) {
@@ -140,6 +142,27 @@ async function HandleMessageConnect(msg) {
   if (response.Success) {
     await SetPageCount(0);
     await SetUserIdForLobby(options.code, response.UserID);
+
+    if (eventSource != null) {
+      eventSource.close();
+      eventSource = null;
+    }
+
+    // Server sent event reference: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+    eventSource = new EventSource(`${options.url}/api/ext/events?code=${options.code}&userid=${response.UserID}`);
+    eventSource.addEventListener("start", async (e) => {
+      const data = JSON.parse(e.data);
+      const options = await chrome.storage.local.get();
+
+      chrome.storage.session.set({ startPage: data.StartPage });
+
+      if (options.autoOpenStartPage) {
+        chrome.tabs.create({
+          active: true,
+          url: Urlify(data.StartPage)
+        })
+      }
+    });
   }
 
   await UpdateBadge(response.Success);
@@ -170,9 +193,6 @@ chrome.runtime.onMessage.addListener(async (msg) => {
 async function SendPOSTRequestToServer(url, endpoint, body) {
   console.log("sent:", body);
 
-  if (url === "") {
-    url = defaultdomain;
-  }
   let response = await fetch(`${url}${endpoint}`, {
     method: "POST",
     body: JSON.stringify(body),
@@ -186,6 +206,11 @@ async function SendPOSTRequestToServer(url, endpoint, body) {
   console.log("recv:", response);
 
   return response;
+}
+
+function Urlify(InString) {
+  // Turns an id back into a URL
+  return "https://en.wikipedia.org/wiki/" + InString
 }
 
 async function GetWikipediaArticleTitle(url) {
@@ -214,14 +239,14 @@ async function SearchForWikipediaTitle(title) {
   };
 
   url = url + "?origin=*";
-  Object.keys(params).forEach(function (key) {
+  Object.keys(params).forEach(function(key) {
     url += "&" + key + "=" + params[key];
   });
 
   response = await fetch(url)
     .then((response) => response.json())
     .then((json) => json)
-    .catch(function (error) {
+    .catch(function(error) {
       return { error: error };
     });
 
@@ -317,3 +342,11 @@ async function UpdateBadge(success) {
   chrome.action.setBadgeBackgroundColor({ color: color });
   chrome.action.setBadgeText({ text: String(await GetPageCount()) });
 }
+
+chrome.runtime.onInstalled.addListener(async () => {
+  let options = await chrome.storage.local.get();
+
+  const url = options.url || defaultdomain;
+  const autoOpenStartPage = options.autoOpenStartPage || true;
+  await chrome.storage.local.set({ url, autoOpenStartPage });
+});

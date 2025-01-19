@@ -47,6 +47,7 @@ type WebClient struct {
 }
 
 type ExtClient struct {
+	Evt          http.ResponseWriter
 	UserID       string
 	Username     string
 	Clicks       int
@@ -95,9 +96,21 @@ func (l *Lobby) hasHost() bool {
 	return false
 }
 
-func (l *Lobby) Broadcast(v interface{}) {
+func (l *Lobby) BroadcastToWeb(v interface{}) {
 	for _, wc := range l.WebClients {
 		wc.sendWithWarningOnFail(v)
+	}
+}
+
+func (l *Lobby) BroadcastToExt(msgResponseExt string) {
+	for _, ec := range l.ExtClients {
+		if ec.Evt == nil {
+			log.Printf("failed to send event to ext %s", ec.UserID)
+			continue
+		}
+
+		ec.Evt.Write([]byte(msgResponseExt))
+		ec.Evt.(http.Flusher).Flush()
 	}
 }
 
@@ -112,6 +125,16 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) {
 func (l *Lobby) GetExtClientFromUsername(usernameToCheck string) *ExtClient {
 	for _, extClient := range l.ExtClients {
 		if usernameToCheck == extClient.Username {
+			return extClient
+		}
+	}
+
+	return nil
+}
+
+func (l *Lobby) getExtClientByUserid(userid string) *ExtClient {
+	for _, extClient := range l.ExtClients {
+		if userid == extClient.UserID {
 			return extClient
 		}
 	}
@@ -424,7 +447,7 @@ func HandleMessageEnd(lobby *Lobby, wc *WebClient, buf []byte) {
 		Countdown: int(lobby.Countdown.Seconds()),
 	}
 
-	lobby.Broadcast(msgResponse)
+	lobby.BroadcastToWeb(msgResponse)
 }
 
 func HandleMessagePing(lobby *Lobby, wc *WebClient, buf []byte) {
@@ -481,7 +504,7 @@ func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
 		Success: true,
 	}
 
-	lobby.Broadcast(msgResponse)
+	lobby.BroadcastToWeb(msgResponse)
 }
 
 type StartFromWebMessage struct {
@@ -497,6 +520,10 @@ type StartToWebMessage struct {
 	GoalPage  string
 	Countdown int
 	StartTime int
+}
+
+type StartEvtToExt struct {
+	StartPage string
 }
 
 func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
@@ -554,7 +581,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 
 	log.Printf("web client %s started lobby %s with pages '%s' to '%s' (%.0f seconds)", wc.conn.RemoteAddr(), lobby.Code, lobby.StartPage, lobby.GoalPage, lobby.Countdown.Seconds())
 
-	msgResponse = StartToWebMessage{
+	msgResponseWeb := StartToWebMessage{
 		Message: Message{
 			"start",
 		},
@@ -564,8 +591,22 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 		Countdown: int(lobby.Countdown.Seconds()),
 		StartTime: int(lobby.StartTime.Unix()),
 	}
+	lobby.BroadcastToWeb(msgResponseWeb)
 
-	lobby.Broadcast(msgResponse)
+	msgResponseExt := StartEvtToExt{
+		StartPage: lobby.StartPage,
+	}
+	lobby.BroadcastToExt(constructExtEvtResponse("start", msgResponseExt))
+}
+
+func constructExtEvtResponse(event string, i interface{}) string {
+	response, err := json.Marshal(i)
+	if err != nil {
+		log.Printf("failed to marshal event to extension (%+v): %s", response, err)
+		return ": invalid object\n\n"
+	}
+
+	return fmt.Sprintf("event:%s\ndata:%s\n\n", event, response)
 }
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
@@ -747,7 +788,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 				Success: true,
 			}
 
-			lobby.Broadcast(resetMessage)
+			lobby.BroadcastToWeb(resetMessage)
 
 			lobby.State = Reset
 		}
@@ -773,7 +814,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			Username: request.Username,
 		}
 
-		lobby.Broadcast(joinToWebMessage)
+		lobby.BroadcastToWeb(joinToWebMessage)
 
 		successResponse := JoinToExtResponse{
 			Success:        true,
@@ -924,12 +965,62 @@ func handleExtPage(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("forwarding page to %d web clients: %+v", len(lobby.WebClients), pageToWebMessage)
 
-		lobby.Broadcast(pageToWebMessage)
+		lobby.BroadcastToWeb(pageToWebMessage)
 
 		successResponse := PageToExtResponse{
 			Success: true,
 		}
 		SendResponseToExt(w, successResponse)
+	}
+}
+
+func storeEvtReference(code string, userid string, w http.ResponseWriter) {
+	lobby := globalState.Lobbies[code]
+
+	if lobby == nil {
+		log.Printf("lobby %s doesnt exist anymore, userid %s event listening wont work, weird", code, userid)
+		return
+	}
+
+	lobby.mu.Lock()
+	defer lobby.mu.Unlock()
+
+	extClient := lobby.getExtClientByUserid(userid)
+
+	if extClient == nil {
+		log.Printf("failed to find userid %s in lobby %s, event listening wont work, weird", userid, lobby.Code)
+		return
+	}
+
+	extClient.mu.Lock()
+	defer extClient.mu.Unlock()
+
+	extClient.Evt = w
+}
+
+func handleExtEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	userid := r.URL.Query().Get("userid")
+	code := r.URL.Query().Get("code")
+
+	storeEvtReference(code, userid, w)
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		fmt.Printf("weird, we cant flush response writer for userid %s", userid)
+		return
+	}
+
+	// Keep the event stream alive as long as the lobby
+	for globalState.Lobbies[code] != nil {
+		fmt.Fprintf(w, ": keep-alive\n\n")
+		flusher.Flush()
+		time.Sleep(30 * time.Second)
 	}
 }
 
@@ -980,6 +1071,7 @@ func main() {
 
 	http.HandleFunc("/api/ext/join", handleExtJoin)
 	http.HandleFunc("/api/ext/page", handleExtPage)
+	http.HandleFunc("/api/ext/events", handleExtEvents)
 
 	address := "0.0.0.0"
 	if dev {

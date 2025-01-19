@@ -1,5 +1,6 @@
 async function init() {
   const options = await chrome.storage.local.get();
+  const session = await chrome.storage.session.get();
 
   if (options.code != undefined) {
     document.getElementById("code").value = options.code;
@@ -9,7 +10,9 @@ async function init() {
     document.getElementById("username").value = options.username;
   }
 
-  if ((await chrome.storage.session.get()).connected) {
+  document.getElementById("open-start-page").disabled = !session.startPage;
+
+  if (session.connected) {
     // If we think we are connected, attempt to join again just to make sure
     await HandleJoinClicked();
   } else {
@@ -93,6 +96,22 @@ async function HandleOpenLobbyClicked(e) {
   })
 }
 
+function Urlify(InString) {
+  // Turns an id back into a URL
+  return "https://en.wikipedia.org/wiki/" + InString
+}
+
+async function HandleStartPageClicked(e) {
+  const session = await chrome.storage.session.get();
+
+  if (session.startPage) {
+    chrome.tabs.create({
+      active: true,
+      url: Urlify(session.startPage),
+    })
+  }
+}
+
 document.addEventListener("click", async (e) => {
   switch (e.target.id) {
     case "join":
@@ -105,6 +124,10 @@ document.addEventListener("click", async (e) => {
 
     case "open-lobby":
       await HandleOpenLobbyClicked(e);
+      break;
+
+    case "open-start-page":
+      await HandleStartPageClicked(e);
       break;
 
     case "open-settings":
