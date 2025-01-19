@@ -437,6 +437,7 @@ function AddNewPage(Player, Fromstring, ToString, backmove = false) {
   if (color === undefined) return;
 
   AddNewElement(color, Fromstring, ToString, backmove);
+  PageHistory.push({ Player, Fromstring, ToString, backmove })
 }
 
 function UsernameToColor(username) {
@@ -864,4 +865,15 @@ function CreateNicerExample() {
 
   //createColorTest();
 
+  console.log(PageHistory[4]);
+
+  webgraph.remove('edge');
+
+  for (let i = 0; i < 5; i++) {
+    AddNewPage(PageHistory[i][0], PageHistory[i][1], PageHistory[i][2], PageHistory[i][3]);
+  }
+
+
 }
+
+let PageHistory = [];
