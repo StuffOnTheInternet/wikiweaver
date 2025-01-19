@@ -21,6 +21,11 @@ async function init() {
   await JoinLobby(code);
 }
 
+async function ToggleGoalSummary() {
+  const elem = document.getElementById("goal-page-summary");
+  elem.hidden = !elem.hidden;
+}
+
 async function HandleStartGameClicked() {
   if (!isHost) return;
 

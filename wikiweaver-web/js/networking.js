@@ -62,7 +62,7 @@ function HandleMessageLobby(msg) {
   SetCode(msg.Code);
 }
 
-function HandleMessageStart(msg) {
+async function HandleMessageStart(msg) {
   if (!msg.Success) return;
 
   const elements = {
@@ -76,11 +76,18 @@ function HandleMessageStart(msg) {
   };
   EnableElements(elements);
 
+  document.getElementById("goal-page-summary").innerText = await GetArticleSummary(msg.GoalPage);
   document.getElementById("start-page-input").value = msg.StartPage;
   document.getElementById("goal-page-input").value = msg.GoalPage;
   StartGame(msg.StartPage, msg.GoalPage);
   ResetLeaderboardScores();
   StartCountdownTimer(msg.StartTime, msg.Countdown);
+}
+
+async function GetArticleSummary(page) {
+  // TODO: we could limit the number of sentences as a room option for difficulty setting
+  let data = await fetch("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsectionformat=plain&format=json&explaintext&exintro&exsentences=2&titles=" + encodeURIComponent(page)).then((response) => (response.json()));
+  return data.query.pages[0].extract
 }
 
 function HandleMessagePage(msg) {
@@ -169,7 +176,7 @@ async function JoinLobby(code) {
     ShowElements(elements);
   });
 
-  globalThis.socket.addEventListener("message", (event) => {
+  globalThis.socket.addEventListener("message", async (event) => {
     const msg = JSON.parse(event.data);
 
     console.log("recv message:", msg);
@@ -200,7 +207,7 @@ async function JoinLobby(code) {
         break;
 
       case "start":
-        HandleMessageStart(msg);
+        await HandleMessageStart(msg);
         break;
 
       default:

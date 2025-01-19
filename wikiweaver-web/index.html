@@ -45,7 +45,12 @@
             <div class="text">Start a race from</div>
             <input id="start-page-input" class="box text" placeholder="Gingerbread"></input>
             <div class="text">to</div>
-            <input id="goal-page-input" class="box text" placeholder="League of Legends"></input>
+            <div id="goal-page-container">
+                <button id="show-goal-text" class="button box" onclick="ToggleGoalSummary()">intro</button>
+                <input id="goal-page-input" class="box text" placeholder="League of Legends"></input>
+            </div>
+            <p id="goal-page-summary" hidden="true">
+            </p>
             <div class="flex-horizontal-container" style="margin-top: 0.5rem">
                 <button id="start-button" class="button box text" onclick="HandleStartGameClicked()">start</button>
                 <button id="end-button" class="button box text" onclick="HandleEndClicked()">end</button>

@@ -97,6 +97,16 @@ img {
   overflow-y: auto;
 }
 
+#goal-page-container {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+}
+
+#goal-page-input {
+  flex-grow: 1;
+}
+
 #maincanvas {
   background: var(--maincanvas-background);
   min-width: 0;
