@@ -86,8 +86,8 @@ async function HandleMessageStart(msg) {
 
 async function GetArticleSummary(page) {
   // TODO: we could limit the number of sentences as a room option for difficulty setting
-  let data = await fetch("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsectionformat=plain&format=json&explaintext&exintro&exsentences=2&titles=" + encodeURIComponent(page)).then((response) => (response.json()));
-  return data.query.pages[0].extract
+  let data = await fetch("https://en.wikipedia.org/w/api.php?origin=*&action=query&prop=extracts&exsectionformat=plain&format=json&explaintext&exintro&exsentences=2&titles=" + encodeURIComponent(page)).then((response) => (response.json()));
+  return Object.values(data.query.pages)[0].extract
 }
 
 function HandleMessagePage(msg) {
@@ -229,14 +229,14 @@ async function GetRandomWikipediaArticles(n) {
   };
 
   url = url + "?origin=*";
-  Object.keys(params).forEach(function (key) {
+  Object.keys(params).forEach(function(key) {
     url += "&" + key + "=" + params[key];
   });
 
   articles = await fetch(url)
     .then((response) => response.json())
     .then((json) => json.query.random)
-    .catch(function (error) {
+    .catch(function(error) {
       console.log(error);
       return [{ title: "Gingerbread", title: "League of Legends" }];
     });
@@ -260,14 +260,14 @@ async function SearchForWikipediaTitle(title) {
   };
 
   url = url + "?origin=*";
-  Object.keys(params).forEach(function (key) {
+  Object.keys(params).forEach(function(key) {
     url += "&" + key + "=" + params[key];
   });
 
   response = await fetch(url)
     .then((response) => response.json())
     .then((json) => json)
-    .catch(function (error) {
+    .catch(function(error) {
       return { error: error };
     });
 
