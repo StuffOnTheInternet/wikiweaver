@@ -1,84 +1,389 @@
-var numberOfPlayersFinished = 0;
-var isHost = false;
+const ConnectionStatus = Object.freeze({
+  DISCONNECTED: "red",
+  PENDING: "yellow",
+  CONNECTED: "green",
+});
 
-async function init() {
-  const elements = {
-    "time-input": false,
-    "start-page-input": false,
-    "goal-page-input": false,
-    "start-button": false,
-    "end-button": false,
-    "reset-button": false,
-  };
-  EnableElements(elements);
+// This type is also defined server side
+const LobbyState = Object.freeze({
+  SHOWING_EXAMPLE: 0,
+  RESET: 1,
+  RACING: 2,
+  INDLE: 3,
+})
 
-  await UpdatePagePlaceholderEveryFewSeconds(10);
+// ===== BEGIN REEF STUFF =====
 
-  CreateNicerExample();
+// TODO: Would it be cleaner or more practical in some way to define multiple
+// objects instead with smaller scope?
+let data = reef.signal({
+  code: undefined,
+  isHost: false,
+  connectionStatus: ConnectionStatus.DISCONNECTED,
+  lobbyState: undefined,
+  countdownLeft: 0,
+  countdownTotal: 0,
+  countdownPlaceholder: 600,
+  countdownStart: 0,
+  countdownInput: "",
+  startPagePlaceholder: "Gingerbread",
+  startPage: "",
+  goalPage: "",
+  goalPagePlaceholder: "League of Legends",
+  players: {},
+});
 
-  let code = GetCodeFromUrl();
-  SetCode(code);
-  await JoinLobby(code);
+function template_code_and_countdown() {
+  return `
+    ${template_code()}
+    ${template_countdown()}`
 }
 
-async function HandleStartGameClicked() {
-  if (!isHost) return;
+function template_code() {
+  let { code, connectionStatus } = data;
 
-  let startPage = SetValueToPlaceholderIfEmpty("start-page-input");
-  let goalPage = SetValueToPlaceholderIfEmpty("goal-page-input");
+  return `
+    <div id="code" class="box text" style="background: var(--${connectionStatus})">
+      ${code}
+    </div>`;
+}
 
-  startPage = GetArticleTitleFromPotentialUrl(startPage);
-  goalPage = GetArticleTitleFromPotentialUrl(goalPage);
+function template_countdown() {
+  let { connectionStatus, countdownInput, countdownLeft, countdownPlaceholder, countdownTotal, isHost, lobbyState } = data;
 
-  startPage = await SearchForWikipediaTitle(startPage);
-  goalPage = await SearchForWikipediaTitle(goalPage);
-
-  if (startPage === "" || goalPage === "") {
-    // start or goal page does not exist
-    return;
+  function Value() {
+    if (lobbyState === LobbyState.RACING)
+      return FormatTime(countdownLeft);
+    else
+      return countdownTotal ? FormatTime(countdownTotal) : countdownInput;
   }
 
-  if (startPage === goalPage) {
-    return;
+  function Disabled() {
+    return (connectionStatus !== ConnectionStatus.CONNECTED
+      || !isHost
+      || lobbyState === LobbyState.RACING) ? "disabled" : "";
   }
 
-  const time = SetValueToPlaceholderIfEmpty("time-input");
+  return `
+    <input
+      id="countdown-input"
+      class="box text"
+      placeholder="${FormatTime(countdownPlaceholder)}"
+      @value="${Value()}"
+      ${Disabled()}>
+    </input>`;
+}
+
+function template_start_and_goal_page() {
+  return `
+    <div class="text">Start a race from</div>
+      <div class="flex-horizontal-container">
+        ${template_start_page()}
+      </div>
+    <div class="text">to</div>
+      <div class="flex-horizontal-container">
+        ${template_goal_page()}
+      </div>`;
+}
+
+function storeInputValue(event) {
+  // Store values entered into input box in the appropriate variables
+
+  if (event.target.id === "start-page-input")
+    data.startPage = event.target.value;
+
+  if (event.target.id === "goal-page-input")
+    data.goalPage = event.target.value;
+
+  if (event.target.id === "countdown-input")
+    data.countdownInput = event.target.value;
+}
+
+function template_start_page() {
+  let { connectionStatus, isHost, lobbyState, startPage, startPagePlaceholder } = data;
+
+  function Disabled() {
+    return (connectionStatus !== ConnectionStatus.CONNECTED
+      || !isHost
+      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+  }
+
+  return `
+    <input
+      id="start-page-input"
+      class="box text"
+      placeholder="${startPagePlaceholder}"
+      @value="${startPage}"
+      ${Disabled()}>
+    </input>`;
+}
+
+function template_goal_page() {
+  let { connectionStatus, isHost, lobbyState, goalPage, goalPagePlaceholder } = data;
+
+  function Disabled() {
+    return (connectionStatus !== ConnectionStatus.CONNECTED
+      || !isHost
+      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+  }
+
+  return `
+    <input
+      id="goal-page-input"
+      class="box text"
+      placeholder="${goalPagePlaceholder}"
+      @value="${goalPage}"
+      ${Disabled()}>
+    </input>`;
+}
+
+function dispatchClick(event) {
+  if (event.target.id === "start-button")
+    StartRace();
+
+  if (event.target.id === "end-button")
+    EndRace();
+
+  if (event.target.id === "reset-button")
+    HandleResetClicked();
+}
+
+function template_primary_buttons() {
+  return `
+    ${template_start_button()}
+    ${template_end_button()}
+    ${template_reset_button()}`;
+}
+
+function template_start_button() {
+  let { connectionStatus, isHost, lobbyState } = data;
+
+  function Disabled() {
+    return (connectionStatus !== ConnectionStatus.CONNECTED
+      || !isHost
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+  }
+
+  return `
+    <button
+      id="start-button"
+      class="button box text"
+      ${Disabled()}>
+        start
+    </button>`
+}
+
+function template_end_button() {
+  let { connectionStatus, isHost, lobbyState } = data;
+
+  function Disabled() {
+    return (connectionStatus !== ConnectionStatus.CONNECTED
+      || !isHost
+      || lobbyState !== LobbyState.RACING) ? "disabled" : "";
+  }
+
+  return `
+    <button
+      id="end-button"
+      class="button box text"
+      ${Disabled()}>
+        end
+    </button>`
+}
+
+function template_reset_button() {
+  let { isHost } = data;
+
+  function Disabled() {
+    return (!isHost) ? "disabled" : "";
+  }
+
+  return `
+    <button
+      id="reset-button"
+      class="button box text"
+      ${Disabled()}>
+        reset
+    </button>`
+}
+
+function template_leaderboard() {
+  return `
+    <tr>
+        <th>
+            <img src="assets/colors-icon.svg" height="36" width="36" />
+        </th>
+        <th id="leaderboard-header-username">
+            <img src="assets/profile-girl-icon.svg" height="36" width="36" />
+        </th>
+        <th>
+            <img src="assets/touch-icon.svg" height="36" width="36" />
+        </th>
+        <th>
+            <img src="assets/page-file-icon.svg" height="36" width="36" />
+        </th>
+        <th>
+            <img src="assets/clock-line-icon.svg" height="36" width="36" />
+        </th>
+    </tr>
+    ${template_leaderboard_entries()}`
+}
+
+function template_leaderboard_entries() {
+  let { players } = data;
+
+  function PlayerSort(p1, p2) {
+    let t1 = p1.finishTime ? p1.finishTime : Number.MAX_SAFE_INTEGER;
+    let t2 = p2.finishTime ? p2.finishTime : Number.MAX_SAFE_INTEGER;
+    return -((t1 !== t2 ? t1 < t2 : p1.username < p2.username) * 2 - 1);
+  }
+
+
+  return Object.values(players).toSorted(PlayerSort).map(({ username, clicks, pages, finishTime, color }) => {
+    function Time() {
+      return finishTime ? FormatTime(finishTime) : "--:--";
+    }
+
+    return `
+  <tr>
+    <td data-cell="color" style="color: ${CMap[color].bgcolor}">⬤</td>
+    <td data-cell="username">${username}</td>
+    <td data-cell="clicks">${clicks}</td>
+    <td data-cell="pages">${pages}</td>
+    <td data-cell="time">${Time()}</td>
+  </tr>`
+  }).join("");
+}
+
+let codeCountdownElem = document.querySelector("#code-and-countdown");
+reef.component(codeCountdownElem, template_code_and_countdown);
+codeCountdownElem.addEventListener("input", storeInputValue);
+
+let startGoalPageElem = document.querySelector("#start-and-goal-page");
+reef.component(startGoalPageElem, template_start_and_goal_page);
+startGoalPageElem.addEventListener("input", storeInputValue);
+
+let primaryButtons = document.querySelector("#primary-buttons");
+reef.component(primaryButtons, template_primary_buttons);
+primaryButtons.addEventListener("click", dispatchClick);
+
+reef.component("#leaderboard", template_leaderboard);
+
+document.addEventListener("reef:signal", async (event) => {
+  switch (event.detail.prop) {
+    case "code":
+      history.replaceState(null, "", `${window.location.origin}/#${data.code}`);
+      break;
+
+    case "countdownLeft":
+      if (event.detail.value <= 0 && data.lobbyState === LobbyState.RACING)
+        EndRace();
+      break;
+
+    case "finishTime":
+      if (NumberOfPlayersFinished() >= Object.values(data.players).length)
+        EndRace();
+      break;
+
+    case "lobbyState":
+      switch (event.detail.value) {
+        case LobbyState.SHOWING_EXAMPLE:
+          ResetGraph();
+          ResetPlayers();
+          ResetCountdownTimer();
+          ResetStartAndGoalPages();
+          CreateNicerExample();
+          await UpdatePagePlaceholderEveryFewSeconds(10);
+          break;
+
+        case LobbyState.RESET:
+          await UpdatePagePlaceholderEveryFewSeconds(10);
+          break;
+
+        case LobbyState.IDLE:
+          await UpdatePagePlaceholderEveryFewSeconds(10);
+          break;
+
+        case LobbyState.RACING:
+          ResetPagePlaceholderTimer();
+          break;
+      }
+      break;
+  }
+});
+
+// ===== END REEF STUFF =====
+
+async function StartRace() {
+  if (!data.isHost) return;
+
+  let startPageInput = data.startPage ? data.startPage : data.startPagePlaceholder;
+  let goalPageInput = data.goalPage ? data.goalPage : data.goalPagePlaceholder;
+
+  function GetArticleTitleFromPotentialUrl(maybeURL) {
+    if (!maybeURL.startsWith("http")) {
+      return maybeURL;
+    }
+
+    if (!maybeURL.includes("wikipedia")) {
+      return maybeURL;
+    }
+
+    title = decodeURIComponent(maybeURL)
+      .split("wiki/")[1]
+      .split("#")[0]
+      .replace(/_/g, " ");
+
+    return title;
+  }
+
+  let startPageTitle = GetArticleTitleFromPotentialUrl(startPageInput);
+  let goalPageTitle = GetArticleTitleFromPotentialUrl(goalPageInput);
+
+  let startPage = await SearchForWikipediaTitle(startPageTitle);
+  let goalPage = await SearchForWikipediaTitle(goalPageTitle);
+
+  if (!startPage || !goalPage)
+    return;
+
+  if (startPage === goalPage)
+    return;
+
+  data.startPage = startPage;
+  data.goalPage = goalPage;
+
+  data.countdownTotal = data.countdownInput ? ParseTime(data.countdownInput) : data.countdownPlaceholder;
 
   let startMessage = {
     type: "start",
     startpage: startPage,
     goalpage: goalPage,
-    countdown: ParseTime(time),
+    countdown: data.countdownTotal,
   };
   SendMessage(startMessage);
-
-  ResetPagePlaceholderTimer();
 }
 
-async function HandleEndClicked() {
-  if (!isHost) return;
+async function EndRace() {
+  if (!data.isHost) return;
 
   let endMessage = {
     type: "end",
   };
   SendMessage(endMessage);
-
-  await UpdatePagePlaceholderEveryFewSeconds(10);
-}
-
-function HandleRedrawClicked() {
-  ForceNewLayout();
 }
 
 async function HandleResetClicked() {
-  if (!isHost) return;
+  if (!data.isHost) return;
 
   let resetMessage = {
     type: "reset",
   };
   SendMessage(resetMessage);
+}
 
-  await UpdatePagePlaceholderEveryFewSeconds(10);
+function HandleRedrawClicked() {
+  ForceNewLayout();
 }
 
 async function HandleExportClicked() {
@@ -127,99 +432,15 @@ function GetExportFilename() {
 
   filename = filename.concat("_");
 
-  startPage = document.getElementById("start-page-input").value;
-  filename = filename.concat(startPage);
+  filename = filename.concat(data.startPage);
 
   filename = filename.concat("-");
 
-  goalPage = document.getElementById("goal-page-input").value;
-  filename = filename.concat(goalPage);
+  filename = filename.concat(data.goalPage);
 
   filename = filename.concat(".png");
 
   return filename;
-}
-
-function GetArticleTitleFromPotentialUrl(maybeURL) {
-  if (!maybeURL.startsWith("http")) {
-    return maybeURL;
-  }
-
-  if (!maybeURL.includes("wikipedia")) {
-    return maybeURL;
-  }
-
-  title = decodeURIComponent(maybeURL)
-    .split("wiki/")[1]
-    .split("#")[0]
-    .replace(/_/g, " ");
-
-  return title;
-}
-
-function SetValueToPlaceholderIfEmpty(elementID) {
-  elem = document.getElementById(elementID);
-  if (elem.value === "") elem.value = elem.placeholder;
-  return elem.value;
-}
-
-function EnableElements(elements) {
-  for (const elemID in elements) {
-    const elem = document.getElementById(elemID);
-
-    if (elem === undefined) {
-      console.log("EnableElements: no element with ID: ", elemID);
-      continue;
-    }
-
-    elem.disabled = !elements[elemID];
-  }
-}
-
-function ShowElements(elements) {
-  for (const elemID in elements) {
-    const elem = document.getElementById(elemID);
-
-    if (elem === undefined) {
-      console.log("EnableElements: no element with ID: ", elemID);
-      continue;
-    }
-
-    elem.hidden = !elements[elemID];
-  }
-}
-
-function ResetLobbyClientSide() {
-  ResetGraph();
-  ResetPlayers();
-  ResetLeaderboard();
-  ResetCountdownTimer();
-  ResetStartAndGoalPages();
-}
-
-function ResetStartAndGoalPages() {
-  document.getElementById("start-page-input").value = "";
-  document.getElementById("goal-page-input").value = "";
-}
-
-function UpdateConnectionStatusIndication(status) {
-  let codeElement = document.getElementById("code");
-
-  let color = "";
-
-  if (status == "connected") {
-    color = "--green";
-  } else if (status == "disconnected") {
-    color = "--red";
-  } else if (status == "pending") {
-    color = "--yellow";
-  } else {
-    console.log("unrecognized connection status", status);
-  }
-
-  codeElement.style.background = getComputedStyle(
-    document.documentElement
-  ).getPropertyValue(color);
 }
 
 function GetCodeFromUrl() {
@@ -234,105 +455,65 @@ function GetCodeFromUrl() {
   return code;
 }
 
-function SetCode(code) {
-  // https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
-  history.replaceState(null, "", `${window.location.origin}/#${code}`);
-  document.getElementById("code").innerText = code;
+function ResetLobbyClientSide() {
+  data.players = {};
+  data.lobbyState = LobbyState.RESET;
+
+  ResetGraph();
+  ResetPlayers();
+  ResetCountdownTimer();
+  ResetStartAndGoalPages();
 }
 
-function AddLeaderboardEntry(username, clicks, pages) {
-  let color = UsernameToColor(username);
-  if (color === undefined) return;
-
-  leaderboard = document.getElementById("leaderboard");
-  leaderboard.firstElementChild.insertAdjacentHTML(
-    "beforeend",
-    `<tr id="leaderboard-row-${username}">
-  <td data-cell="color" style="color: ${CMap[color].bgcolor}">⬤</td>
-  <td data-cell="username">${username}</td>
-  <td data-cell="clicks">${clicks}</td>
-  <td data-cell="pages">${pages}</td>
-  <td data-cell="time">--:--</td>
-</tr>`
-  );
+function ResetStartAndGoalPages() {
+  data.startPage = "";
+  data.goalPage = "";
 }
 
-function UpdateLeaderboardEntry(
-  username,
-  clicks = null,
-  pages = null,
-  time = null
-) {
-  row = document.getElementById(`leaderboard-row-${username}`).children;
+function UpdateLeaderboard(username, clicks, pages, finishTime) {
+  let player = data.players[username];
 
-  if (!row) {
-    console.log("Attempting to update non-existent leadboard entry:", username);
-    return;
+
+  if (!player) {
+    player = { username, color: UsernameToColor(username) };
+    data.players[username] = player;
   }
 
-  if (clicks) {
-    row[2].innerHTML = clicks;
-  }
-
-  if (pages) {
-    row[3].innerHTML = pages;
-  }
-
-  if (time) {
-    row[4].innerHTML = FormatTime(time);
-  }
-}
-
-function RemoveLeaderboardEntry(username) {
-  const row = document.getElementById(`leaderboard-row-${username}`);
-  row.remove();
-  return row;
-}
-
-function MoveLeaderboardEntry(username, position) {
-  const row = RemoveLeaderboardEntry(username);
-
-  const leaderboard = document.getElementById("leaderboard");
-  const rows = leaderboard.firstElementChild.children;
-
-  if (position >= rows.length) position = rows.length - 1;
-
-  rows[position].after(row);
-}
-
-function ResetLeaderboard() {
-  leaderboard = document.getElementById("leaderboard");
-
-  // Do not remove the leaderboard header
-  const [_, ...rows] = leaderboard.firstElementChild.children;
-  for (let elem of rows) {
-    elem.remove();
-  }
-
-  numberOfPlayersFinished = 0;
+  player.clicks = clicks;
+  player.pages = pages;
+  player.finishTime = finishTime;
 }
 
 function ResetLeaderboardScores() {
-  leaderboard = document.getElementById("leaderboard");
-
-  const [_, ...rows] = leaderboard.firstElementChild.children;
-  for (let row of rows) {
-    let [_, __, clicks, pages, time] = row.children;
-    clicks.innerHTML = 0;
-    pages.innerHTML = 0;
-    time.innerHTML = "--:--";
+  for (player of Object.values(data.players)) {
+    player.clicks = 0;
+    player.pages = 0;
+    player.finishTime = 0;
   }
-
-  numberOfPlayersFinished = 0;
 }
 
-var StartTimeSeconds;
-var CountdownSeconds;
+function NumberOfPlayersFinished() {
+  return Object.values(data.players).filter(p => p.finishTime).length;
+}
+
+// ==== COUNTDOWN ===== 
+
 var CountdownTimer;
 
+function ZeroPad(num) {
+  return String(num).padStart(2, "0");
+}
+
+function FormatTime(total) {
+  const minutes = ZeroPad(Math.floor(total / 60));
+  const seconds = ZeroPad(total % 60);
+
+  return `${minutes}:${seconds}`
+}
+
 function StartCountdownTimer(StartTime, Countdown) {
-  StartTimeSeconds = StartTime;
-  CountdownSeconds = Countdown;
+  data.countdownStart = StartTime;
+  data.countdownTotal = Countdown;
 
   clearInterval(CountdownTimer);
   CountdownTimer = setInterval(DoCountdown, 1000);
@@ -341,32 +522,14 @@ function StartCountdownTimer(StartTime, Countdown) {
 
 function ResetCountdownTimer() {
   clearInterval(CountdownTimer);
-  document.getElementById("time-input").value = "";
+  data.countdownTotal = 0;
+  data.countdownLeft = 0;
+  data.countdownStart = 0;
 }
 
 function DoCountdown() {
   const now = Math.floor(Date.now() / 1000);
-  const time = Math.max(CountdownSeconds - (now - StartTimeSeconds), 0);
-
-  if (time <= 0) {
-    HandleEndClicked();
-  }
-
-  SetTime(time);
-}
-
-function SetTime(time) {
-  document.getElementById("time-input").value = FormatTime(time);
-}
-
-function ZeroPad(num, places) {
-  return String(num).padStart(places, "0");
-}
-
-function FormatTime(time) {
-  const minutes = ZeroPad(Math.floor(time / 60), 2);
-  const seconds = ZeroPad(time % 60, 2);
-  return `${minutes}:${seconds}`;
+  data.countdownLeft = Math.max(data.countdownTotal - (now - data.countdownStart), 0);
 }
 
 function ParseTime(time) {
@@ -382,30 +545,7 @@ function IsNumber(time) {
   return /^\d+$/.test(time);
 }
 
-function IsValidTime(time) {
-  time = time.trim();
-
-  if (!time) return false;
-
-  if (time.indexOf(":") == -1) {
-    // A maximum of three digits long, interpreted as seconds
-    return (
-      0 <= time.length &&
-      time.length <= 4 &&
-      IsNumber(time) &&
-      Number(time) < 6000
-    );
-  } else {
-    // Two numbers separated by a colon, e.g. 10:00
-    const [minutes, seconds] = time.split(":");
-    return (
-      minutes.length <= 2 &&
-      IsNumber(minutes) &&
-      seconds.length <= 2 &&
-      IsNumber(seconds)
-    );
-  }
-}
+// ===== PAGE PLACEHOLDER =====
 
 var PagePlaceholderTimer;
 
@@ -425,8 +565,13 @@ async function UpdatePagePlaceholderEveryFewSeconds(n) {
 
 async function SetPagePlaceholderToRandomArticles() {
   let [startPage, goalPage] = await GetRandomWikipediaArticles(2);
-  document.getElementById("start-page-input").placeholder = startPage;
-  document.getElementById("goal-page-input").placeholder = goalPage;
+  data.startPagePlaceholder = startPage;
+  data.goalPagePlaceholder = goalPage;
 }
 
-document.addEventListener("DOMContentLoaded", () => init(), false);
+document.addEventListener("DOMContentLoaded", async () => {
+  data.lobbyState = LobbyState.SHOWING_EXAMPLE;
+  data.code = GetCodeFromUrl();
+  await JoinLobby();
+});
+

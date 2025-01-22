@@ -12,72 +12,31 @@ function SendMessage(msg) {
 function HandleMessageEnd(msg) {
   if (!msg.Success) return;
 
-  const elements = {
-    "time-input": isHost,
-    "start-page-input": isHost,
-    "goal-page-input": isHost,
-    "start-button": isHost,
-    "end-button": false,
-  };
-  EnableElements(elements);
-
+  data.lobbyState = LobbyState.IDLE;
+  data.startPage = "";
+  data.goalPage = "";
   ResetCountdownTimer();
-  SetTime(msg.Countdown);
 }
 
 function HandleMessageJoin(msg) {
-  let elements = {
-    "extension-text": false,
-    "leaderboard-wrapper": true,
-  };
-  ShowElements(elements);
-
   AddNewPlayer(msg.Username);
-  AddLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+  UpdateLeaderboard(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 }
 
 function HandleMessageLobby(msg) {
-  isHost = msg.IsHost;
-
-  let elements = {
-    "time-input": false,
-    "start-page-input": false,
-    "goal-page-input": false,
-    "start-button": false,
-    "end-button": false,
-    "reset-button": isHost,
-  };
-  EnableElements(elements);
-
-  elements = {
-    "extension-text": false,
-    "disconnect-text": false,
-    "spectator-text": !isHost,
-    "example-text": isHost,
-  };
-  ShowElements(elements);
-
-  UpdateConnectionStatusIndication("connected");
-
-  SetCode(msg.Code);
+  data.code = msg.Code;
+  data.connectionStatus = ConnectionStatus.CONNECTED;
+  data.isHost = msg.IsHost;
+  data.lobbyState = msg.State;
 }
 
 function HandleMessageStart(msg) {
   if (!msg.Success) return;
 
-  const elements = {
-    "time-input": false,
-    "start-page-input": false,
-    "goal-page-input": false,
-    "start-button": false,
-    "redraw-button": true,
-    "export-button": true,
-    "end-button": isHost,
-  };
-  EnableElements(elements);
+  data.lobbyState = LobbyState.RACING;
+  data.startPage = msg.StartPage;
+  data.goalPage = msg.GoalPage;
 
-  document.getElementById("start-page-input").value = msg.StartPage;
-  document.getElementById("goal-page-input").value = msg.GoalPage;
   StartGame(msg.StartPage, msg.GoalPage);
   ResetLeaderboardScores();
   StartCountdownTimer(msg.StartTime, msg.Countdown);
@@ -85,52 +44,28 @@ function HandleMessageStart(msg) {
 
 function HandleMessagePage(msg) {
   AddNewPage(msg.Username, msg.Previous, msg.Page, msg.Backmove);
-  UpdateLeaderboardEntry(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
+  UpdateLeaderboard(msg.Username, msg.Clicks, msg.Pages, msg.FinishTime);
 
+  // Get rid of this?
   if (msg.FinishTime) {
-    UpdateLeaderboardEntry(msg.Username, msg.Clicks, GetPlayerDistance(msg.Username), msg.FinishTime);
-
-    MoveLeaderboardEntry(msg.Username, numberOfPlayersFinished);
-    numberOfPlayersFinished += 1;
-
-    if (numberOfPlayersFinished == NumberOfPlayersInLobby()) {
-      HandleEndClicked();
-    }
+    UpdateLeaderboard(msg.Username, msg.Clicks, GetPlayerDistance(msg.Username), msg.FinishTime);
   }
 }
 
 function HandleMessageReset(msg) {
   if (!msg.Success) return;
 
-  let elements = {
-    "time-input": isHost,
-    "start-page-input": isHost,
-    "goal-page-input": isHost,
-    "start-button": isHost,
-    "redraw-button": false,
-    "export-button": false,
-    "end-button": false,
-  };
-  EnableElements(elements);
-
-  elements = {
-    "extension-text": isHost,
-    "disconnect-text": false,
-    "spectator-text": !isHost,
-    "example-text": false,
-    "leaderboard-wrapper": false,
-  };
-  ShowElements(elements);
-
   ResetLobbyClientSide();
 }
 
-async function JoinLobby(code) {
+async function JoinLobby() {
+  const { code } = data;
+
   if (globalThis.socket) {
     await globalThis.socket.close();
   }
 
-  UpdateConnectionStatusIndication("pending");
+  data.connectionStatus = ConnectionStatus.PENDING;
 
   globalThis.socket = new WebSocket(`/api/ws/web/join?code=${code}`);
 
@@ -148,25 +83,7 @@ async function JoinLobby(code) {
     if (CountdownTimer) clearInterval(CountdownTimer);
     if (PagePlaceholderTimer) clearInterval(PagePlaceholderTimer);
 
-    UpdateConnectionStatusIndication("disconnected");
-
-    let elements = {
-      "time-input": false,
-      "start-page-input": false,
-      "goal-page-input": false,
-      "start-button": false,
-      "end-button": false,
-      "reset-button": false,
-    };
-    EnableElements(elements);
-
-    elements = {
-      "extension-text": false,
-      "disconnect-text": true,
-      "spectator-text": false,
-      "example-text": false,
-    };
-    ShowElements(elements);
+    data.connectionStatus = ConnectionStatus.DISCONNECTED;
   });
 
   globalThis.socket.addEventListener("message", (event) => {
@@ -222,14 +139,14 @@ async function GetRandomWikipediaArticles(n) {
   };
 
   url = url + "?origin=*";
-  Object.keys(params).forEach(function (key) {
+  Object.keys(params).forEach(function(key) {
     url += "&" + key + "=" + params[key];
   });
 
   articles = await fetch(url)
     .then((response) => response.json())
     .then((json) => json.query.random)
-    .catch(function (error) {
+    .catch(function(error) {
       console.log(error);
       return [{ title: "Gingerbread", title: "League of Legends" }];
     });
@@ -253,14 +170,14 @@ async function SearchForWikipediaTitle(title) {
   };
 
   url = url + "?origin=*";
-  Object.keys(params).forEach(function (key) {
+  Object.keys(params).forEach(function(key) {
     url += "&" + key + "=" + params[key];
   });
 
   response = await fetch(url)
     .then((response) => response.json())
     .then((json) => json)
-    .catch(function (error) {
+    .catch(function(error) {
       return { error: error };
     });
 

@@ -125,6 +125,11 @@ img {
   align-self: center;
 }
 
+#code-and-countdown {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 #code {
   cursor: default;
   filter: brightness(100%);
@@ -132,6 +137,12 @@ img {
   border-width: 1px;
   border: #3f3d3d;
   border-style: solid;
+}
+
+#start-and-goal-page {
+  display:flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 #start-button {
