@@ -83,6 +83,8 @@ async function HandleLeaveClicked(e) {
   EnableElements(elements);
 
   await UnregisterContentScripts();
+
+  await chrome.runtime.sendMessage({ type: "disconnect" });
 }
 
 async function HandleOpenLobbyClicked(e) {

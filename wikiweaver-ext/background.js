@@ -174,6 +174,20 @@ async function HandleMessageConnect(msg) {
   });
 }
 
+async function HandleMessageDisconnect(msg) {
+  const options = await chrome.storage.local.get();
+  const userid = await GetUserIdForLobby(options.code);
+
+  const body = {
+    code: options.code,
+    username: options.username,
+    userid: userid,
+  };
+
+  // TODO: Right now we dont care about the response
+  await SendPOSTRequestToServer(options.url, "/api/ext/leave", body);
+}
+
 chrome.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
