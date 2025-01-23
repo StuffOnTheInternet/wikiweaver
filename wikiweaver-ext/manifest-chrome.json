@@ -16,14 +16,17 @@
     "default_popup": "popup/popup.html"
   },
   "permissions": [
-    "activeTab",
     "scripting",
     "storage",
     "tabs",
     "webNavigation"
   ],
   "host_permissions": [
-    "*://*.wikipedia.org/*"
+    "*://*.wikipedia.org/*",
+    "https://wikiweaver.stuffontheinter.net"
+  ],
+  "optional_permissions": [
+    "<all_urls>"
   ],
   "background": {
     "type": "module",
