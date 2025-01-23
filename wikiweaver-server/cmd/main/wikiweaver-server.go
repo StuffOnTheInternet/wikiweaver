@@ -102,15 +102,29 @@ func (l *Lobby) BroadcastToWeb(v interface{}) {
 	}
 }
 
-func (l *Lobby) BroadcastToExt(msgResponseExt string) {
+func constructExtEvtResponse(event string, i interface{}) string {
+	response, err := json.Marshal(i)
+	if err != nil {
+		log.Printf("failed to marshal event to extension (%+v): %s", response, err)
+		return ": invalid object\n\n"
+	}
+
+	return fmt.Sprintf("event:%s\ndata:%s\n\n", event, response)
+}
+
+func (ec *ExtClient) send(header string, i interface{}) {
+	ec.Evt.Write([]byte(constructExtEvtResponse(header, i)))
+	ec.Evt.(http.Flusher).Flush()
+}
+
+func (l *Lobby) BroadcastToExt(header string, i interface{}) {
 	for _, ec := range l.ExtClients {
 		if ec.Evt == nil {
 			log.Printf("failed to send event to ext %s", ec.UserID)
 			continue
 		}
 
-		ec.Evt.Write([]byte(msgResponseExt))
-		ec.Evt.(http.Flusher).Flush()
+		ec.send(header, i)
 	}
 }
 
@@ -596,17 +610,7 @@ func HandleMessageStart(lobby *Lobby, wc *WebClient, buf []byte) {
 	msgResponseExt := StartEvtToExt{
 		StartPage: lobby.StartPage,
 	}
-	lobby.BroadcastToExt(constructExtEvtResponse("start", msgResponseExt))
-}
-
-func constructExtEvtResponse(event string, i interface{}) string {
-	response, err := json.Marshal(i)
-	if err != nil {
-		log.Printf("failed to marshal event to extension (%+v): %s", response, err)
-		return ": invalid object\n\n"
-	}
-
-	return fmt.Sprintf("event:%s\ndata:%s\n\n", event, response)
+	lobby.BroadcastToExt("start", msgResponseExt)
 }
 
 func webClientListener(lobby *Lobby, wc *WebClient) {
@@ -996,6 +1000,13 @@ func storeEvtReference(code string, userid string, w http.ResponseWriter) {
 	defer extClient.mu.Unlock()
 
 	extClient.Evt = w
+
+	if lobby.State == Started {
+		msgResponseExt := StartEvtToExt{
+			StartPage: lobby.StartPage,
+		}
+		extClient.send("start", msgResponseExt)
+	}
 }
 
 func handleExtEvents(w http.ResponseWriter, r *http.Request) {
