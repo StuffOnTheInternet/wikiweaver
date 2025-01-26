@@ -432,12 +432,16 @@ function RemovePlayer(Player) {
 
 // GRAPH CONSTRUCTION
 
-function AddNewPage(Player, Fromstring, ToString, backmove = false) {
+function AddNewPage(Player, Fromstring, ToString, backmove = false, history = false) {
   let color = UsernameToColor(Player);
   if (color === undefined) return;
 
   AddNewElement(color, Fromstring, ToString, backmove);
-  PageHistory.push({ Player, Fromstring, ToString, backmove })
+  // Do not add stuff to the page history if we are currently viewing the page history
+  if (!history) {
+    PageHistory.push({ Player, Fromstring, ToString, backmove })
+  }
+
   HistoryLength++;
 }
 
@@ -869,11 +873,59 @@ function CreateNicerExample() {
   webgraph.remove('edge');
   webgraph.remove('node[group != "Goal"][group != "Start"]');
 
-  for (let i = 0; i < 39; i++) {
-    AddNewPage(PageHistory[i].Player, PageHistory[i].Fromstring, PageHistory[i].ToString, PageHistory[i].backmove);
+  for (let i = 0; i < 20; i++) {
+    AddNewPage(PageHistory[i].Player, PageHistory[i].Fromstring, PageHistory[i].ToString, PageHistory[i].backmove, true);
+  }
+
+  for (let i = 20; i > 5; i--) {
+    RemovePage(PageHistory[i].Player, PageHistory[i].Fromstring, PageHistory[i].ToString, PageHistory[i].backmove);
   }
 
 
+}
+
+// This function reverses the placement of a new page, for the purpose of showing the match history
+function RemovePage(Player, Fromstring, ToString, backmove = false) {
+  let color = UsernameToColor(Player);
+  if (color === undefined) return;
+  RemoveElement(color, Fromstring, ToString, backmove)
+  HistoryLength--;
+}
+
+function RemoveElement(PColor, Fromstring, ToString, backmove) {
+  // Add a new edge and possibly a new node for a player click
+  var CList = CMap[PColor];
+
+  if (Fromstring == ToString) {
+    return;
+  }
+
+  webgraph.remove('edge[group = "' + CList.group + '"][source = "' + Fromstring + '"][target = "' + ToString + '"]')
+  webgraph.remove('node[group = "' + CList.group + '"][id = "' + ToString + '"]')
+
+  // Add a new node if it does not already exist
+  //if (!webgraph.getElementById(ToString).inside()) {
+  //  webgraph.add({
+  //    data: { id: ToString, group: CList.group, shortid: ShortenString(ToString, 25), isshort: true },
+  //    position: {
+  //     x: webgraph.getElementById(Fromstring).position("x"),
+  //    y: webgraph.getElementById(Fromstring).position("y"),
+  //    },
+  //   classes: [PColor]
+  // });
+  //}
+
+  // If we are hiding a player path, hide the edges but not the nodes
+  if (!CList.showon) {
+    webgraph.edges('[group = "' + CList.group + '"]').hide();
+  }
+
+  // If goal node has been found, show it
+  if (webgraph.nodes('[group = "Goal"]').id() == ToString) {
+    webgraph.nodes('[group = "Goal"]').show();
+  }
+
+  ForceNewLayout(NewNodeOptions);
 }
 
 let PageHistory = [];
