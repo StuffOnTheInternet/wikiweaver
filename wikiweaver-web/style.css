@@ -152,7 +152,7 @@ img {
 
 #end-button {
   background: var(--red);
-  flex-grow: 1;
+  flex-grow: 3;
 }
 
 #redraw-button {

@@ -85,16 +85,16 @@ function template_countdown() {
 
 function template_start_and_goal_page() {
   return `
-    <div class="text">Start a race from</div>
-      <div class="flex-vertical-container">
-        ${template_start_page()}
-        ${template_start_page_suggestions()}
-      </div>
+    <div class="text">Race from</div>
+    <div class="flex-vertical-container">
+      ${template_start_page()}
+      ${template_start_page_suggestions()}
+    </div>
     <div class="text">to</div>
-      <div class="flex-vertical-container">
-        ${template_goal_page()}
-        ${template_goal_page_suggestions()}
-      </div>`;
+    <div class="flex-vertical-container">
+      ${template_goal_page()}
+      ${template_goal_page_suggestions()}
+    </div>`;
 }
 
 function storeInputValue(event) {
@@ -221,45 +221,29 @@ function dispatchClick(event) {
 
 function template_primary_buttons() {
   return `
-    ${template_start_button()}
-    ${template_end_button()}
+    ${template_start_end_button()}
     ${template_reset_button()}`;
 }
 
-function template_start_button() {
+function template_start_end_button() {
   let { connectionStatus, isHost, lobbyState } = data;
+
+  function IsStart() {
+    return lobbyState !== LobbyState.RACING;
+  }
 
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
-      || !isHost
-      || lobbyState === LobbyState.SHOWING_EXAMPLE
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState == LobbyState.SHOWING_EXAMPLE
+      || !isHost) ? "disabled" : "";
   }
 
   return `
     <button
-      id="start-button"
+      id="${IsStart() ? "start" : "end"}-button"
       class="button box text"
       ${Disabled()}>
-        start
-    </button>`
-}
-
-function template_end_button() {
-  let { connectionStatus, isHost, lobbyState } = data;
-
-  function Disabled() {
-    return (connectionStatus !== ConnectionStatus.CONNECTED
-      || !isHost
-      || lobbyState !== LobbyState.RACING) ? "disabled" : "";
-  }
-
-  return `
-    <button
-      id="end-button"
-      class="button box text"
-      ${Disabled()}>
-        end
+        ${IsStart() ? "Start Race" : "End Race"}
     </button>`
 }
 
