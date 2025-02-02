@@ -348,15 +348,15 @@ var DefaultOptions = {
   nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
 
   // layout event callbacks
-  ready: function () { }, // on layoutready
-  stop: function () { }, // on layoutstop
+  ready: function() { }, // on layoutready
+  stop: function() { }, // on layoutstop
 
   // positioning options
   randomize: false, // use random node positions at beginning of layout
   avoidOverlap: false, // if true, prevents overlap of node bounding boxes
   handleDisconnected: true, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
-  nodeSpacing: function (node) {
+  nodeSpacing: function(node) {
     return 15;
   }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
@@ -408,16 +408,6 @@ function ResetPlayers() {
   for (let color in CMap) {
     CMap[color].group = UNUSED;
   }
-}
-
-function NumberOfPlayersInLobby() {
-  let i = 0;
-  for (let color of ColorArray) {
-    if (CMap[color].group === UNUSED) break;
-    i++;
-  }
-
-  return i;
 }
 
 function RemovePlayer(Player) {
@@ -634,7 +624,7 @@ let MenuNode = {
       fillColor: 'rgba(230, 130, 130, 0.95)', // the background colour of the menu
       content: 'Go to Article', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
+      select: function(ele) { // a function to execute when the command is selected
 
         window.open(Urlify(ele.id())) // `ele` holds the reference to the active element
       }
@@ -644,7 +634,7 @@ let MenuNode = {
       fillColor: 'rgba(210, 110, 110, 0.95)',
       content: 'Toggle short/long name', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
+      select: function(ele) { // a function to execute when the command is selected
         ToggleFullString(ele)
       }
     },
@@ -653,7 +643,7 @@ let MenuNode = {
       fillColor: 'rgba(200, 100, 100, 0.95)',
       content: 'Toggle player path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
+      select: function(ele) { // a function to execute when the command is selected
         ToggleOnePlayer(ele)
       }
     }
@@ -670,7 +660,7 @@ let MenuEdge = {
       fillColor: 'rgba(150, 150, 190, 0.95)',
       content: 'Toggle player path', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
+      select: function(ele) { // a function to execute when the command is selected
         ToggleOnePlayer(ele)
       }
     }
@@ -689,7 +679,7 @@ let MenuBG = {
       fillColor: 'rgba(150, 190, 150, 0.95)',
       content: 'Toggle edge names', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
+      select: function(ele) { // a function to execute when the command is selected
         ToggleEdgeNames(); // `ele` holds the reference to the active element
       }
     },
@@ -698,7 +688,7 @@ let MenuBG = {
       fillColor: 'rgba(130, 170, 130, 0.95)',
       content: 'Show all players', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) { // a function to execute when the command is selected
+      select: function(ele) { // a function to execute when the command is selected
         ShowAllPlayers();
       }
     },
@@ -707,7 +697,7 @@ let MenuBG = {
       fillColor: 'rgba(110, 150, 110, 0.95)',
       content: 'Hide all players', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function (ele) {
+      select: function(ele) {
         HideAllPlayers();
       }
     }
@@ -719,7 +709,7 @@ let MenuBG = {
 
 let MenuStyle = {
   // The default menu style for all cxt menus. Can be overriden by MenuNode/MenuEdge/MenuBG
-  menuRadius: function (ele) {
+  menuRadius: function(ele) {
     return 100;
   }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. Can either be a number or function as in the example.
   activePadding: 10, // additional size in pixels for the active command
@@ -743,66 +733,69 @@ function createColorTest() {
   AddNewPlayer("A");
   AddLeaderboardEntry("A", 3, 3);
   AddNewPage("A", "Santa Claus", "1");
-  UpdateLeaderboardEntry("A", 3, 3, 97);
+  UpdateLeaderboard("A", 3, 3, 97);
 
   AddNewPlayer("B");
   AddLeaderboardEntry("B", 3, 3);
   AddNewPage("B", "Santa Claus", "2");
-  UpdateLeaderboardEntry("B", 3, 3, 97);
+  UpdateLeaderboard("B", 3, 3, 97);
 
   AddNewPlayer("C");
   AddLeaderboardEntry("C", 3, 3);
   AddNewPage("C", "Santa Claus", "3");
-  UpdateLeaderboardEntry("C", 3, 3, 97);
+  UpdateLeaderboard("C", 3, 3, 97);
 
   AddNewPlayer("D");
   AddLeaderboardEntry("D", 3, 3);
   AddNewPage("D", "Santa Claus", "4");
-  UpdateLeaderboardEntry("D", 3, 3, 97);
+  UpdateLeaderboard("D", 3, 3, 97);
 
   AddNewPlayer("E");
   AddLeaderboardEntry("E", 3, 3);
   AddNewPage("E", "Santa Claus", "5");
-  UpdateLeaderboardEntry("E", 3, 3, 97);
+  UpdateLeaderboard("E", 3, 3, 97);
 
   AddNewPlayer("F");
   AddLeaderboardEntry("F", 3, 3);
   AddNewPage("F", "Santa Claus", "6");
-  UpdateLeaderboardEntry("F", 3, 3, 97);
+  UpdateLeaderboard("F", 3, 3, 97);
 
   AddNewPlayer("G");
   AddLeaderboardEntry("G", 3, 3);
   AddNewPage("G", "Santa Claus", "7");
-  UpdateLeaderboardEntry("G", 3, 3, 97);
+  UpdateLeaderboard("G", 3, 3, 97);
 
   AddNewPlayer("H");
   AddLeaderboardEntry("H", 3, 3);
   AddNewPage("H", "Santa Claus", "8");
-  UpdateLeaderboardEntry("H", 3, 3, 97);
+  UpdateLeaderboard("H", 3, 3, 97);
 
   AddNewPlayer("I");
   AddLeaderboardEntry("I", 3, 3);
   AddNewPage("I", "Santa Claus", "9");
-  UpdateLeaderboardEntry("I", 3, 3, 97);
+  UpdateLeaderboard("I", 3, 3, 97);
 }
 
 function CreateNicerExample() {
   // The example shown for the released product
   StartGame("Santa Claus", "Fish");
 
-  document.getElementById("start-page-input").value = "Santa Claus";
-  document.getElementById("goal-page-input").value = "Fish";
+  data.startPage = "Santa Claus";
+  data.goalPage = "Fish";
+
+  // TODO: Integrate better with the graph part in order to avoid doing all
+  // this manual stuff
 
   // A three player example of a race between Santa Claus and Fish
   AddNewPlayer("l0fen");
-  AddLeaderboardEntry("l0fen", 3, 3);
+  UpdateLeaderboard("l0fen", 3, 3, 0);
   AddNewPage("l0fen", "Santa Claus", "East-West Schism");
   AddNewPage("l0fen", "East-West Schism", "Lent");
   AddNewPage("l0fen", "Lent", "Fish");
-  UpdateLeaderboardEntry("l0fen", 3, 3, 97);
+  UpdateLeaderboard("l0fen", 3, 3, 97);
 
   AddNewPlayer("SomeRndmDude");
-  AddLeaderboardEntry("SomeRndmDude", 5, 5);
+  UpdateLeaderboard("SomeRndmDude", 5, 5, 0);
   AddNewPage("SomeRndmDude", "Santa Claus", "Saint Nicholas");
   AddNewPage("SomeRndmDude", "Saint Nicholas", "Early Christianity");
   AddNewPage("SomeRndmDude", "Early Christianity", "Jesus in Christianity");
@@ -811,10 +804,10 @@ function CreateNicerExample() {
   AddNewPage("SomeRndmDude", "Jesus in Christianity", "Christianity");
   AddNewPage("SomeRndmDude", "Christianity", "Lent");
   AddNewPage("SomeRndmDude", "Lent", "Fish");
-  UpdateLeaderboardEntry("SomeRndmDude", 5, 5, 165);
+  UpdateLeaderboard("SomeRndmDude", 5, 5, 165);
 
   AddNewPlayer("BEE");
-  AddLeaderboardEntry("BEE", 7, 5);
+  UpdateLeaderboard("BEE", 7, 5);
   AddNewPage("BEE", "Santa Claus", "East-West Schism");
   AddNewPage("BEE", "East-West Schism", "Passover");
   AddNewPage("BEE", "Passover", "Pike");
@@ -822,35 +815,34 @@ function CreateNicerExample() {
   AddNewPage("BEE", "Passover", "Carp");
   AddNewPage("BEE", "Carp", "Rough fish");
   AddNewPage("BEE", "Rough fish", "Fish");
-  UpdateLeaderboardEntry("BEE", 7, 5, 192);
+  UpdateLeaderboard("BEE", 7, 5, 192);
 
   AddNewPlayer("Retroducky");
-  AddLeaderboardEntry("Retroducky", 5, 5);
+  UpdateLeaderboard("Retroducky", 5, 5);
   AddNewPage("Retroducky", "Santa Claus", "Pepsi");
   AddNewPage("Retroducky", "Pepsi", "Fat");
   AddNewPage("Retroducky", "Fat", "Tuna");
   AddNewPage("Retroducky", "Tuna", "Game fish");
   AddNewPage("Retroducky", "Game fish", "Fish");
-  UpdateLeaderboardEntry("Retroducky", 5, 5, 239);
+  UpdateLeaderboard("Retroducky", 5, 5, 239);
 
   AddNewPlayer("vi9ke");
-  AddLeaderboardEntry("vi9ke", 2, 2);
+  UpdateLeaderboard("vi9ke", 2, 2);
   AddNewPage("vi9ke", "Santa Claus", "Pepsi");
   AddNewPage("vi9ke", "Pepsi", "Pepsiman (video game)");
 
   AddNewPlayer("Paul");
-  AddLeaderboardEntry("Paul", 6, 6);
+  UpdateLeaderboard("Paul", 6, 6);
   AddNewPage("Paul", "Santa Claus", "East-West Schism");
   AddNewPage("Paul", "East-West Schism", "Passover");
   AddNewPage("Paul", "Passover", "Carp");
   AddNewPage("Paul", "Carp", "Aquaculture");
   AddNewPage("Paul", "Aquaculture", "Goldfish");
   AddNewPage("Paul", "Goldfish", "Fish");
-  UpdateLeaderboardEntry("Paul", 6, 6, 323);
-  MoveLeaderboardEntry("Paul", 4);
+  UpdateLeaderboard("Paul", 6, 6, 323);
 
   AddNewPlayer("username");
-  AddLeaderboardEntry("username", 8, 4);
+  UpdateLeaderboard("username", 8, 4);
   AddNewPage("username", "Santa Claus", "East-West Schism");
   AddNewPage("username", "East-West Schism", "Lent");
   AddNewPage("username", "Lent", "East-West Schism", true);

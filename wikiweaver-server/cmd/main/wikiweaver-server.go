@@ -254,6 +254,7 @@ type LobbyToWebMessage struct {
 	Message
 	Code   string
 	IsHost bool
+	State  LobbyState
 }
 
 func CreateLobby() string {
@@ -334,6 +335,7 @@ func handleWebJoin(w http.ResponseWriter, r *http.Request) {
 		},
 		Code:   lobby.Code,
 		IsHost: wc.isHost,
+		State:  lobby.State,
 	}
 	wc.sendWithWarningOnFail(msgResponse)
 
