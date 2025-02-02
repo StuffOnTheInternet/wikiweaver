@@ -143,26 +143,29 @@ async function HandleMessageConnect(msg) {
     await SetPageCount(0);
     await SetUserIdForLobby(options.code, response.UserID);
 
-    if (eventSource != null) {
-      eventSource.close();
-      eventSource = null;
-    }
+    if (!response.AlreadyInLobby) {
 
-    // Server sent event reference: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-    eventSource = new EventSource(`${options.url}/api/ext/events?code=${options.code}&userid=${response.UserID}`);
-    eventSource.addEventListener("start", async (e) => {
-      const data = JSON.parse(e.data);
-      const options = await chrome.storage.local.get();
-
-      chrome.storage.session.set({ startPage: data.StartPage });
-
-      if (options.autoOpenStartPage) {
-        chrome.tabs.create({
-          active: true,
-          url: Urlify(data.StartPage)
-        })
+      if (eventSource != null) {
+        eventSource.close();
+        eventSource = null;
       }
-    });
+
+      // Server sent event reference: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+      eventSource = new EventSource(`${options.url}/api/ext/events?code=${options.code}&userid=${response.UserID}`);
+      eventSource.addEventListener("start", async (e) => {
+        const data = JSON.parse(e.data);
+        const options = await chrome.storage.local.get();
+
+        chrome.storage.session.set({ startPage: data.StartPage });
+
+        if (options.autoOpenStartPage) {
+          chrome.tabs.create({
+            active: true,
+            url: Urlify(data.StartPage)
+          })
+        }
+      });
+    }
   }
 
   await UpdateBadge(response.Success);
