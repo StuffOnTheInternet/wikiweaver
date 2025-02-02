@@ -104,23 +104,6 @@ img {
   margin: 1rem;
 }
 
-#extension-text {
-  align-self: center;
-}
-
-#disconnect-text {
-  align-self: center;
-}
-
-#spectator-text {
-  align-self: center;
-}
-
-#example-text {
-  width: 28rem;
-  align-self: center;
-}
-
 #code-and-countdown {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
