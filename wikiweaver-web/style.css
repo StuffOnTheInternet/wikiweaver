@@ -136,7 +136,6 @@ img {
 
 #redraw-button {
   background: var(--blue);
-  flex-grow: 2;
 }
 
 #export-button {
