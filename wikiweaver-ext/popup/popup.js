@@ -1,18 +1,23 @@
+let Settings;
+
 async function init() {
-  const options = await chrome.storage.local.get();
-  const session = await chrome.storage.session.get();
+  const settings = await import('../settings.js');
+  Settings = settings.Settings;
 
-  if (options.code != undefined) {
-    document.getElementById("code").value = options.code;
+  const { code, username } = await Settings.local.Get();
+  const { connected, startPage } = await Settings.session.Get();
+
+  if (code) {
+    document.getElementById("code").value = code;
   }
 
-  if (options.username != undefined) {
-    document.getElementById("username").value = options.username;
+  if (username) {
+    document.getElementById("username").value = username;
   }
 
-  document.getElementById("open-start-page").disabled = !session.startPage;
+  document.getElementById("open-start-page").disabled = !startPage;
 
-  if (session.connected) {
+  if (connected) {
     // If we think we are connected, attempt to join again just to make sure
     await HandleJoinClicked();
   } else {
@@ -59,20 +64,16 @@ async function UpdateBadgeColor(success) {
 }
 
 async function HandleJoinClicked(e) {
-  const codeElem = document.getElementById("code");
-  const usernameElem = document.getElementById("username");
-
-  await chrome.storage.local.set({
-    code: codeElem.value.toLowerCase(),
-    username: usernameElem.value,
-  });
+  // TODO: code feels more like a session thing, instead of local storage?
+  await Settings.local.Set("code", document.getElementById("code").value.toLowerCase());
+  await Settings.local.Set("username", document.getElementById("username").value);
 
   IndicateConnectionStatus({ status: "pending" });
   await chrome.runtime.sendMessage({ type: "connect" });
 }
 
 async function HandleLeaveClicked(e) {
-  await chrome.storage.session.set({ connected: false });
+  await Settings.session.Set("connected", false);
 
   IndicateConnectionStatus({ status: "disconnected" });
 
@@ -88,13 +89,14 @@ async function HandleLeaveClicked(e) {
 }
 
 async function HandleOpenLobbyClicked(e) {
-  const options = await chrome.storage.local.get();
+  let { code, url } = await Settings.local.Get();
+  let { connected } = await Settings.session.Get();
 
-  let code = (await chrome.storage.session.get()).connected ? options.code : "";
+  code = connected ? code : "";
 
   await chrome.tabs.create({
     active: true,
-    url: `${options.url}/#${code}`,
+    url: `${url}/#${code}`,
   })
 }
 
@@ -104,12 +106,12 @@ function Urlify(InString) {
 }
 
 async function HandleStartPageClicked(e) {
-  const session = await chrome.storage.session.get();
+  const { startPage } = await Settings.session.Get();
 
-  if (session.startPage) {
+  if (startPage) {
     chrome.tabs.create({
       active: true,
-      url: Urlify(session.startPage),
+      url: Urlify(startPage),
     })
   }
 }

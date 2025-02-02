@@ -1,4 +1,4 @@
-const defaultdomain = "https://wikiweaver.stuffontheinter.net";
+import { Settings } from './settings.js';
 
 var eventSource = null;
 
@@ -32,7 +32,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
   }
 
   const currentPage = await GetWikipediaArticleTitle(url);
-  const previousPage = await GetPreviousPageOnTab(tabId);
+  const previousPage = await Settings.session.Get(["previous-page-on-tab", tabId]);
 
   if (previousPage === currentPage) {
     // These events fire more than once for redirects, so after an url change
@@ -42,11 +42,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
     return;
   }
 
-  await SetPreviousPageOnTab(tabId, currentPage);
+  await Settings.session.Set(["previous-page-on-tab", tabId], currentPage);
 
   console.log("Transition:", previousPage, "->", currentPage);
 
-  if (!(await GetConnectionStatus())) {
+  const { connected } = await Settings.session.Get();
+
+  if (!connected) {
     return;
   }
 
@@ -65,7 +67,7 @@ chrome.webNavigation.onCommitted.addListener(
     }
 
     const currentPage = await GetWikipediaArticleTitle(event.url);
-    const previousPage = await GetPreviousPageOnTab(event.tabId);
+    const previousPage = await Settings.session.Get(["previous-page-on-tab", event.tabId], "");
 
     if (previousPage === currentPage) {
       // Sometimes when we go to pages like
@@ -77,11 +79,13 @@ chrome.webNavigation.onCommitted.addListener(
       return;
     }
 
-    await SetPreviousPageOnTab(event.tabId, currentPage);
+    await Settings.session.Set(["previous-page-on-tab", event.tabId], currentPage);
 
     console.log("Transition:", previousPage, "->", currentPage);
 
-    if (!(await GetConnectionStatus())) {
+    const { connected } = await Settings.session.Get();
+
+    if (!connected) {
       return;
     }
 
@@ -99,14 +103,16 @@ chrome.webNavigation.onCommitted.addListener(
 chrome.tabs.onCreated.addListener(async (event) => {
   if (event.openerTabId == undefined) return;
 
-  const previousPage = await GetPreviousPageOnTab(event.openerTabId);
-  if (previousPage == "") return;
+  const previousPage = await Settings.session.Get(["previous-page-on-tab", event.openerTabId]);
+  if (!previousPage) return;
 
-  SetPreviousPageOnTab(event.id, previousPage);
+  await Settings.session.Set(["previous-page-on-tab", event.id], previousPage);
 });
 
 chrome.webNavigation.onDOMContentLoaded.addListener(async (details) => {
-  if (!(await GetConnectionStatus())) {
+  const { connected } = await Settings.session.Get();
+
+  if (!connected) {
     return;
   }
 
@@ -114,34 +120,34 @@ chrome.webNavigation.onDOMContentLoaded.addListener(async (details) => {
 });
 
 async function SendPage(previousPage, currentPage, backmove = false) {
-  const options = await chrome.storage.local.get();
+  const { code, url, username } = await Settings.local.Get();
 
   const body = {
-    code: options.code,
-    username: options.username,
+    code: code,
+    username: username,
     page: currentPage,
     previous: previousPage,
     backmove: backmove,
   };
 
-  return await SendPOSTRequestToServer(options.url, "/api/ext/page", body);
+  return await SendPOSTRequestToServer(url, "/api/ext/page", body);
 }
 
 async function HandleMessageConnect(msg) {
-  const options = await chrome.storage.local.get();
-  const userid = await GetUserIdForLobby(options.code);
+  const { code, url, username } = await Settings.local.Get();
+  const userid = await Settings.session.Get(["userid-for-lobby", code], "");
 
   const body = {
-    code: options.code,
-    username: options.username,
-    userid: userid,
+    code,
+    username,
+    userid,
   };
 
-  const response = await SendPOSTRequestToServer(options.url, "/api/ext/join", body);
+  const response = await SendPOSTRequestToServer(url, "/api/ext/join", body);
 
   if (response.Success) {
-    await SetPageCount(0);
-    await SetUserIdForLobby(options.code, response.UserID);
+    await Settings.session.Set("pageCount", 0);
+    await Settings.session.Set(["userid-for-lobby", code], response.UserID);
 
     if (!response.AlreadyInLobby) {
 
@@ -151,25 +157,26 @@ async function HandleMessageConnect(msg) {
       }
 
       // Server sent event reference: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-      eventSource = new EventSource(`${options.url}/api/ext/events?code=${options.code}&userid=${response.UserID}`);
+      eventSource = new EventSource(`${url}/api/ext/events?code=${code}&userid=${response.UserID}`);
       eventSource.addEventListener("start", async (e) => {
         const data = JSON.parse(e.data);
-        const options = await chrome.storage.local.get();
 
-        chrome.storage.session.set({ startPage: data.StartPage });
+        const { autoOpenStartPage } = await Settings.local.Get();
 
-        if (options.autoOpenStartPage) {
+        await Settings.session.Set("startPage", data.StartPage);
+
+        if (autoOpenStartPage) {
           chrome.tabs.create({
             active: true,
             url: Urlify(data.StartPage)
-          })
+          });
         }
       });
     }
   }
 
   await UpdateBadge(response.Success);
-  await SetConnectionStatus(response.Success);
+  await Settings.session.Set("connected", response.Success);
 
   await chrome.runtime.sendMessage({
     type: "connect",
@@ -178,17 +185,17 @@ async function HandleMessageConnect(msg) {
 }
 
 async function HandleMessageDisconnect(msg) {
-  const options = await chrome.storage.local.get();
-  const userid = await GetUserIdForLobby(options.code);
+  const { code, url, username } = await Settings.local.Get();
+  const userid = await Settings.session.Get(["userid-for-lobby", code]);
 
   const body = {
-    code: options.code,
-    username: options.username,
-    userid: userid,
+    code,
+    username,
+    userid,
   };
 
   // TODO: Right now we dont care about the response
-  await SendPOSTRequestToServer(options.url, "/api/ext/leave", body);
+  await SendPOSTRequestToServer(url, "/api/ext/leave", body);
 }
 
 chrome.runtime.onMessage.addListener(async (msg) => {
@@ -231,7 +238,7 @@ function Urlify(InString) {
 }
 
 async function GetWikipediaArticleTitle(url) {
-  title = decodeURIComponent(url)
+  let title = decodeURIComponent(url)
     .split("/")
     .pop()
     .split("#")[0]
@@ -260,12 +267,9 @@ async function SearchForWikipediaTitle(title) {
     url += "&" + key + "=" + params[key];
   });
 
-  response = await fetch(url)
+  let response = await fetch(url)
     .then((response) => response.json())
-    .then((json) => json)
-    .catch(function(error) {
-      return { error: error };
-    });
+    .then((json) => json);
 
   if (!response || !response.query || response.error) {
     console.log(`warning: no result for Wikipedia search for '${title}'`);
@@ -284,71 +288,14 @@ async function SearchForWikipediaTitle(title) {
   return title;
 }
 
-async function GetStorageValue(keys, defaultValue) {
-  let obj = await chrome.storage.session.get();
-
-  for (let key of keys.slice(0, keys.length - 1)) {
-    obj = obj[key];
-    if (obj === undefined) obj = {};
-  }
-
-  let value = obj[keys.slice(-1)];
-  if (value === undefined) value = defaultValue;
-
-  return value;
-}
-
-async function SetStorageValue(keys, value) {
-  let storage = await chrome.storage.session.get();
-  let obj = storage;
-
-  for (let key of keys.slice(0, keys.length - 1)) {
-    if (obj[key] === undefined) obj[key] = {};
-    obj = obj[key];
-  }
-
-  obj[keys.slice(-1)] = value;
-
-  await chrome.storage.session.set(storage);
-}
-
-async function GetUserIdForLobby(code) {
-  return await GetStorageValue(["lobbies", code], "");
-}
-
-async function SetUserIdForLobby(code, userId) {
-  return await SetStorageValue(["lobbies", code], userId);
-}
-
-async function GetPreviousPageOnTab(tabId) {
-  return await GetStorageValue(["previous", tabId], "");
-}
-
-async function SetPreviousPageOnTab(tabId, page) {
-  return await SetStorageValue(["previous", tabId], page);
-}
-
-async function GetConnectionStatus() {
-  return await GetStorageValue(["connected"], false);
-}
-
-async function SetConnectionStatus(connected) {
-  return await SetStorageValue(["connected"], connected);
-}
-
-async function GetPageCount() {
-  return await GetStorageValue(["pageCount"], 0);
-}
-
-async function SetPageCount(pageCount) {
-  return await SetStorageValue(["pageCount"], pageCount);
-}
-
 async function IncrementPageCount(success) {
-  await SetPageCount(((await GetPageCount()) + Number(success)) % 100);
+  const pageCount = await Settings.session.Get("pageCount", 0);
+  await Settings.session.Set("pageCount", (pageCount + Number(success)) % 100);
 }
 
 async function UpdateBadge(success) {
+  const pageCount = await Settings.session.Get("pageCount", 0);
+
   let color;
   if (success) {
     color = [220, 253, 151, 255];
@@ -357,13 +304,12 @@ async function UpdateBadge(success) {
   }
 
   chrome.action.setBadgeBackgroundColor({ color: color });
-  chrome.action.setBadgeText({ text: String(await GetPageCount()) });
+  chrome.action.setBadgeText({ text: String(pageCount) });
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-  let options = await chrome.storage.local.get();
-
-  const url = options.url || defaultdomain;
-  const autoOpenStartPage = options.autoOpenStartPage || true;
-  await chrome.storage.local.set({ url, autoOpenStartPage });
+  await Settings.local.Defaults({
+    url: "https://wikiweaver.stuffontheinter.net",
+    autoOpenStartPage: true,
+  });
 });
