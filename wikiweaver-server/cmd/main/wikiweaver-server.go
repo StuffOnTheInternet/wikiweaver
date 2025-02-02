@@ -489,48 +489,6 @@ type ResetToWebMessage struct {
 	Success bool
 }
 
-func HandleMessageReset(lobby *Lobby, wc *WebClient, buf []byte) {
-	lobby.mu.Lock()
-	defer lobby.mu.Unlock()
-
-	msgResponse := ResetToWebMessage{
-		Message: Message{
-			"reset",
-		},
-		Success: false,
-	}
-
-	if !wc.isHost {
-		log.Printf("web client %s failed to reset lobby %s: is not host", wc.conn.RemoteAddr(), lobby.Code)
-		wc.sendWithWarningOnFail(msgResponse)
-		return
-	}
-
-	log.Printf("web client %s reset lobby %s", wc.conn.RemoteAddr(), lobby.Code)
-
-	for _, extClient := range lobby.ExtClients {
-		delete(globalState.UserIDs, extClient.UserID)
-	}
-
-	lobby.State = Reset
-	lobby.ExtClients = lobby.ExtClients[:0]
-	lobby.LastInteractionTime = time.Now()
-	lobby.StartTime = time.Time{}
-	lobby.Countdown = time.Duration(0)
-	lobby.StartPage = ""
-	lobby.GoalPage = ""
-	lobby.History = lobby.History[:0]
-
-	msgResponse = ResetToWebMessage{
-		Message: Message{
-			Type: "reset",
-		},
-		Success: true,
-	}
-
-	lobby.BroadcastToWeb(msgResponse)
-}
-
 type StartFromWebMessage struct {
 	StartPage string
 	GoalPage  string
@@ -663,9 +621,6 @@ func webClientListener(lobby *Lobby, wc *WebClient) {
 
 		case "ping":
 			HandleMessagePing(lobby, wc, buf)
-
-		case "reset":
-			HandleMessageReset(lobby, wc, buf)
 
 		case "start":
 			HandleMessageStart(lobby, wc, buf)

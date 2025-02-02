@@ -212,17 +212,13 @@ function dispatchClick(event) {
   if (event.target.id === "end-button")
     EndRace();
 
-  if (event.target.id === "reset-button")
-    HandleResetClicked();
-
   if (event.target.classList.contains("suggestion-item"))
     SelectSuggestion(event);
 }
 
 function template_primary_buttons() {
   return `
-    ${template_start_end_button()}
-    ${template_reset_button()}`;
+    ${template_start_end_button()}`;
 }
 
 function template_start_end_button() {
@@ -244,22 +240,6 @@ function template_start_end_button() {
       class="button box text"
       ${Disabled()}>
         ${IsStart() ? "Start Race" : "End Race"}
-    </button>`
-}
-
-function template_reset_button() {
-  let { isHost } = data;
-
-  function Disabled() {
-    return (!isHost) ? "disabled" : "";
-  }
-
-  return `
-    <button
-      id="reset-button"
-      class="button box text"
-      ${Disabled()}>
-        reset
     </button>`
 }
 
@@ -469,15 +449,6 @@ async function EndRace() {
     type: "end",
   };
   SendMessage(endMessage);
-}
-
-async function HandleResetClicked() {
-  if (!data.isHost) return;
-
-  let resetMessage = {
-    type: "reset",
-  };
-  SendMessage(resetMessage);
 }
 
 function HandleRedrawClicked() {

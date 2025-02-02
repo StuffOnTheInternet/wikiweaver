@@ -26,10 +26,6 @@
   .flex-horizontal-container>* {
     width: auto !important;
   }
-
-  #reset-button {
-    margin-bottom: 0.5rem;
-  }
 }
 
 body {
@@ -158,11 +154,6 @@ img {
 #redraw-button {
   background: var(--blue);
   flex-grow: 2;
-}
-
-#reset-button {
-  background: var(--red);
-  flex-grow: 1;
 }
 
 #export-button {
