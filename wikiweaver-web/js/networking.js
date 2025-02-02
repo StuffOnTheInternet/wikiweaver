@@ -24,9 +24,11 @@ function HandleMessageJoin(msg) {
 }
 
 function HandleMessageLeave(msg) {
-  console.log(`user ${msg.Username} left lobby`);
-  // TODO: Remove from leaderboard. Implement after reef js stuff is merged,
-  // it becomes a lot easier then
+  for (player of Object.values(data.players)) {
+    if (player.username == msg.Username) {
+      player.connected = false;
+    }
+  }
 }
 
 function HandleMessageLobby(msg) {
@@ -108,6 +110,7 @@ async function JoinLobby() {
 
       case "leave":
         HandleMessageLeave(msg);
+        break;
 
       case "lobby":
         HandleMessageLobby(msg);
