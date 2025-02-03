@@ -198,6 +198,7 @@ async function FindSuggestions(title) {
 
   let response = await WikiAPI(params);
 
-
-  return Object.values(response.query.pages).map(page => page.title);
+  return Object.values(response.query.pages)
+    .toSorted((p1, p2) => p1.index - p2.index)
+    .map(page => page.title);
 }
