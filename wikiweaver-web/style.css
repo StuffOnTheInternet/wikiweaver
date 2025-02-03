@@ -267,6 +267,10 @@ img {
   text-align: left;
 }
 
+.suggestion-item:hover {
+  filter: brightness(85%);
+}
+
 .suggestion-item:not(:first-child) {
   border-top-style: solid;
   border-color: var(--sidepane-text);
