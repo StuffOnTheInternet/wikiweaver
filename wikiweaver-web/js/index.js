@@ -396,42 +396,30 @@ document.addEventListener("reef:signal", async (event) => {
   }
 });
 
-async function UpdateStartPageSuggestions() {
+async function GetSuggestions(title) {
   if (data.lobbyState == LobbyState.SHOWING_EXAMPLE)
-    return;
+    return [];
 
   if (data.lobbyState == LobbyState.RACING)
-    return;
+    return [];
 
-  if (!data.startPage || data.startPage.startsWith("http"))
-    return;
+  if (!title || data.startPage.startsWith("http"))
+    return [];
 
-  // This works as long as searching for an exact title always results in
-  // that article as the first result. This is hopefully the case for most
-  // articles.
+  const suggestions = await FindSuggestions(title);
 
-  const suggestions = await FindSuggestions(data.startPage);
-  if (!suggestions || (suggestions && suggestions[0] !== data.startPage))
-    data.startPageSuggestions = suggestions;
+  if (suggestions.includes(title))
+    return [];
+
+  return suggestions;
+}
+
+async function UpdateStartPageSuggestions() {
+  data.startPageSuggestions = await GetSuggestions(data.startPage);
 }
 
 async function UpdateGoalPageSuggestions() {
-  if (data.lobbyState == LobbyState.SHOWING_EXAMPLE)
-    return;
-
-  if (data.lobbyState == LobbyState.RACING)
-    return;
-
-  if (!data.goalPage || data.goalPage.startsWith("http"))
-    return;
-
-  // This works as long as searching for an exact title always results in
-  // that article as the first result. This is hopefully the case for most
-  // articles.
-
-  const suggestions = await FindSuggestions(data.goalPage);
-  if (!suggestions || (suggestions && suggestions[0] !== data.goalPage))
-    data.goalPageSuggestions = suggestions;
+  data.goalPageSuggestions = await GetSuggestions(data.goalPage);
 }
 
 // ===== END REEF STUFF =====
