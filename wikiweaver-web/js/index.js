@@ -42,6 +42,24 @@ let data = reef.signal({
   players: {},
 });
 
+function template_info_text() {
+  let { code, isHost, lobbyState } = data;
+
+  if (lobbyState === LobbyState.SHOWING_EXAMPLE && isHost)
+    return `
+      <div> Your are currently seeing an example of a finished game. Join this lobby (code: ${code.toUpperCase()}) using the extension for
+        <a href="https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/"
+          target="_blank" rel="noopener noreferrer">Firefox</a> or
+        <a href="https://chromewebstore.google.com/detail/wikiweaver/apmgfgikhdikmeljhhomehnkhabiidmp"
+          target="_blank" rel="noopener noreferrer">Chrome</a>.
+      </div>
+  `;
+
+  return `
+    <div>You are currently ${isHost ? "hosting" : "spectating"} this lobby</div>
+  `;
+}
+
 function template_code_and_countdown() {
   return `
     ${template_code()}
@@ -49,10 +67,15 @@ function template_code_and_countdown() {
 }
 
 function template_code() {
-  let { code, connectionStatus } = data;
+  let { code, connectionStatus, isHost } = data;
+
+  function BackgrondColor() {
+    if (isHost) return connectionStatus;
+    else return "box-background-disabled";
+  }
 
   return `
-    <div id="code" class="box text" style="background: var(--${connectionStatus})">
+    <div id="code" class="box text" style="background: var(--${BackgrondColor()})">
       ${code}
     </div>`;
 }
@@ -70,7 +93,9 @@ function template_countdown() {
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
       || !isHost
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState === LobbyState.RACING
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+    ) ? "disabled" : "";
   }
 
   return `
@@ -85,16 +110,16 @@ function template_countdown() {
 
 function template_start_and_goal_page() {
   return `
-    <div class="text">Start a race from</div>
-      <div class="flex-vertical-container">
-        ${template_start_page()}
-        ${template_start_page_suggestions()}
-      </div>
+    <div class="text">Race from</div>
+    <div class="flex-vertical-container">
+      ${template_start_page()}
+      ${template_start_page_suggestions()}
+    </div>
     <div class="text">to</div>
-      <div class="flex-vertical-container">
-        ${template_goal_page()}
-        ${template_goal_page_suggestions()}
-      </div>`;
+    <div class="flex-vertical-container">
+      ${template_goal_page()}
+      ${template_goal_page_suggestions()}
+    </div>`;
 }
 
 function storeInputValue(event) {
@@ -116,7 +141,9 @@ function template_start_page() {
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
       || !isHost
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState === LobbyState.RACING
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+    ) ? "disabled" : "";
   }
 
   return `
@@ -177,7 +204,9 @@ function template_goal_page() {
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
       || !isHost
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState === LobbyState.RACING
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+    ) ? "disabled" : "";
   }
 
   return `
@@ -212,70 +241,34 @@ function dispatchClick(event) {
   if (event.target.id === "end-button")
     EndRace();
 
-  if (event.target.id === "reset-button")
-    HandleResetClicked();
-
   if (event.target.classList.contains("suggestion-item"))
     SelectSuggestion(event);
 }
 
 function template_primary_buttons() {
   return `
-    ${template_start_button()}
-    ${template_end_button()}
-    ${template_reset_button()}`;
+    ${template_start_end_button()}`;
 }
 
-function template_start_button() {
+function template_start_end_button() {
   let { connectionStatus, isHost, lobbyState } = data;
+
+  function IsStart() {
+    return lobbyState !== LobbyState.RACING;
+  }
 
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
-      || !isHost
-      || lobbyState === LobbyState.SHOWING_EXAMPLE
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState == LobbyState.SHOWING_EXAMPLE
+      || !isHost) ? "disabled" : "";
   }
 
   return `
     <button
-      id="start-button"
+      id="${IsStart() ? "start" : "end"}-button"
       class="button box text"
       ${Disabled()}>
-        start
-    </button>`
-}
-
-function template_end_button() {
-  let { connectionStatus, isHost, lobbyState } = data;
-
-  function Disabled() {
-    return (connectionStatus !== ConnectionStatus.CONNECTED
-      || !isHost
-      || lobbyState !== LobbyState.RACING) ? "disabled" : "";
-  }
-
-  return `
-    <button
-      id="end-button"
-      class="button box text"
-      ${Disabled()}>
-        end
-    </button>`
-}
-
-function template_reset_button() {
-  let { isHost } = data;
-
-  function Disabled() {
-    return (!isHost) ? "disabled" : "";
-  }
-
-  return `
-    <button
-      id="reset-button"
-      class="button box text"
-      ${Disabled()}>
-        reset
+        ${IsStart() ? "Start Race" : "End Race"}
     </button>`
 }
 
@@ -330,6 +323,8 @@ function template_leaderboard_entries() {
   </tr>`
   }).join("");
 }
+
+reef.component("#info-text", template_info_text);
 
 let codeCountdownElem = document.querySelector("#code-and-countdown");
 reef.component(codeCountdownElem, template_code_and_countdown);
@@ -485,15 +480,6 @@ async function EndRace() {
     type: "end",
   };
   SendMessage(endMessage);
-}
-
-async function HandleResetClicked() {
-  if (!data.isHost) return;
-
-  let resetMessage = {
-    type: "reset",
-  };
-  SendMessage(resetMessage);
 }
 
 function HandleRedrawClicked() {

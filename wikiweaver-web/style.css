@@ -26,10 +26,6 @@
   .flex-horizontal-container>* {
     width: auto !important;
   }
-
-  #reset-button {
-    margin-bottom: 0.5rem;
-  }
 }
 
 body {
@@ -108,23 +104,6 @@ img {
   margin: 1rem;
 }
 
-#extension-text {
-  align-self: center;
-}
-
-#disconnect-text {
-  align-self: center;
-}
-
-#spectator-text {
-  align-self: center;
-}
-
-#example-text {
-  width: 28rem;
-  align-self: center;
-}
-
 #code-and-countdown {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -152,17 +131,11 @@ img {
 
 #end-button {
   background: var(--red);
-  flex-grow: 1;
+  flex-grow: 3;
 }
 
 #redraw-button {
   background: var(--blue);
-  flex-grow: 2;
-}
-
-#reset-button {
-  background: var(--red);
-  flex-grow: 1;
 }
 
 #export-button {

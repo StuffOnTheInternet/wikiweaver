@@ -3,65 +3,54 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>WikiWeaver</title>
-    <link rel="icon" href="assets/favicon.png">
-    <link rel="stylesheet" href="./style.css">
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.27.0/cytoscape.min.js"></script>
-    <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape-cola@2.5.1/cytoscape-cola.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape-cxtmenu@3.5.0/cytoscape-cxtmenu.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/reefjs@13/dist/reef.min.js"></script>
-    <script type="text/javascript" src="./js/networking.js" defer></script>
-    <script type="text/javascript" src="./js/graph.js" defer></script>
-    <script type="text/javascript" src="./js/index.js" defer></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>WikiWeaver</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="./style.css">
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.27.0/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-cola@2.5.1/cytoscape-cola.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-cxtmenu@3.5.0/cytoscape-cxtmenu.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reefjs@13/dist/reef.min.js"></script>
+  <script type="text/javascript" src="./js/networking.js" defer></script>
+  <script type="text/javascript" src="./js/graph.js" defer></script>
+  <script type="text/javascript" src="./js/index.js" defer></script>
 </head>
 
 <body>
-    <div id="maincanvas-sidepane-container">
-        <div id="maincanvas"></div>
-        <div id="sidepane">
-            <div class="title-row">
-                <img id="logo" src="assets/favicon.png" height="72" width="72" />
-                <div id="title" class="text">WikiWeaver</div>
-            </div>
-            <div id="extension-text" class="text" hidden>Players should use the
-                <a href="https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/" target="_blank"
-                    rel="noopener noreferrer">Firefox add-on</a> or
-                <a href="https://chromewebstore.google.com/detail/wikiweaver/apmgfgikhdikmeljhhomehnkhabiidmp"
-                    target="_blank" rel="noopener noreferrer">Chrome extension</a>
-                to join your lobby
-            </div>
-            <div id="disconnect-text" class="text" hidden>You are currently disconnected, refresh page or try to connect
-                to a different lobby</div>
-            <div id="spectator-text" class="text" hidden>You are currently spectating this lobby and cannot control it,
-                so most buttons will be disabled</div>
-            <div id="example-text" class="text">Your are currently viewing an example of a finished match, press the
-                reset button below to prepare your own lobby</div>
-            <div id="code-and-countdown" class="flex-horizontal-container">
-            </div>
-            <div id="start-and-goal-page">
-            </div>
-            <div id="primary-buttons" class="flex-horizontal-container" style="margin-top: 0.5rem">
-            </div>
-            <div id="secondary-buttons" class="flex-horizontal-container">
-                <button id="redraw-button" class="button box text" onclick="HandleRedrawClicked()">redraw</button>
-                <button id="export-button" class="button box text" onclick="HandleExportClicked()">export</button>
-            </div>
-            <div id="leaderboard-wrapper">
-                <table id="leaderboard" class="text">
-               </table>
-            </div>
-            <div id="footer" class="text">
-                <div>
-                    View source code on
-                    <a href="https://github.com/StuffOnTheInternet/wikiweaver">GitHub</a>
-                </div>
-                <div>Made by Gustav Arneving, Victor Löfgren and Beatrice Söderqvist</div>
-            </div>
+  <div id="maincanvas-sidepane-container">
+    <div id="maincanvas"></div>
+    <div id="sidepane">
+      <div class="title-row">
+        <img id="logo" src="assets/favicon.png" height="72" width="72" />
+        <div id="title" class="text">WikiWeaver</div>
+      </div>
+      <div id="info-text" class="text">
+      </div>
+      <div id="code-and-countdown" class="flex-horizontal-container">
+      </div>
+      <div id="start-and-goal-page">
+      </div>
+      <div id="primary-buttons" class="flex-horizontal-container" style="margin-top: 0.5rem">
+      </div>
+      <div id="secondary-buttons" class="flex-horizontal-container">
+        <button id="redraw-button" class="button box text" onclick="HandleRedrawClicked()">Redraw Graph</button>
+        <button id="export-button" class="button box text" onclick="HandleExportClicked()">Export png</button>
+      </div>
+      <div id="leaderboard-wrapper">
+        <table id="leaderboard" class="text">
+        </table>
+      </div>
+      <div id="footer" class="text">
+        <div>
+          View source code on
+          <a href="https://github.com/StuffOnTheInternet/wikiweaver">GitHub</a>
         </div>
+        <div>Made by Gustav Arneving, Victor Löfgren and Beatrice Söderqvist</div>
+      </div>
     </div>
+  </div>
 </body>
 
 </html>
