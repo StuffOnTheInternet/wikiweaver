@@ -723,7 +723,7 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			if otherWithSameUsername.UserID == request.UserID || globalState.Dev {
 				successResponse := JoinToExtResponse{
 					Success:        true,
-					UserID:         request.UserID,
+					UserID:         otherWithSameUsername.UserID,
 					AlreadyInLobby: true,
 				}
 				SendResponseToExt(w, successResponse)

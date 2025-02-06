@@ -1,26 +1,26 @@
+let Settings;
+
 async function init(e) {
+  const settings = await import('../settings.js');
+  Settings = settings.Settings;
+
   await restore();
 }
 
 async function restore() {
-  const options = await chrome.storage.local.get()
-  document.querySelector("#url").value = options.url;
+  const { url, autoOpenStartPage } = await Settings.local.Get();
+
+  document.querySelector("#url").value = url;
+  document.querySelector("#auto-open-start-page").checked = autoOpenStartPage;
 }
 
 async function save(e) {
   e.preventDefault();
 
   const urlElem = document.querySelector("#url");
-  const autoOpenElem = document.querySelector("#auto-open-start-page");
 
-  const url = new URL(urlElem.value.toLowerCase() || urlElem.placeholder);
-
-  await chrome.storage.local.set(
-    {
-      url: url.origin,
-      autoOpenStartPage: autoOpenElem.checked,
-    }
-  );
+  await Settings.local.Set("url", urlElem.value.toLowerCase() || urlElem.placeholder);
+  await Settings.local.Set("autoOpenStartPage", document.querySelector("#auto-open-start-page").checked);
 
   // TODO: show saved succeeded in some way
 }

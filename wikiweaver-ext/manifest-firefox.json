@@ -24,6 +24,7 @@
     "*://*.wikipedia.org/*"
   ],
   "background": {
+    "type": "module",
     "scripts": [
       "background.js"
     ]
