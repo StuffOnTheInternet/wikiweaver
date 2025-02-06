@@ -9,7 +9,7 @@ const LobbyState = Object.freeze({
   SHOWING_EXAMPLE: 0,
   RESET: 1,
   RACING: 2,
-  INDLE: 3,
+  IDLE: 3,
 })
 
 var DebounceTimeouts = {};
