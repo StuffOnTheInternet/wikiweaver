@@ -42,6 +42,20 @@ let data = reef.signal({
   players: {},
 });
 
+function template_info_text() {
+  let { code, lobbyState } = data;
+
+  if (lobbyState !== LobbyState.SHOWING_EXAMPLE) return "";
+  return `
+      <div> Your are currently seeing an example of a finished game. Join this lobby (code: ${code.toUpperCase()}) using the extension for
+        <a href="https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/"
+          target="_blank" rel="noopener noreferrer">Firefox</a> or
+        <a href="https://chromewebstore.google.com/detail/wikiweaver/apmgfgikhdikmeljhhomehnkhabiidmp"
+          target="_blank" rel="noopener noreferrer">Chrome</a>.
+      </div>
+  `;
+}
+
 function template_code_and_countdown() {
   return `
     ${template_code()}
@@ -70,7 +84,9 @@ function template_countdown() {
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
       || !isHost
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState === LobbyState.RACING
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+    ) ? "disabled" : "";
   }
 
   return `
@@ -116,7 +132,9 @@ function template_start_page() {
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
       || !isHost
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState === LobbyState.RACING
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+    ) ? "disabled" : "";
   }
 
   return `
@@ -177,7 +195,9 @@ function template_goal_page() {
   function Disabled() {
     return (connectionStatus !== ConnectionStatus.CONNECTED
       || !isHost
-      || lobbyState === LobbyState.RACING) ? "disabled" : "";
+      || lobbyState === LobbyState.RACING
+      || lobbyState === LobbyState.SHOWING_EXAMPLE
+    ) ? "disabled" : "";
   }
 
   return `
@@ -294,6 +314,8 @@ function template_leaderboard_entries() {
   </tr>`
   }).join("");
 }
+
+reef.component("#info-text", template_info_text);
 
 let codeCountdownElem = document.querySelector("#code-and-countdown");
 reef.component(codeCountdownElem, template_code_and_countdown);
