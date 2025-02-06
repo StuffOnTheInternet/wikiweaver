@@ -43,16 +43,20 @@ let data = reef.signal({
 });
 
 function template_info_text() {
-  let { code, lobbyState } = data;
+  let { code, isHost, lobbyState } = data;
 
-  if (lobbyState !== LobbyState.SHOWING_EXAMPLE) return "";
-  return `
+  if (lobbyState === LobbyState.SHOWING_EXAMPLE && isHost)
+    return `
       <div> Your are currently seeing an example of a finished game. Join this lobby (code: ${code.toUpperCase()}) using the extension for
         <a href="https://addons.mozilla.org/en-US/firefox/addon/wikiweaver/"
           target="_blank" rel="noopener noreferrer">Firefox</a> or
         <a href="https://chromewebstore.google.com/detail/wikiweaver/apmgfgikhdikmeljhhomehnkhabiidmp"
           target="_blank" rel="noopener noreferrer">Chrome</a>.
       </div>
+  `;
+
+  return `
+    <div>You are currently ${isHost ? "hosting" : "spectating"} this lobby</div>
   `;
 }
 
@@ -63,10 +67,15 @@ function template_code_and_countdown() {
 }
 
 function template_code() {
-  let { code, connectionStatus } = data;
+  let { code, connectionStatus, isHost } = data;
+
+  function BackgrondColor() {
+    if (isHost) return connectionStatus;
+    else return "box-background-disabled";
+  }
 
   return `
-    <div id="code" class="box text" style="background: var(--${connectionStatus})">
+    <div id="code" class="box text" style="background: var(--${BackgrondColor()})">
       ${code}
     </div>`;
 }
