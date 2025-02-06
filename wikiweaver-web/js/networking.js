@@ -127,9 +127,20 @@ async function JoinLobby() {
   });
 }
 
-async function GetRandomWikipediaArticles(n) {
+async function WikiAPI(params) {
   let url = "https://en.wikipedia.org/w/api.php";
 
+  url = url + "?origin=*";
+  Object.keys(params).forEach(function(key) {
+    url += "&" + key + "=" + params[key];
+  });
+
+  return await fetch(url)
+    .then(response => response.json())
+    .then(json => json);
+}
+
+async function GetRandomWikipediaArticles(n) {
   let params = {
     action: "query",
     format: "json",
@@ -138,27 +149,16 @@ async function GetRandomWikipediaArticles(n) {
     rnnamespace: "0",
   };
 
-  url = url + "?origin=*";
-  Object.keys(params).forEach(function(key) {
-    url += "&" + key + "=" + params[key];
-  });
+  let response = await WikiAPI(params);
 
-  articles = await fetch(url)
-    .then((response) => response.json())
-    .then((json) => json.query.random)
-    .catch(function(error) {
-      console.log(error);
-      return [{ title: "Gingerbread", title: "League of Legends" }];
-    });
-
-  return articles.map((article) => article.title);
+  return response.query.random.map(article => article.title);
 }
 
 async function SearchForWikipediaTitle(title) {
+  // TODO: this is basically the same as find suggestions, so they can probably
+  // be merged
+
   // See documentation: https://en.wikipedia.org/w/api.php?action=help&modules=query
-
-  let url = "https://en.wikipedia.org/w/api.php";
-
   const params = {
     action: "query", // Query Wikipedia
     gpssearch: encodeURIComponent(title), // For this title
@@ -169,23 +169,10 @@ async function SearchForWikipediaTitle(title) {
     format: "json", // In json format
   };
 
-  url = url + "?origin=*";
-  Object.keys(params).forEach(function(key) {
-    url += "&" + key + "=" + params[key];
-  });
-
-  response = await fetch(url)
-    .then((response) => response.json())
-    .then((json) => json)
-    .catch(function(error) {
-      return { error: error };
-    });
-
-  if (!response) return "";
-
-  if (response.error != undefined) return "";
+  let response = await WikiAPI(params);
 
   // Results are returned unordered, so find the best result
+  // TODO: Handle errors better
 
   const pages = response.query.pages;
 
@@ -194,4 +181,24 @@ async function SearchForWikipediaTitle(title) {
   }
 
   return "";
+}
+
+async function FindSuggestions(title) {
+  // See documentation: https://en.wikipedia.org/w/api.php?action=help&modules=query
+  const params = {
+    action: "query", // Query Wikipedia
+    gpssearch: encodeURIComponent(title), // For this title
+    generator: "prefixsearch", // Using prefixssearch
+    gpsnamespace: 0, // Regular Wikipedia
+    gpslimit: 5, // Ask for 5 pages
+    redirects: "", // Resolve redirects
+    format: "json", // In json format
+    // prop: "pageimages", // TODO: use this to get an image from the page
+  };
+
+  let response = await WikiAPI(params);
+
+  return Object.values(response.query.pages)
+    .toSorted((p1, p2) => p1.index - p2.index)
+    .map(page => page.title);
 }

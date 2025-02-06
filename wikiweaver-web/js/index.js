@@ -12,6 +12,13 @@ const LobbyState = Object.freeze({
   INDLE: 3,
 })
 
+var DebounceTimeouts = {};
+
+function Debounce(func, timeout = 500) {
+  clearTimeout(DebounceTimeouts[func.name]);
+  DebounceTimeouts[func.name] = setTimeout(func, timeout);
+}
+
 // ===== BEGIN REEF STUFF =====
 
 // TODO: Would it be cleaner or more practical in some way to define multiple
@@ -26,10 +33,12 @@ let data = reef.signal({
   countdownPlaceholder: 600,
   countdownStart: 0,
   countdownInput: "",
-  startPagePlaceholder: "Gingerbread",
   startPage: "",
+  startPagePlaceholder: "Gingerbread",
+  startPageSuggestions: [],
   goalPage: "",
   goalPagePlaceholder: "League of Legends",
+  goalPageSuggestions: [],
   players: {},
 });
 
@@ -77,12 +86,14 @@ function template_countdown() {
 function template_start_and_goal_page() {
   return `
     <div class="text">Start a race from</div>
-      <div class="flex-horizontal-container">
+      <div class="flex-vertical-container">
         ${template_start_page()}
+        ${template_start_page_suggestions()}
       </div>
     <div class="text">to</div>
-      <div class="flex-horizontal-container">
+      <div class="flex-vertical-container">
         ${template_goal_page()}
+        ${template_goal_page_suggestions()}
       </div>`;
 }
 
@@ -118,6 +129,48 @@ function template_start_page() {
     </input>`;
 }
 
+function template_start_page_suggestions() {
+  let { startPageSuggestions } = data;
+  if (startPageSuggestions.length <= 0) return "";
+
+  function template_suggestion_items() {
+    return startPageSuggestions.map(suggestion => {
+      return `
+      <div class="text suggestion-item">
+        ${suggestion}
+      </div>
+`
+    }).join("");
+  }
+
+  return `
+    <div id="start-page-suggestions" class="suggestions">
+      ${template_suggestion_items()}
+    </div>
+  `;
+}
+
+function template_goal_page_suggestions() {
+  let { goalPageSuggestions } = data;
+  if (goalPageSuggestions.length <= 0) return "";
+
+  function template_suggestion_items() {
+    return goalPageSuggestions.map(suggestion => {
+      return `
+      <div class="text suggestion-item">
+        ${suggestion}
+      </div>
+`
+    }).join("");
+  }
+
+  return `
+    <div id="goal-page-suggestions" class="suggestions">
+      ${template_suggestion_items()}
+    </div>
+  `;
+}
+
 function template_goal_page() {
   let { connectionStatus, isHost, lobbyState, goalPage, goalPagePlaceholder } = data;
 
@@ -137,6 +190,21 @@ function template_goal_page() {
     </input>`;
 }
 
+function SelectSuggestion(event) {
+  switch (event.target.parentNode.id) {
+
+    case "start-page-suggestions":
+      data.startPage = event.target.innerText;
+      data.startPageSuggestions = [];
+      break;
+
+    case "goal-page-suggestions":
+      data.goalPage = event.target.innerText;
+      data.goalPageSuggestions = [];
+      break;
+  }
+}
+
 function dispatchClick(event) {
   if (event.target.id === "start-button")
     StartRace();
@@ -146,6 +214,9 @@ function dispatchClick(event) {
 
   if (event.target.id === "reset-button")
     HandleResetClicked();
+
+  if (event.target.classList.contains("suggestion-item"))
+    SelectSuggestion(event);
 }
 
 function template_primary_buttons() {
@@ -263,6 +334,7 @@ codeCountdownElem.addEventListener("input", storeInputValue);
 let startGoalPageElem = document.querySelector("#start-and-goal-page");
 reef.component(startGoalPageElem, template_start_and_goal_page);
 startGoalPageElem.addEventListener("input", storeInputValue);
+startGoalPageElem.addEventListener("click", dispatchClick);
 
 let primaryButtons = document.querySelector("#primary-buttons");
 reef.component(primaryButtons, template_primary_buttons);
@@ -287,6 +359,9 @@ document.addEventListener("reef:signal", async (event) => {
       break;
 
     case "lobbyState":
+      data.startPageSuggestions = [];
+      data.goalPageSuggestions = [];
+
       switch (event.detail.value) {
         case LobbyState.SHOWING_EXAMPLE:
           ResetGraph();
@@ -310,8 +385,42 @@ document.addEventListener("reef:signal", async (event) => {
           break;
       }
       break;
+
+    case "startPage":
+      Debounce(UpdateStartPageSuggestions);
+      break;
+
+    case "goalPage":
+      Debounce(UpdateGoalPageSuggestions);
+      break;
   }
 });
+
+async function GetSuggestions(title) {
+  if (data.lobbyState == LobbyState.SHOWING_EXAMPLE)
+    return [];
+
+  if (data.lobbyState == LobbyState.RACING)
+    return [];
+
+  if (!title || data.startPage.startsWith("http"))
+    return [];
+
+  const suggestions = await FindSuggestions(title);
+
+  if (suggestions.includes(title))
+    return [];
+
+  return suggestions;
+}
+
+async function UpdateStartPageSuggestions() {
+  data.startPageSuggestions = await GetSuggestions(data.startPage);
+}
+
+async function UpdateGoalPageSuggestions() {
+  data.goalPageSuggestions = await GetSuggestions(data.goalPage);
+}
 
 // ===== END REEF STUFF =====
 

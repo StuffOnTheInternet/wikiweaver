@@ -140,7 +140,7 @@ img {
 }
 
 #start-and-goal-page {
-  display:flex;
+  display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
@@ -201,6 +201,17 @@ img {
   flex-grow: 1;
 }
 
+.flex-vertical-container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.flex-vertical-container>* {
+  flex-grow: 1;
+}
+
 .text {
   font-family: "Rubik", "Verdana";
   font-size: 1.5rem;
@@ -241,4 +252,27 @@ img {
 
 .button:hover {
   filter: brightness(85%);
+}
+
+.suggestions {
+  border: 1px solid #ccc;
+  border-top: none;
+  background: white;
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  background: var(--box-background);
+  text-align: left;
+}
+
+.suggestion-item:hover {
+  filter: brightness(85%);
+}
+
+.suggestion-item:not(:first-child) {
+  border-top-style: solid;
+  border-color: var(--sidepane-text);
+  border-width: 1px;
 }
