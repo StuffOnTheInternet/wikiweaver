@@ -136,6 +136,14 @@ func (l *Lobby) removeWebClient(wcToRemove *WebClient) {
 	}
 }
 
+func (l *Lobby) RemoveExtClient(ecToRemove *ExtClient) {
+	for i := len(l.ExtClients) - 1; i >= 0; i-- {
+		if l.ExtClients[i] == ecToRemove {
+			l.ExtClients = append(l.ExtClients[:i], l.ExtClients[i+1:]...)
+		}
+	}
+}
+
 func (l *Lobby) GetExtClientFromUsername(usernameToCheck string) *ExtClient {
 	for _, extClient := range l.ExtClients {
 		if usernameToCheck == extClient.Username {
@@ -831,6 +839,88 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type LeaveFromExtRequest struct {
+	Code     string
+	Username string
+	UserID   string
+}
+
+type LeaveToExtResponse struct {
+	Success bool
+}
+
+type LeaveToWebMessage struct {
+	Message
+	Username string
+}
+
+func handleExtLeave(w http.ResponseWriter, r *http.Request) {
+	failResponse := LeaveToExtResponse{
+		Success: false,
+	}
+
+	switch r.Method {
+	case http.MethodPost:
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("error reading extension request: %s", err)
+			SendResponseToExt(w, failResponse)
+			return
+		}
+
+		var request LeaveFromExtRequest
+		err = json.Unmarshal(body, &request)
+		if err != nil {
+			log.Printf("failed to parse message from extension: %s: '%s'", err, body)
+			SendResponseToExt(w, failResponse)
+			return
+		}
+
+		lobby := globalState.Lobbies[request.Code]
+
+		if lobby == nil {
+			log.Printf("extension %s tried to leave non-existing lobby %s", r.RemoteAddr, request.Code)
+			SendResponseToExt(w, failResponse)
+			return
+		}
+
+		lobby.mu.Lock()
+		defer lobby.mu.Unlock()
+
+		extClient := lobby.GetExtClientFromUsername(request.Username)
+
+		if extClient == nil {
+			log.Printf("extension %s tried to leave, but username %s is not in lobby %s", r.RemoteAddr, request.Username, request.Code)
+			SendResponseToExt(w, failResponse)
+			return
+		}
+
+		if extClient.UserID != request.UserID {
+			log.Printf("extension %s tried to leave, but username %s in lobby %s has userid %s, while extension has %s", r.RemoteAddr, request.Username, request.Code, extClient.UserID, request.UserID)
+			SendResponseToExt(w, failResponse)
+			return
+		}
+
+		delete(globalState.UserIDs, extClient.UserID)
+		lobby.RemoveExtClient(extClient)
+
+		log.Printf("extension %s left lobby %s as %s", r.RemoteAddr, request.Code, request.Username)
+
+		successResponse := LeaveToExtResponse{
+			Success: true,
+		}
+		SendResponseToExt(w, successResponse)
+
+		leaveToWebMessage := LeaveToWebMessage{
+			Message: Message{
+				Type: "leave",
+			},
+			Username: request.Username,
+		}
+		lobby.BroadcastToWeb(leaveToWebMessage)
+	}
+}
+
 type PageFromExtRequest struct {
 	Code     string
 	Username string
@@ -1083,6 +1173,7 @@ func main() {
 	http.HandleFunc("/api/ws/web/join", handleWebJoin)
 
 	http.HandleFunc("/api/ext/join", handleExtJoin)
+	http.HandleFunc("/api/ext/leave", handleExtLeave)
 	http.HandleFunc("/api/ext/page", handleExtPage)
 	http.HandleFunc("/api/ext/events", handleExtEvents)
 

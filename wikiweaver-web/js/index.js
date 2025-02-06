@@ -9,7 +9,7 @@ const LobbyState = Object.freeze({
   SHOWING_EXAMPLE: 0,
   RESET: 1,
   RACING: 2,
-  INDLE: 3,
+  IDLE: 3,
 })
 
 var DebounceTimeouts = {};
@@ -310,16 +310,20 @@ function template_leaderboard_entries() {
     return -((t1 !== t2 ? t1 < t2 : p1.username < p2.username) * 2 - 1);
   }
 
-
-  return Object.values(players).toSorted(PlayerSort).map(({ username, clicks, pages, finishTime, color }) => {
+  return Object.values(players).toSorted(PlayerSort).map(({ username, clicks, pages, finishTime, color, connected }) => {
     function Time() {
       return finishTime ? FormatTime(finishTime) : "--:--";
+    }
+
+    function Strikethrough(p, text) {
+      if (p) return `<s>${text}</s>`;
+      return text;
     }
 
     return `
   <tr>
     <td data-cell="color" style="color: ${CMap[color].bgcolor}">⬤</td>
-    <td data-cell="username">${username}</td>
+    <td data-cell="username">${Strikethrough(!connected, username)}</td>
     <td data-cell="clicks">${clicks}</td>
     <td data-cell="pages">${pages}</td>
     <td data-cell="time">${Time()}</td>
@@ -381,6 +385,7 @@ document.addEventListener("reef:signal", async (event) => {
           break;
 
         case LobbyState.RACING:
+          RemoveDisconnectedPlayers();
           ResetPagePlaceholderTimer();
           break;
       }
@@ -582,7 +587,6 @@ function ResetStartAndGoalPages() {
 function UpdateLeaderboard(username, clicks, pages, finishTime) {
   let player = data.players[username];
 
-
   if (!player) {
     player = { username, color: UsernameToColor(username) };
     data.players[username] = player;
@@ -591,6 +595,7 @@ function UpdateLeaderboard(username, clicks, pages, finishTime) {
   player.clicks = clicks;
   player.pages = pages;
   player.finishTime = finishTime;
+  player.connected = true;
 }
 
 function ResetLeaderboardScores() {
@@ -603,6 +608,14 @@ function ResetLeaderboardScores() {
 
 function NumberOfPlayersFinished() {
   return Object.values(data.players).filter(p => p.finishTime).length;
+}
+
+function RemoveDisconnectedPlayers() {
+  const ps = Object.values(data.players).filter(p => !p.connected);
+  for ({ username } of ps) {
+    RemovePlayer(username);
+    delete data.players[username];
+  }
 }
 
 // ==== COUNTDOWN ===== 
