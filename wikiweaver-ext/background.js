@@ -130,10 +130,10 @@ async function SendPage(previousPage, currentPage, backmove = false) {
     backmove: backmove,
   };
 
-  return await SendPOSTRequestToServer(url, "/api/ext/page", body);
+  return await SendRequestPOST(url, "/api/ext/page", body);
 }
 
-async function HandleMessageConnect(msg) {
+async function TryConnectToLobby(msg) {
   const { code, url, username } = await Settings.local.Get();
   const userid = await Settings.session.Get(["userid-for-lobby", code], "");
 
@@ -143,7 +143,7 @@ async function HandleMessageConnect(msg) {
     userid,
   };
 
-  const response = await SendPOSTRequestToServer(url, "/api/ext/join", body);
+  const response = await SendRequestPOST(url, "/api/ext/join", body);
 
   if (response.Success) {
     await Settings.session.Set("pageCount", 0);
@@ -195,13 +195,13 @@ async function HandleMessageDisconnect(msg) {
   };
 
   // TODO: Right now we dont care about the response
-  await SendPOSTRequestToServer(url, "/api/ext/leave", body);
+  await SendRequestPOST(url, "/api/ext/leave", body);
 }
 
 chrome.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "connect":
-      await HandleMessageConnect(msg);
+      await TryConnectToLobby(msg);
       break;
 
     case "disconnect":
@@ -214,7 +214,7 @@ chrome.runtime.onMessage.addListener(async (msg) => {
   }
 });
 
-async function SendPOSTRequestToServer(url, endpoint, body) {
+async function SendRequestPOST(url, endpoint, body) {
   console.log("sent:", body);
 
   let response = await fetch(`${url}${endpoint}`, {
@@ -311,5 +311,10 @@ chrome.runtime.onInstalled.addListener(async () => {
   await Settings.local.Defaults({
     url: "https://wikiweaver.stuffontheinter.net",
     autoOpenStartPage: true,
+  });
+
+  await Settings.session.Defaults({
+    connected: false,
+    pageCount: 0,
   });
 });
