@@ -70,7 +70,7 @@ function template_main() {
 
 function template_info_text() {
   function Text() {
-    if (data.connectionStatus !== ConnectionStatus.DISCONNECTED)
+    if (data.connectionStatus === ConnectionStatus.CONNECTED)
       return "Connected to lobby";
     else
       return "Create a lobby using the button below or join one using its code";
@@ -130,7 +130,7 @@ function template_join_leave_button() {
   }
 
   function IsJoin() {
-    return connectionStatus === ConnectionStatus.DISCONNECTED;
+    return connectionStatus !== ConnectionStatus.CONNECTED;
   }
 
   return `
@@ -144,7 +144,7 @@ function template_open_lobby_button() {
   let { connectionStatus } = data;
 
   function Text() {
-    return (connectionStatus !== ConnectionStatus.DISCONNECTED) ? "Open Lobby" : "Create Lobby";
+    return (connectionStatus === ConnectionStatus.CONNECTED) ? "Open Lobby" : "Create Lobby";
   }
 
   return `
@@ -160,7 +160,7 @@ function template_open_start_page_button() {
 
   function Disabled() {
     return (
-      connectionStatus === ConnectionStatus.DISCONNECTED
+      connectionStatus !== ConnectionStatus.CONNECTED
       || !startPage
     ) ? "disabled" : "";
   }
@@ -199,6 +199,8 @@ mainElem.addEventListener("input", e => {
 mainElem.addEventListener("click", async (e) => {
   switch (e.target.id) {
     case "join":
+      // TODO: improve feedback when trying to join a lobby that does not exist
+      data.connectionStatus = ConnectionStatus.PENDING;
       await JoinLobby();
       break;
 
@@ -226,8 +228,6 @@ mainElem.addEventListener("click", async (e) => {
 
 async function JoinLobby() {
   let { code, username } = data;
-
-  data.connectionStatus = ConnectionStatus.PENDING;
 
   await chrome.runtime.sendMessage(
     {
