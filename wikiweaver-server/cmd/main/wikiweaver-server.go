@@ -720,11 +720,12 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 		otherWithSameUsername := lobby.GetExtClientFromUsername(request.Username)
 
 		if otherWithSameUsername != nil {
-			if otherWithSameUsername.UserID == request.UserID || globalState.Dev {
+			alreadyInLobby := otherWithSameUsername.UserID == request.UserID
+			if alreadyInLobby || globalState.Dev {
 				successResponse := JoinToExtResponse{
 					Success:        true,
 					UserID:         otherWithSameUsername.UserID,
-					AlreadyInLobby: true,
+					AlreadyInLobby: alreadyInLobby,
 				}
 				SendResponseToExt(w, successResponse)
 			} else {
