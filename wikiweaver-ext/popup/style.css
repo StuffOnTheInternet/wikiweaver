@@ -31,27 +31,18 @@ body {
   margin: 1rem;
 }
 
-#explanation-text {
-  width: 20rem;
-  align-self: center;
-}
-
-#connected-text {
-  width: 20rem;
-  align-self: center;
-}
-
 #code {
   text-transform: uppercase;
   filter: brightness(100%);
   border-width: 1px;
   border: #3f3d3d;
   border-style: solid;
+  margin-top: 0.5rem;
+  background: var(--box-background);
 }
 
 #join {
   background: var(--green);
-  margin-top: 0.5rem;
 }
 
 #leave {
@@ -59,6 +50,10 @@ body {
 }
 
 #open-lobby {
+  margin-top: 0.5rem;
+}
+
+#username {
   margin-top: 0.5rem;
 }
 

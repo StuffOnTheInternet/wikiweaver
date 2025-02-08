@@ -36,19 +36,8 @@ document.addEventListener("reef:signal", async (event) => {
 
     case "connectionStatus":
       switch (data.connectionStatus) {
-        // TODO: https://stackoverflow.com/questions/41725725/access-css-variable-from-javascript
-        // instead of hardcoding these values,
-
-        case ConnectionStatus.CONNECTED:
-          await chrome.action.setBadgeBackgroundColor({ color: [220, 253, 151, 255] });
-          break;
-
-        case ConnectionStatus.PENDING:
-          await chrome.action.setBadgeBackgroundColor({ color: [240, 238, 66, 255] });
-          break;
 
         case ConnectionStatus.DISCONNECTED:
-          await chrome.action.setBadgeBackgroundColor({ color: [250, 189, 189, 255] });
           data.startPage = "";
           break;
       }
@@ -67,14 +56,13 @@ function template_main() {
       <span id="title" class="text">WikiWeaver</span>
     </div>
     ${template_info_text()}
-    ${template_code()}
     ${template_username()}
-    ${template_join_button()}
-    ${template_leave_button()}
+    ${template_code()}
+    ${template_join_leave_button()}
     ${template_open_lobby_button()}
     ${template_open_start_page_button()}
     <button id="open-settings" class="button box text">
-      open settings
+      Open Settings
       <span class="material-symbols-outlined">open_in_new</span>
     </button>
 `;
@@ -82,7 +70,7 @@ function template_main() {
 
 function template_info_text() {
   function Text() {
-    if (data.connectionStatus !== ConnectionStatus.DISCONNECTED)
+    if (data.connectionStatus === ConnectionStatus.CONNECTED)
       return "Connected to lobby";
     else
       return "Create a lobby using the button below or join one using its code";
@@ -96,49 +84,58 @@ function template_info_text() {
 }
 
 function template_code() {
+  const { code, connectionStatus } = data;
+
+  function Disabled() {
+    return (
+      connectionStatus === ConnectionStatus.CONNECTED
+    ) ? "disabled" : "";
+  }
+
   return `
-    <input id="code" class="box text" placeholder="code" maxlength="4" @value="${data.code}" style="background: var(--${data.connectionStatus})">
+    <input
+      id="code"
+      class="box text"
+      placeholder="code"
+      maxlength="4"
+      @value="${code}"
+      ${Disabled()}>
     </input>
 `;
 }
 
 function template_username() {
-  const { username } = data;
+  const { connectionStatus, username } = data;
+
+  function Disabled() {
+    return (
+      connectionStatus === ConnectionStatus.CONNECTED
+    ) ? "disabled" : "";
+  }
 
   return `
-    <input id="username" class="box text" placeholder="username" maxlength="12" @value="${username}">
+    <input id="username" class="box text" placeholder="username" maxlength="12" @value="${username}" ${Disabled()}>
     </input>
 `;
 }
 
-function template_join_button() {
-  let { connectionStatus } = data;
+function template_join_leave_button() {
+  const { code, connectionStatus, username } = data;
 
   function Disabled() {
     return (
-      connectionStatus !== ConnectionStatus.DISCONNECTED
+      code.length != 4
+      || !username
     ) ? "disabled" : "";
   }
 
-  return `
-    <button id="join" class="button box text" ${Disabled()}>
-      join
-    </button>
-`;
-}
-
-function template_leave_button() {
-  let { connectionStatus } = data;
-
-  function Disabled() {
-    return (
-      connectionStatus !== ConnectionStatus.CONNECTED
-    ) ? "disabled" : "";
+  function IsJoin() {
+    return connectionStatus !== ConnectionStatus.CONNECTED;
   }
 
   return `
-    <button id="leave" class="button box text" ${Disabled()}>
-      leave
+    <button id="${IsJoin() ? "join" : "leave"}" class="button box text" ${Disabled()}>
+     ${IsJoin() ? "Join Lobby" : "Leave Lobby"}
     </button>
 `;
 }
@@ -147,7 +144,7 @@ function template_open_lobby_button() {
   let { connectionStatus } = data;
 
   function Text() {
-    return (connectionStatus !== ConnectionStatus.DISCONNECTED) ? "open lobby" : "create lobby";
+    return (connectionStatus === ConnectionStatus.CONNECTED) ? "Open Lobby" : "Create Lobby";
   }
 
   return `
@@ -163,7 +160,7 @@ function template_open_start_page_button() {
 
   function Disabled() {
     return (
-      connectionStatus === ConnectionStatus.DISCONNECTED
+      connectionStatus !== ConnectionStatus.CONNECTED
       || !startPage
     ) ? "disabled" : "";
   }
@@ -177,7 +174,7 @@ function template_open_start_page_button() {
 
   return `
     <button id="open-start-page" class="button box text" ${Disabled()}>
-      open first page
+      Open First Page
       <span class="material-symbols-outlined">open_in_new</span>
     </button>
 `;
@@ -202,6 +199,8 @@ mainElem.addEventListener("input", e => {
 mainElem.addEventListener("click", async (e) => {
   switch (e.target.id) {
     case "join":
+      // TODO: improve feedback when trying to join a lobby that does not exist
+      data.connectionStatus = ConnectionStatus.PENDING;
       await JoinLobby();
       break;
 
@@ -230,8 +229,6 @@ mainElem.addEventListener("click", async (e) => {
 async function JoinLobby() {
   let { code, username } = data;
 
-  data.connectionStatus = ConnectionStatus.PENDING;
-
   await chrome.runtime.sendMessage(
     {
       type: "connect",
@@ -244,6 +241,7 @@ async function JoinLobby() {
 async function LeaveLobby() {
   let { code, username } = data;
 
+  data.code = "";
   data.connectionStatus = ConnectionStatus.DISCONNECTED;
 
   await UnregisterContentScripts();

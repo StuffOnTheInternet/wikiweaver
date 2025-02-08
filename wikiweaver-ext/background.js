@@ -53,10 +53,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   }
 
   // We sadly do not have any backmove information in this case
-  const response = await SendPage(previousPage, currentPage);
-
-  await IncrementPageCount(response.Success);
-  await UpdateBadge(response.Success);
+  await SendPage(previousPage, currentPage);
 });
 
 chrome.webNavigation.onCommitted.addListener(
@@ -90,10 +87,7 @@ chrome.webNavigation.onCommitted.addListener(
     }
 
     const backmove = event.transitionQualifiers.includes("forward_back");
-    const response = await SendPage(previousPage, currentPage, backmove);
-
-    await IncrementPageCount(response.Success);
-    await UpdateBadge(response.Success);
+    await SendPage(previousPage, currentPage, backmove);
   },
   {
     url: [{ hostSuffix: ".wikipedia.org" }],
@@ -134,6 +128,15 @@ async function SendPage(previousPage, currentPage, backmove = false) {
   return await SendRequestPOST(url, "/api/ext/page", body);
 }
 
+async function UpdateBadge(connected) {
+  const color = connected ? [220, 253, 151, 255] : [250, 189, 189, 255];
+  const text = connected ? "X" : "";
+
+  chrome.action.setBadgeText({ text });
+  chrome.action.setBadgeTextColor({ color });
+  chrome.action.setBadgeBackgroundColor({ color });
+}
+
 async function TryConnectToLobby(msg) {
   const { code, username } = msg;
   const { url } = await Settings.local.Get();
@@ -147,12 +150,12 @@ async function TryConnectToLobby(msg) {
 
   const response = await SendRequestPOST(url, "/api/ext/join", body);
 
-  await UpdateBadge(response.Success);
   await Settings.session.Set("connected", response.Success);
 
   if (response.Success) {
+    await UpdateBadge(response.Success);
+
     await Settings.session.Set("code", code);
-    await Settings.session.Set("pageCount", 0);
     await Settings.session.Set(["userid-for-lobby", code], response.UserID);
 
     if (!response.AlreadyInLobby) {
@@ -203,8 +206,9 @@ async function DisconnectFromLobby(msg) {
     userid,
   };
 
-  // TODO: Right now we dont care about the response
-  await SendRequestPOST(url, "/api/ext/leave", body);
+  const response = await SendRequestPOST(url, "/api/ext/leave", body);
+
+  await UpdateBadge(false);
 }
 
 chrome.runtime.onMessage.addListener(async (msg) => {
@@ -297,25 +301,6 @@ async function SearchForWikipediaTitle(title) {
   return title;
 }
 
-async function IncrementPageCount(success) {
-  const pageCount = await Settings.session.Get("pageCount", 0);
-  await Settings.session.Set("pageCount", (pageCount + Number(success)) % 100);
-}
-
-async function UpdateBadge(success) {
-  const pageCount = await Settings.session.Get("pageCount", 0);
-
-  let color;
-  if (success) {
-    color = [220, 253, 151, 255];
-  } else {
-    color = [250, 189, 189, 255];
-  }
-
-  chrome.action.setBadgeBackgroundColor({ color: color });
-  chrome.action.setBadgeText({ text: String(pageCount) });
-}
-
 chrome.runtime.onInstalled.addListener(async () => {
   await Settings.local.Defaults({
     url: "https://wikiweaver.stuffontheinter.net",
@@ -324,6 +309,5 @@ chrome.runtime.onInstalled.addListener(async () => {
 
   await Settings.session.Defaults({
     connected: false,
-    pageCount: 0,
   });
 });
