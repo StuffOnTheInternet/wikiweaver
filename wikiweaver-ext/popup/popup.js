@@ -67,8 +67,8 @@ function template_main() {
       <span id="title" class="text">WikiWeaver</span>
     </div>
     ${template_info_text()}
-    ${template_code()}
     ${template_username()}
+    ${template_code()}
     ${template_join_leave_button()}
     ${template_open_lobby_button()}
     ${template_open_start_page_button()}
