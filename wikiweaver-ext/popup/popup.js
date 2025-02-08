@@ -36,19 +36,8 @@ document.addEventListener("reef:signal", async (event) => {
 
     case "connectionStatus":
       switch (data.connectionStatus) {
-        // TODO: https://stackoverflow.com/questions/41725725/access-css-variable-from-javascript
-        // instead of hardcoding these values,
-
-        case ConnectionStatus.CONNECTED:
-          await chrome.action.setBadgeBackgroundColor({ color: [220, 253, 151, 255] });
-          break;
-
-        case ConnectionStatus.PENDING:
-          await chrome.action.setBadgeBackgroundColor({ color: [240, 238, 66, 255] });
-          break;
 
         case ConnectionStatus.DISCONNECTED:
-          await chrome.action.setBadgeBackgroundColor({ color: [250, 189, 189, 255] });
           data.startPage = "";
           break;
       }
