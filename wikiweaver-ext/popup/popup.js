@@ -241,6 +241,7 @@ async function JoinLobby() {
 async function LeaveLobby() {
   let { code, username } = data;
 
+  data.code = "";
   data.connectionStatus = ConnectionStatus.DISCONNECTED;
 
   await UnregisterContentScripts();
