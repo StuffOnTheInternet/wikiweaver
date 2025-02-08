@@ -73,7 +73,7 @@ function template_main() {
     ${template_open_lobby_button()}
     ${template_open_start_page_button()}
     <button id="open-settings" class="button box text">
-      open settings
+      Open Settings
       <span class="material-symbols-outlined">open_in_new</span>
     </button>
 `;
@@ -135,7 +135,7 @@ function template_open_lobby_button() {
   let { connectionStatus } = data;
 
   function Text() {
-    return (connectionStatus !== ConnectionStatus.DISCONNECTED) ? "open lobby" : "create lobby";
+    return (connectionStatus !== ConnectionStatus.DISCONNECTED) ? "Open Lobby" : "Create Lobby";
   }
 
   return `
@@ -165,7 +165,7 @@ function template_open_start_page_button() {
 
   return `
     <button id="open-start-page" class="button box text" ${Disabled()}>
-      open first page
+      Open First Page
       <span class="material-symbols-outlined">open_in_new</span>
     </button>
 `;
