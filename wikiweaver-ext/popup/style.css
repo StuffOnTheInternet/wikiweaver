@@ -38,6 +38,7 @@ body {
   border: #3f3d3d;
   border-style: solid;
   margin-top: 0.5rem;
+  background: var(--box-background);
 }
 
 #join {

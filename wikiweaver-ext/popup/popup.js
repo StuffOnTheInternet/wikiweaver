@@ -95,23 +95,43 @@ function template_info_text() {
 }
 
 function template_code() {
+  const { code, connectionStatus } = data;
+
+  function Disabled() {
+    return (
+      connectionStatus === ConnectionStatus.CONNECTED
+    ) ? "disabled" : "";
+  }
+
   return `
-    <input id="code" class="box text" placeholder="code" maxlength="4" @value="${data.code}" style="background: var(--${data.connectionStatus})">
+    <input
+      id="code"
+      class="box text"
+      placeholder="code"
+      maxlength="4"
+      @value="${code}"
+      ${Disabled()}>
     </input>
 `;
 }
 
 function template_username() {
-  const { username } = data;
+  const { connectionStatus, username } = data;
+
+  function Disabled() {
+    return (
+      connectionStatus === ConnectionStatus.CONNECTED
+    ) ? "disabled" : "";
+  }
 
   return `
-    <input id="username" class="box text" placeholder="username" maxlength="12" @value="${username}">
+    <input id="username" class="box text" placeholder="username" maxlength="12" @value="${username}" ${Disabled()}>
     </input>
 `;
 }
 
 function template_join_leave_button() {
-  let { code, connectionStatus, username } = data;
+  const { code, connectionStatus, username } = data;
 
   function Disabled() {
     return (
