@@ -12,7 +12,7 @@ function Matches(url, filters) {
   return false;
 }
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tabInfo) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   const url = changeInfo.url;
 
   if (url === undefined) {
@@ -120,7 +120,8 @@ chrome.webNavigation.onDOMContentLoaded.addListener(async (details) => {
 });
 
 async function SendPage(previousPage, currentPage, backmove = false) {
-  const { code, url, username } = await Settings.local.Get();
+  const { url, username } = await Settings.local.Get();
+  const { code } = await Settings.session.Get();
 
   const body = {
     code: code,
@@ -134,7 +135,8 @@ async function SendPage(previousPage, currentPage, backmove = false) {
 }
 
 async function TryConnectToLobby(msg) {
-  const { code, url, username } = await Settings.local.Get();
+  const { code, username } = msg;
+  const { url } = await Settings.local.Get();
   const userid = await Settings.session.Get(["userid-for-lobby", code], "");
 
   const body = {
@@ -145,7 +147,11 @@ async function TryConnectToLobby(msg) {
 
   const response = await SendRequestPOST(url, "/api/ext/join", body);
 
+  await UpdateBadge(response.Success);
+  await Settings.session.Set("connected", response.Success);
+
   if (response.Success) {
+    await Settings.session.Set("code", code);
     await Settings.session.Set("pageCount", 0);
     await Settings.session.Set(["userid-for-lobby", code], response.UserID);
 
@@ -173,10 +179,9 @@ async function TryConnectToLobby(msg) {
         }
       });
     }
+  } else {
+    await Settings.session.Remove("code");
   }
-
-  await UpdateBadge(response.Success);
-  await Settings.session.Set("connected", response.Success);
 
   await chrome.runtime.sendMessage({
     type: "connect",
@@ -184,9 +189,13 @@ async function TryConnectToLobby(msg) {
   });
 }
 
-async function HandleMessageDisconnect(msg) {
-  const { code, url, username } = await Settings.local.Get();
+async function DisconnectFromLobby(msg) {
+  const { code, username } = msg;
+  const { url } = await Settings.local.Get();
   const userid = await Settings.session.Get(["userid-for-lobby", code]);
+
+  await Settings.session.Set("connected", false);
+  await Settings.session.Remove("code");
 
   const body = {
     code,
@@ -205,7 +214,7 @@ chrome.runtime.onMessage.addListener(async (msg) => {
       break;
 
     case "disconnect":
-      await HandleMessageDisconnect(msg);
+      await DisconnectFromLobby(msg);
       break;
 
     default:
@@ -223,7 +232,7 @@ async function SendRequestPOST(url, endpoint, body) {
   })
     .then((response) => response.json())
     .then((json) => json)
-    .catch((e) => {
+    .catch(() => {
       return { Success: false };
     });
 

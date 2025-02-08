@@ -5,37 +5,14 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="style.css">
   <script type="module" src="../settings.js"></script>
-  <script type="text/javascript" src="popup.js"></script>
+  <script type="text/javascript" src="../lib/reef.js"></script>
+  <script type="text/javascript" src="popup.js" defer></script>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=open_in_new" />
 </head>
 
 <body>
-  <div class="flex-vertical-container">
-    <div class="title-row">
-      <img id="logo" src="../icons/48.png" height="48" width="48" />
-      <span id="title" class="text">WikiWeaver</span>
-    </div>
-    <div id="explanation-text" class="text"> Go to the
-      WikiWeaver website to create a lobby and enter the code here to join it.
-    </div>
-    <div id="connected-text" class="text" hidden>Connected to lobby</div>
-    <input id="code" class="box text" placeholder="code" maxlength="4"></input>
-    <input id="username" class="box text" placeholder="username" maxlength="12"></input>
-    <button id="join" class="button box text">join</button>
-    <button id="leave" class="button box text">leave</button>
-    <button id="open-lobby" class="button box text">
-      open lobby
-      <span class="material-symbols-outlined">open_in_new</span>
-    </button>
-    <button id="open-start-page" class="button box text">
-      open first page
-      <span class="material-symbols-outlined">open_in_new</span>
-    </button>
-    <button id="open-settings" class="button box text">
-      open settings
-      <span class="material-symbols-outlined">open_in_new</span>
-    </button>
+  <div id="main" class="flex-vertical-container">
   </div>
 </body>
 

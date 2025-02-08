@@ -1,137 +1,220 @@
 let Settings;
 
-async function init() {
+const ConnectionStatus = Object.freeze({
+  DISCONNECTED: "red",
+  PENDING: "yellow",
+  CONNECTED: "green",
+});
+
+let data = reef.signal({
+  connectionStatus: ConnectionStatus.DISCONNECTED,
+  code: "",
+  username: "",
+  startPage: "",
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
   const settings = await import('../settings.js');
   Settings = settings.Settings;
 
-  const { code, username } = await Settings.local.Get();
-  const { connected, startPage } = await Settings.session.Get();
+  const { connected } = await Settings.session.Get();
 
-  if (code) {
-    document.getElementById("code").value = code;
-  }
-
-  if (username) {
-    document.getElementById("username").value = username;
-  }
-
-  document.getElementById("open-start-page").disabled = !startPage;
+  data.connectionStatus = connected ? ConnectionStatus.CONNECTED : ConnectionStatus.DISCONNECTED;
+  data.code = await Settings.session.Get("code", "");
+  data.username = await Settings.local.Get("username", "");
+  data.startPage = await Settings.session.Get("startPage", "");
 
   if (connected) {
-    // If we think we are connected, attempt to join again just to make sure
-    await HandleJoinClicked();
+    await JoinLobby();
   } else {
-    // Otherwise show that we are disconnected
-    await HandleLeaveClicked();
+    await LeaveLobby();
   }
+}, false);
+
+document.addEventListener("reef:signal", async (event) => {
+  switch (event.detail.prop) {
+
+    case "connectionStatus":
+      switch (data.connectionStatus) {
+        // TODO: https://stackoverflow.com/questions/41725725/access-css-variable-from-javascript
+        // instead of hardcoding these values,
+
+        case ConnectionStatus.CONNECTED:
+          await chrome.action.setBadgeBackgroundColor({ color: [220, 253, 151, 255] });
+          break;
+
+        case ConnectionStatus.PENDING:
+          await chrome.action.setBadgeBackgroundColor({ color: [240, 238, 66, 255] });
+          break;
+
+        case ConnectionStatus.DISCONNECTED:
+          await chrome.action.setBadgeBackgroundColor({ color: [250, 189, 189, 255] });
+          data.startPage = "";
+          break;
+      }
+      break;
+
+    case "username":
+      await Settings.local.Set("username", data.username);
+      break;
+  }
+});
+
+function template_main() {
+  return `
+    <div class="title-row">
+      <img id="logo" src="../icons/48.png" height="48" width="48" />
+      <span id="title" class="text">WikiWeaver</span>
+    </div>
+    ${template_info_text()}
+    ${template_code()}
+    ${template_username()}
+    ${template_join_button()}
+    ${template_leave_button()}
+    ${template_open_lobby_button()}
+    ${template_open_start_page_button()}
+    <button id="open-settings" class="button box text">
+      open settings
+      <span class="material-symbols-outlined">open_in_new</span>
+    </button>
+`;
 }
 
-function IndicateConnectionStatus(connected) {
-  let color = "";
-  if (connected.status == "connected") {
-    document.getElementById("explanation-text").hidden = true;
-    document.getElementById("connected-text").hidden = false;
-    color = "--green";
-    UpdateBadgeColor(true);
-  } else if (connected.status == "disconnected") {
-    document.getElementById("explanation-text").hidden = false;
-    document.getElementById("connected-text").hidden = true;
-    color = "--red";
-    UpdateBadgeColor(false);
-  } else if (connected.status == "pending") {
-    document.getElementById("explanation-text").hidden = false;
-    document.getElementById("connected-text").hidden = true;
-    color = "--yellow";
-    UpdateBadgeColor(false);
-  } else {
-    console.log("invalid connected status:", connected);
+function template_info_text() {
+  function Text() {
+    if (data.connectionStatus !== ConnectionStatus.DISCONNECTED)
+      return "Connected to lobby";
+    else
+      return "Create a lobby using the button below or join one using its code";
   }
 
-  document.getElementById("code").style.background = getComputedStyle(
-    document.documentElement
-  ).getPropertyValue(color);
+  return `
+    <div id="info-text" class="text">
+      ${Text()}
+    </div>
+`;
 }
 
-async function UpdateBadgeColor(success) {
-  let color;
-  if (success) {
-    color = [220, 253, 151, 255];
-  } else {
-    color = [250, 189, 189, 255];
+function template_code() {
+  return `
+    <input id="code" class="box text" placeholder="code" maxlength="4" @value="${data.code}" style="background: var(--${data.connectionStatus})">
+    </input>
+`;
+}
+
+function template_username() {
+  const { username } = data;
+
+  return `
+    <input id="username" class="box text" placeholder="username" maxlength="12" @value="${username}">
+    </input>
+`;
+}
+
+function template_join_button() {
+  let { connectionStatus } = data;
+
+  function Disabled() {
+    return (
+      connectionStatus !== ConnectionStatus.DISCONNECTED
+    ) ? "disabled" : "";
   }
 
-  chrome.action.setBadgeBackgroundColor({ color: color });
+  return `
+    <button id="join" class="button box text" ${Disabled()}>
+      join
+    </button>
+`;
 }
 
-async function HandleJoinClicked(e) {
-  // TODO: code feels more like a session thing, instead of local storage?
-  await Settings.local.Set("code", document.getElementById("code").value.toLowerCase());
-  await Settings.local.Set("username", document.getElementById("username").value);
+function template_leave_button() {
+  let { connectionStatus } = data;
 
-  IndicateConnectionStatus({ status: "pending" });
-  await chrome.runtime.sendMessage({ type: "connect" });
-}
-
-async function HandleLeaveClicked(e) {
-  await Settings.session.Set("connected", false);
-
-  IndicateConnectionStatus({ status: "disconnected" });
-
-  let elements = {
-    join: true,
-    leave: false,
-  };
-  EnableElements(elements);
-
-  await UnregisterContentScripts();
-
-  await chrome.runtime.sendMessage({ type: "disconnect" });
-}
-
-async function HandleOpenLobbyClicked(e) {
-  let { code, url } = await Settings.local.Get();
-  let { connected } = await Settings.session.Get();
-
-  code = connected ? code : "";
-
-  await chrome.tabs.create({
-    active: true,
-    url: `${url}/#${code}`,
-  })
-}
-
-function Urlify(InString) {
-  // Turns an id back into a URL
-  return "https://en.wikipedia.org/wiki/" + InString
-}
-
-async function HandleStartPageClicked(e) {
-  const { startPage } = await Settings.session.Get();
-
-  if (startPage) {
-    chrome.tabs.create({
-      active: true,
-      url: Urlify(startPage),
-    })
+  function Disabled() {
+    return (
+      connectionStatus !== ConnectionStatus.CONNECTED
+    ) ? "disabled" : "";
   }
+
+  return `
+    <button id="leave" class="button box text" ${Disabled()}>
+      leave
+    </button>
+`;
 }
 
-document.addEventListener("click", async (e) => {
+function template_open_lobby_button() {
+  let { connectionStatus } = data;
+
+  function Text() {
+    return (connectionStatus !== ConnectionStatus.DISCONNECTED) ? "open lobby" : "create lobby";
+  }
+
+  return `
+    <button id="open-lobby" class="button box text">
+      ${Text()}
+      <span class="material-symbols-outlined">open_in_new</span>
+    </button>
+`;
+}
+
+function template_open_start_page_button() {
+  let { connectionStatus, startPage } = data;
+
+  function Disabled() {
+    return (
+      connectionStatus === ConnectionStatus.DISCONNECTED
+      || !startPage
+    ) ? "disabled" : "";
+  }
+
+  // TODO: if the host starts the lobby, we should enable this button
+  // right now it does not react to the startPage being changed, since
+  // the background script will write it to session storage, our data variable
+
+  // TODO: right now we can open the start page even though the lobby may have
+  // already ended and the start page is irrelevant
+
+  return `
+    <button id="open-start-page" class="button box text" ${Disabled()}>
+      open first page
+      <span class="material-symbols-outlined">open_in_new</span>
+    </button>
+`;
+}
+
+let mainElem = document.querySelector("#main");
+
+reef.component(mainElem, template_main);
+
+mainElem.addEventListener("input", e => {
+  switch (e.target.id) {
+    case "code":
+      data.code = e.target.value;
+      break;
+
+    case "username":
+      data.username = e.target.value;
+      break;
+  }
+});
+
+mainElem.addEventListener("click", async (e) => {
   switch (e.target.id) {
     case "join":
-      await HandleJoinClicked(e);
+      await JoinLobby();
       break;
 
     case "leave":
-      await HandleLeaveClicked(e);
+      await LeaveLobby();
       break;
 
     case "open-lobby":
-      await HandleOpenLobbyClicked(e);
+      await OpenLobbyWebsite();
       break;
 
     case "open-start-page":
-      await HandleStartPageClicked(e);
+      await OpenFirstPage();
       break;
 
     case "open-settings":
@@ -144,20 +227,76 @@ document.addEventListener("click", async (e) => {
   }
 });
 
+async function JoinLobby() {
+  let { code, username } = data;
+
+  data.connectionStatus = ConnectionStatus.PENDING;
+
+  await chrome.runtime.sendMessage(
+    {
+      type: "connect",
+      code,
+      username,
+    }
+  );
+}
+
+async function LeaveLobby() {
+  let { code, username } = data;
+
+  data.connectionStatus = ConnectionStatus.DISCONNECTED;
+
+  await UnregisterContentScripts();
+
+  if (!code || !username)
+    return;
+
+  await chrome.runtime.sendMessage(
+    {
+      type: "disconnect",
+      code,
+      username,
+    }
+  );
+}
+
+async function OpenLobbyWebsite() {
+  let { url } = await Settings.local.Get();
+  let { code, connected } = await Settings.session.Get();
+
+  await chrome.tabs.create({
+    active: true,
+    url: `${url}/#${connected ? code : ""}`,
+  })
+}
+
+function Urlify(InString) {
+  // Turns an id back into a URL
+  return "https://en.wikipedia.org/wiki/" + InString
+}
+
+async function OpenFirstPage() {
+  const { startPage } = await Settings.session.Get();
+
+  if (startPage) {
+    chrome.tabs.create({
+      active: true,
+      url: Urlify(startPage),
+    })
+  }
+}
+
 async function HandleMessageConnect(msg) {
-  IndicateConnectionStatus({
-    status: msg.Success ? "connected" : "disconnected",
-  });
+  let connected = msg.Success;
 
-  let elements = {
-    join: !msg.Success,
-    leave: msg.Success,
-  };
-  EnableElements(elements);
+  // TODO: hmm, is it only possible to register content scripts from the popup?
+  // i feel like its more appropriate to do it in the background script oterhwise
 
-  if (msg.Success) {
+  if (connected) {
+    data.connectionStatus = ConnectionStatus.CONNECTED;
     await RegisterContentScripts();
   } else {
+    data.connectionStatus = ConnectionStatus.DISCONNECTED;
     await UnregisterContentScripts();
   }
 }
@@ -194,17 +333,3 @@ async function UnregisterContentScripts() {
   await chrome.scripting.unregisterContentScripts();
 }
 
-function EnableElements(elements) {
-  for (const elemID in elements) {
-    const elem = document.getElementById(elemID);
-
-    if (elem === undefined) {
-      console.log("EnableElements: no element with ID: ", elemID);
-      continue;
-    }
-
-    elem.disabled = !elements[elemID];
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => init(), false);
