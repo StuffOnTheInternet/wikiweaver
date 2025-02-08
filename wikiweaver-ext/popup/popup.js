@@ -69,8 +69,7 @@ function template_main() {
     ${template_info_text()}
     ${template_code()}
     ${template_username()}
-    ${template_join_button()}
-    ${template_leave_button()}
+    ${template_join_leave_button()}
     ${template_open_lobby_button()}
     ${template_open_start_page_button()}
     <button id="open-settings" class="button box text">
@@ -111,34 +110,23 @@ function template_username() {
 `;
 }
 
-function template_join_button() {
-  let { connectionStatus } = data;
+function template_join_leave_button() {
+  let { code, connectionStatus, username } = data;
 
   function Disabled() {
     return (
-      connectionStatus !== ConnectionStatus.DISCONNECTED
+      code.length != 4
+      || !username
     ) ? "disabled" : "";
   }
 
-  return `
-    <button id="join" class="button box text" ${Disabled()}>
-      join
-    </button>
-`;
-}
-
-function template_leave_button() {
-  let { connectionStatus } = data;
-
-  function Disabled() {
-    return (
-      connectionStatus !== ConnectionStatus.CONNECTED
-    ) ? "disabled" : "";
+  function IsJoin() {
+    return connectionStatus === ConnectionStatus.DISCONNECTED;
   }
 
   return `
-    <button id="leave" class="button box text" ${Disabled()}>
-      leave
+    <button id="${IsJoin() ? "join" : "leave"}" class="button box text" ${Disabled()}>
+     ${IsJoin() ? "Join Lobby" : "Leave Lobby"}
     </button>
 `;
 }

@@ -56,6 +56,7 @@ body {
 
 #leave {
   background: var(--red);
+  margin-top: 0.5rem;
 }
 
 #open-lobby {
