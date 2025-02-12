@@ -1,4 +1,4 @@
-name: Docker
+name: Build
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -18,11 +18,13 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-
+  # https://stackoverflow.com/questions/58033366/how-to-get-the-current-branch-within-github-actions
+  VERSION: ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  build:
 
+  build-docker-image:
+    name: Build Docker Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -94,3 +96,31 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+  build-extension:
+    name: Build Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync zip
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Package extension
+        run: ./package-extension.sh "${VERSION}"
+
+      - name: Upload artifact - firefox extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: "wikiweaver-ext.${{ env.VERSION }}.firefox"
+          path: build/firefox
+
+      - name: Upload artifact - chrome extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: "wikiweaver-ext.${{ env.VERSION }}.chrome"
+          path: build/chrome
