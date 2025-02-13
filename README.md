@@ -1,5 +1,7 @@
 # WikiWeaver
 
+[![Build](https://github.com/StuffOnTheInternet/wikiweaver/actions/workflows/build.yml/badge.svg)](https://github.com/StuffOnTheInternet/wikiweaver/actions/workflows/build.yml)
+
 WikiWeaver makes participating in (and spectating) Wikipedia Races more fun by visualizing every page you and your peers visit as colorful nodes in a graph.
 
 ![Image of website](example.png)
