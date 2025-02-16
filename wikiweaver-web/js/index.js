@@ -672,9 +672,10 @@ async function UpdatePagePlaceholderEveryFewSeconds(n) {
 }
 
 async function SetPagePlaceholderToRandomArticles() {
-  let [startPage, goalPage] = await GetRandomWikipediaArticles(2);
-  data.startPagePlaceholder = startPage;
-  data.goalPagePlaceholder = goalPage;
+  let [startPage] = await GetRandomWikipediaArticles(1);
+  document.getElementById("start-page-input").placeholder = startPage;
+  goalPage = goalarticles[Math.floor(Math.random() * goalarticles.length)];
+  document.getElementById("goal-page-input").placeholder = goalPage;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
