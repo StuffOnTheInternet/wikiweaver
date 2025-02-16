@@ -138,7 +138,8 @@ async function UpdateBadge(connected) {
 }
 
 async function TryConnectToLobby(msg) {
-  const { code, username } = msg;
+  const { code } = msg;
+  const username = msg.username ?? await Settings.local.Get("username");
   const { url } = await Settings.local.Get();
   const userid = await Settings.session.Get(["userid-for-lobby", code], "");
 

@@ -1,15 +1,13 @@
 const btn = document.getElementById("join-button");
-btn.onclick = HandleJoinLobbyClicked;
+btn.onclick = JoinLobby;
 btn.hidden = false;
 
-async function HandleJoinLobbyClicked() {
-  const { username } = await chrome.storage.local.get();
-
+async function JoinLobby() {
   let code = window.location.hash.replace("#", "").toLocaleLowerCase().trim();
 
   await chrome.runtime.sendMessage({
     type: "connect",
     code,
-    username,
   });
 }
+

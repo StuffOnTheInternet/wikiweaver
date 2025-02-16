@@ -20,8 +20,6 @@ async function save(e) {
   const urlElem = document.querySelector("#url");
   const url = new URL(urlElem.value.toLowerCase() || urlElem.placeholder);
 
-  await Settings.local.Set("autoOpenStartPage", document.querySelector("#auto-open-start-page").checked);
-
   // For some reason keeping the port here made it so the script was not
   // injected at localhost, when the server was set to http://localhost:3000
   const port = url.port;
@@ -37,7 +35,6 @@ async function save(e) {
 
   // What a mess...
   url.port = port;
-  await Settings.local.Set("url", url.origin);
 
   if ((await chrome.scripting.getRegisteredContentScripts({ ids: ["join-lobby"] })).length > 0) {
     await chrome.scripting.unregisterContentScripts({ ids: ["join-lobby"] });
@@ -52,6 +49,11 @@ async function save(e) {
   ]
 
   await chrome.scripting.registerContentScripts(scripts);
+
+  // After the other stuff is done, store all values
+
+  await Settings.local.Set("url", url.origin);
+  await Settings.local.Set("autoOpenStartPage", document.querySelector("#auto-open-start-page").checked);
 
   // TODO: show saved succeeded in some way
 }
