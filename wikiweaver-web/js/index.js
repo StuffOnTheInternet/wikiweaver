@@ -34,10 +34,10 @@ let data = reef.signal({
   countdownStart: 0,
   countdownInput: "",
   startPage: "",
-  startPagePlaceholder: "Gingerbread",
+  startPagePlaceholder: "",
   startPageSuggestions: [],
   goalPage: "",
-  goalPagePlaceholder: "League of Legends",
+  goalPagePlaceholder: "",
   goalPageSuggestions: [],
   players: {},
 });
@@ -368,15 +368,15 @@ document.addEventListener("reef:signal", async (event) => {
           ResetCountdownTimer();
           ResetStartAndGoalPages();
           CreateNicerExample();
-          await UpdatePagePlaceholderEveryFewSeconds(10);
+          await UpdatePagePlaceholderEveryFewSeconds(5);
           break;
 
         case LobbyState.RESET:
-          await UpdatePagePlaceholderEveryFewSeconds(10);
+          await UpdatePagePlaceholderEveryFewSeconds(5);
           break;
 
         case LobbyState.IDLE:
-          await UpdatePagePlaceholderEveryFewSeconds(10);
+          await UpdatePagePlaceholderEveryFewSeconds(5);
           break;
 
         case LobbyState.RACING:
@@ -656,26 +656,49 @@ function IsNumber(time) {
 // ===== PAGE PLACEHOLDER =====
 
 var PagePlaceholderTimer;
+var ShouldUpdateStartPage;
+var PagePlaceholderLock;
 
 function ResetPagePlaceholderTimer() {
+  ShouldUpdateStartPage = true;
   clearInterval(PagePlaceholderTimer);
 }
 
 async function UpdatePagePlaceholderEveryFewSeconds(n) {
-  await SetPagePlaceholderToRandomArticles();
+  // I dont really like this, but whatever.
+  if (PagePlaceholderLock) return;
+  PagePlaceholderLock = true;
 
   ResetPagePlaceholderTimer();
+
+  if (!data.startPagePlaceholder)
+    await UpdateStartPagePlaceholder();
+
+  if (!data.goalPagePlaceholder)
+    UpdateGoalPagePlaceholder();
+
   PagePlaceholderTimer = setInterval(
-    SetPagePlaceholderToRandomArticles,
-    n * 1_000
-  );
+    async () => {
+      if (ShouldUpdateStartPage)
+        await UpdateStartPagePlaceholder();
+      else
+        UpdateGoalPagePlaceholder();
+
+      ShouldUpdateStartPage = !ShouldUpdateStartPage;
+    },
+    n * 1_000);
+
+  PagePlaceholderLock = false;
 }
 
-async function SetPagePlaceholderToRandomArticles() {
+async function UpdateStartPagePlaceholder() {
   let [startPage] = await GetRandomWikipediaArticles(1);
-  document.getElementById("start-page-input").placeholder = startPage;
-  goalPage = goalarticles[Math.floor(Math.random() * goalarticles.length)];
-  document.getElementById("goal-page-input").placeholder = goalPage;
+  data.startPagePlaceholder = startPage;
+}
+
+function UpdateGoalPagePlaceholder() {
+  let goalPage = goalarticles[Math.floor(Math.random() * goalarticles.length)];
+  data.goalPagePlaceholder = goalPage;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

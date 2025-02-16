@@ -87,9 +87,9 @@ async function JoinLobby() {
   });
 
   globalThis.socket.addEventListener("close", (event) => {
-    if (PingTimer) clearInterval(PingTimer);
-    if (CountdownTimer) clearInterval(CountdownTimer);
-    if (PagePlaceholderTimer) clearInterval(PagePlaceholderTimer);
+    clearInterval(PingTimer);
+    clearInterval(CountdownTimer);
+    ResetPagePlaceholderTimer();
 
     data.connectionStatus = ConnectionStatus.DISCONNECTED;
   });
