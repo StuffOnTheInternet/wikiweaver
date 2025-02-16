@@ -142,6 +142,11 @@ img {
   background: var(--blue);
 }
 
+#join-button {
+  background: var(--green);
+  margin-top: 0.5rem;
+}
+
 #leaderboard-wrapper {
   overflow-x: auto;
   flex-shrink: 0;

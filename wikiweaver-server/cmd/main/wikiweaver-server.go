@@ -639,6 +639,8 @@ type JoinFromExtRequest struct {
 
 type JoinToExtResponse struct {
 	Success        bool
+	Code           string
+	Username       string
 	UserID         string
 	AlreadyInLobby bool
 }
@@ -724,6 +726,8 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 			if alreadyInLobby || globalState.Dev {
 				successResponse := JoinToExtResponse{
 					Success:        true,
+					Code:           lobby.Code,
+					Username:       otherWithSameUsername.Username,
 					UserID:         otherWithSameUsername.UserID,
 					AlreadyInLobby: alreadyInLobby,
 				}
@@ -788,6 +792,8 @@ func handleExtJoin(w http.ResponseWriter, r *http.Request) {
 
 		successResponse := JoinToExtResponse{
 			Success:        true,
+			Code:           lobby.Code,
+			Username:       extClient.Username,
 			UserID:         userID,
 			AlreadyInLobby: false,
 		}

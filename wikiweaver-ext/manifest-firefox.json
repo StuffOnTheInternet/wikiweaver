@@ -21,7 +21,11 @@
     "webNavigation"
   ],
   "host_permissions": [
-    "*://*.wikipedia.org/*"
+    "*://*.wikipedia.org/*",
+    "https://wikiweaver.stuffontheinter.net/*"
+  ],
+  "optional_permissions": [
+    "<all_urls>"
   ],
   "background": {
     "type": "module",
