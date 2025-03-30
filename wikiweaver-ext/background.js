@@ -138,7 +138,8 @@ async function UpdateBadge(connected) {
 }
 
 async function TryConnectToLobby(msg) {
-  const { code, username } = msg;
+  const { code } = msg;
+  const username = msg.username ?? await Settings.local.Get("username");
   const { url } = await Settings.local.Get();
   const userid = await Settings.session.Get(["userid-for-lobby", code], "");
 
@@ -310,4 +311,18 @@ chrome.runtime.onInstalled.addListener(async () => {
   await Settings.session.Defaults({
     connected: false,
   });
+
+  const url = await Settings.local.Get("url");
+
+  if ((await chrome.scripting.getRegisteredContentScripts({ ids: ["join-lobby"] })).length <= 0) {
+    const scripts = [
+      {
+        id: "join-lobby",
+        js: ["/content/join-lobby.js"],
+        matches: [`${url}/*`],
+      }
+    ]
+
+    await chrome.scripting.registerContentScripts(scripts);
+  }
 });
