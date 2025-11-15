@@ -232,7 +232,7 @@ async function JoinLobby() {
   await chrome.runtime.sendMessage(
     {
       type: "connect",
-      code,
+      code: code.toLowerCase(),
       username,
     }
   );
